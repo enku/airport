@@ -1,0 +1,5 @@
+syntax: glob
+lib
+lib64
+include
+bin
