@@ -8,6 +8,10 @@ class City(models.Model):
         return self.name
 
 
+    class Meta:
+        verbose_name_plural = 'cities'
+
+
 class Airport(models.Model):
     """An Airport"""
     name = models.CharField(max_length=255)
