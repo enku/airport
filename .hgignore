@@ -4,4 +4,5 @@ lib64
 include
 bin
 db.sqlite
+share
 *.pyc
