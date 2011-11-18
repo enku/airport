@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 import datetime
+import random
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -11,7 +12,7 @@ class City(models.Model):
     """A City"""
     name = models.CharField(max_length=50)
 
-    def __unicode__(self):
+    def __unicode__(self, unique=True):
         return self.name
 
 
@@ -56,10 +57,32 @@ class Airport(models.Model):
             return next_flights[0]
         return None
 
+    def create_flights(self, now=None):
+        """Create some flights starting from «now»"""
+        cushion = 20 # minutes
+        now = now or datetime.datetime.now()
+
+        for destination in self.destinations.all():
+            Flight.objects.create(
+                    origin = self,
+                    destination = destination,
+                    depart_time = (datetime.timedelta(minutes=cushion) +
+                        random_time(now)),
+                    flight_time = random.randint(45, 450))
+
 
 class Flight(models.Model):
     """A flight from one airport to another"""
-    number = models.CharField(max_length=12)
+    def random_flight_number():
+        """Return a random number, not already a flight number"""
+        while True:
+            number = random.randint(1, 6666)
+            flight = Flight.objects.filter(number=number)
+            if flight.exists():
+                continue
+            return number
+
+    number = models.IntegerField(default=random_flight_number)
     origin = models.ForeignKey(Airport, related_name='flights')
     destination = models.ForeignKey(Airport, related_name='+')
     depart_time = models.DateTimeField()
@@ -68,6 +91,10 @@ class Flight(models.Model):
     def __unicode__(self):
         return u'%s from %s to %s departing %s' % (self.number,
                 self.origin.name, self.destination.name, self.depart_time)
+
+    @property
+    def arrive_time(self):
+        return self.depart_time + datetime.timedelta(minutes=self.flight_time)
 
     @property
     def destination_city(self):
@@ -119,9 +146,16 @@ class Flight(models.Model):
             raise ValidationError(u'%s not accessible from %s' %
                     (self.destination.code, self.origin.code))
 
-        #return super(Flight, self).save(*args, **kwargs)
-
 
     class Meta:
         ordering = ['depart_time']
+
+
+def random_time(now=None, max=60):
+    """Helper function, return a random time in the future (from «now»)
+    with a maximium of «max» minutes in the future"""
+    now = now or datetime.datetime.now()
+    # this is ghetto
+    times = [now + datetime.timedelta(minutes=i) for i in range(max)]
+    return random.choice(times)
 

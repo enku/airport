@@ -54,14 +54,12 @@ class AirportTest(TestCase):
         dest2 = random.choice(airport.destinations.all())
 
         flight1 = models.Flight.objects.create(
-                number = '1',
                 origin = airport,
                 destination = dest1,
                 depart_time = time1,
                 flight_time = 200)
 
         flight2 = models.Flight.objects.create(
-                number = '2',
                 origin = airport,
                 destination = dest2,
                 depart_time = time2,
@@ -106,7 +104,6 @@ class FlightTest(TestCase):
         flight_time = 60
 
         flight = models.Flight.objects.create(
-                number = '1',
                 origin = airport,
                 destination = destination,
                 depart_time = depart_time,
@@ -141,7 +138,6 @@ class FlightTest(TestCase):
         flight_time = 60
 
         flight = models.Flight.objects.create(
-                number = '1',
                 origin = airport,
                 destination = destination,
                 depart_time = depart_time,
@@ -160,7 +156,6 @@ class FlightTest(TestCase):
         dest = models.Airport.objects.filter(city=city)[0]
         time1 = datetime.datetime(2011, 11, 17, 11, 30)
         flight1 = models.Flight.objects.create(
-                number = '1',
                 origin = airport,
                 destination = dest,
                 depart_time = time1,
@@ -168,7 +163,6 @@ class FlightTest(TestCase):
 
         time2 = datetime.datetime(2011, 11, 17, 12, 0)
         flight2 = models.Flight.objects.create(
-                number = '2',
                 origin = airport,
                 destination = dest,
                 depart_time = time2,
@@ -178,7 +172,6 @@ class FlightTest(TestCase):
             id=airport.city.id).exclude(id=city.id))
         dest2 = models.Airport.objects.filter(city=city2)[0]
         flight3 = models.Flight.objects.create(
-                number = '3',
                 origin = airport,
                 destination = dest2,
                 depart_time = time2,
