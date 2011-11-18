@@ -1,7 +1,10 @@
+"""ModelAdmin registration"""
+
 from django.contrib import admin
 
-from airport.models import Airport, City
+from models import Airport, City, Flight
 
 
-admin.site.register(City)
 admin.site.register(Airport)
+admin.site.register(City)
+admin.site.register(Flight)
