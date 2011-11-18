@@ -150,10 +150,47 @@ class FlightTest(TestCase):
         self.assertEqual(flight.destination_city, destination.city)
         self.assertEqual(flight.origin_city, airport.city)
 
+    def test_next_flight_to(self):
+        """Test the next_flight_to() method"""
+        now = datetime.datetime(2011, 11, 17, 11, 0)
+        airport = random.choice(models.Airport.objects.all())
+        city = random.choice(models.City.objects.exclude(
+            id=airport.city.id))
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)
+        dest = models.Airport.objects.filter(city=city)[0]
+        time1 = datetime.datetime(2011, 11, 17, 11, 30)
+        flight1 = models.Flight.objects.create(
+                number = '1',
+                origin = airport,
+                destination = dest,
+                depart_time = time1,
+                flight_time = 200)
+
+        time2 = datetime.datetime(2011, 11, 17, 12, 0)
+        flight2 = models.Flight.objects.create(
+                number = '2',
+                origin = airport,
+                destination = dest,
+                depart_time = time2,
+                flight_time = 200)
+
+        city2 = random.choice(models.City.objects.exclude(
+            id=airport.city.id).exclude(id=city.id))
+        dest2 = models.Airport.objects.filter(city=city2)[0]
+        flight3 = models.Flight.objects.create(
+                number = '3',
+                origin = airport,
+                destination = dest2,
+                depart_time = time2,
+                flight_time = 200)
+
+        self.assertEqual(airport.next_flight_to(city, now), flight1)
+        airport2 = models.Airport.objects.filter(city=city)[0]
+        self.assertEqual(airport.next_flight_to(airport2, now), flight1)
+        self.assertEqual(airport.next_flight_to(city2, now), flight3)
+
+        # delay flight1
+        flight1.depart_time = datetime.datetime(2011, 11, 18, 7, 0)
+        flight1.save()
+        self.assertEqual(airport.next_flight_to(city, now), flight2)
+

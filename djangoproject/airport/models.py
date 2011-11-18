@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 import datetime
 
 from django.core.exceptions import ValidationError
@@ -42,6 +43,18 @@ class Airport(models.Model):
         if self.destinations.filter(city=self.city).exists():
             raise ValidationError(
                 u'Airport cannot have itself as a destination.')
+
+    def next_flight_to(self, city, now=None):
+        """Return the next flight to «city» or None"""
+        now = now or datetime.datetime.now()
+        if isinstance(city, Airport):
+            city = city.city
+        next_flights = self.next_flights(now).filter(
+                destination__city=city)
+
+        if next_flights.exists():
+            return next_flights[0]
+        return None
 
 
 class Flight(models.Model):
@@ -102,8 +115,7 @@ class Flight(models.Model):
         if self.origin == self.destination:
             raise ValidationError(u'Origin and destination cannot be the same')
 
-        # REVIEW: is there a better way to do this?
-        if self.destination not in self.origin.destinations.all():
+        if self.origin.desitinations.filter(id=self.destination.id).exists():
             raise ValidationError(u'%s not accessible from %s' %
                     (self.destination.code, self.origin.code))
 
