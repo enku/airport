@@ -22,7 +22,7 @@ class FlightAlreadyDeparted(FlightBaseException):
     pass
 
 class FlightNotAtDepartingAirport(FlightBaseException):
-    """Exception raised when a player attempts to buy a ticket at a
+    """Exception raised when a player attempts to purchase a flight at a
     different airport than they are located in"""
     pass
 
@@ -253,24 +253,24 @@ class UserProfile(models.Model):
 
         return self.airport
 
-    def buy_ticket(self, ticket, now=None):
-        """Buy a ticket.  User must be at the airport and must be a future
-        flight"""
+    def purchase_flight(self, flight, now=None):
+        """Purchase a flight.  User must be at the origin airport and must be a
+        future flight"""
         now = now or datetime.datetime.now()
 
         if isinstance(self.location(now), Flight):
-            raise FlightAlreadyDeparted(ticket,
-                    'Cannot buy a ticket while in flight')
+            raise FlightAlreadyDeparted(flight,
+                    'Cannot purchase a flight while in flight')
 
-        if self.location(now) != ticket.origin:
-            raise FlightNotAtDepartingAirport(ticket,
-                'Must be at the departing airport (%s) to buy ticket' %
-                ticket.origin)
+        if self.location(now) != flight.origin:
+            raise FlightNotAtDepartingAirport(flight,
+                'Must be at the departing airport (%s) to purchase flight' %
+                flight.origin)
 
-        if ticket.depart_time <= now:
-            raise FlightAlreadyDeparted(ticket, 'Flight already departed')
+        if flight.depart_time <= now:
+            raise FlightAlreadyDeparted(flight, 'Flight already departed')
 
-        self.ticket = ticket
+        self.ticket = flight
         self.save()
 
 

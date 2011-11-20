@@ -275,7 +275,7 @@ class UserProfileTest(TestCase):
 
         self.up.airport = airport
         self.up.save()
-        self.up.buy_ticket(flight, now)
+        self.up.purchase_flight(flight, now)
         l = self.up.location(now)
         self.assertEqual(self.up.ticket, flight)
         self.assertEqual(l, airport)
@@ -295,8 +295,8 @@ class UserProfileTest(TestCase):
         l = self.up.location(now)
         self.assertEqual(l, flight.destination)
 
-    def test_buy_ticket(self):
-        """Test the buy_ticket() method"""
+    def test_purchase_flight(self):
+        """Test the purchase_flight() method"""
         now = datetime.datetime(2011, 11, 20, 7, 13)
         l = self.up.location(now)
         self.assertEqual(l, None)
@@ -307,16 +307,16 @@ class UserProfileTest(TestCase):
 
         # assert we can't buy the ticket (flight) if we're not at the airport
         self.assertRaises(models.FlightNotAtDepartingAirport,
-                self.up.buy_ticket, flight, now)
+                self.up.purchase_flight, flight, now)
 
         self.up.airport = airport
         self.up.save()
 
         # attempt to buy a flight while in flight
-        self.up.buy_ticket(flight, now)
+        self.up.purchase_flight(flight, now)
         now = flight.depart_time
         flight2 = random.choice(airport.flights.exclude(id=flight.id))
-        self.assertRaises(models.FlightAlreadyDeparted, self.up.buy_ticket,
+        self.assertRaises(models.FlightAlreadyDeparted, self.up.purchase_flight,
                 flight2, now)
 
         # ok let's land
@@ -333,6 +333,6 @@ class UserProfileTest(TestCase):
         flight3 = random.choice(l.flights.filter(depart_time__lte=now))
 
         # try to buy it
-        self.assertRaises(models.FlightAlreadyDeparted, self.up.buy_ticket,
+        self.assertRaises(models.FlightAlreadyDeparted, self.up.purchase_flight,
                 flight3, now)
 

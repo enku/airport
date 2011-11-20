@@ -54,14 +54,14 @@ def home(request):
         next_flights = airport.next_flights(time)
 
     if request.method == 'POST':
-        # Buying a ticket
+        # Purchase a flight
         buy  = [i for i in request.POST if i.startswith('buy_')][0]
         flight_no = int(buy[4:])
         flight = get_object_or_404(Flight, number=flight_no)
 
-       # try to buy the ticket
+       # try to purchase the flight
         try:
-           profile.buy_ticket(flight, time)
+           profile.purchase_flight(flight, time)
         except FlightAlreadyDeparted:
             Message.send(profile, 'Flight %s has already left' % flight.number)
         request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
