@@ -46,7 +46,7 @@ def home(request):
 
     if not request.session.get('in_flight', False) and in_flight:
         # newly, in flight. Make an announcement
-        Message.announce(user, '%s has departed %s' % (user, ticket.origin))
+        Message.announce(user, '%s has left %s' % (user, ticket.origin))
     request.session['in_flight'] = in_flight
 
     if not in_flight and next_flights.count() == 0:
@@ -103,7 +103,7 @@ def info(request):
         in_flight = False
 
     if not request.session.get('in_flight', False) and in_flight:
-        Message.announce(user, '%s has departed %s' % (user,
+        Message.announce(user, '%s has left %s' % (user,
             ticket.origin))
     request.session['in_flight'] = in_flight
     if not in_flight and next_flights.count() == 0:

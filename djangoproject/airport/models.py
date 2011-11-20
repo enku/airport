@@ -247,7 +247,7 @@ class UserProfile(models.Model):
                 self.save()
                 for profile in UserProfile.objects.exclude(id=self.id):
                     Message.objects.create(profile=profile,
-                        text='%s arrived at %s' % (self.user.username, self.airport)
+                        text='%s has arrived at %s' % (self.user.username, self.airport)
                     )
                 return self.airport
 
