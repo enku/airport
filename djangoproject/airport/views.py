@@ -2,6 +2,7 @@ import datetime
 import json
 import time
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
@@ -12,6 +13,7 @@ from models import (Flight, FlightAlreadyDeparted, Message, UserProfile)
 
 STARTTIME = datetime.datetime.now()
 TIMEFACTOR = 60
+MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
 
 # Remove all flights
 Flight.objects.all().delete()
@@ -62,10 +64,10 @@ def home(request):
            profile.buy_ticket(flight, time)
         except FlightAlreadyDeparted:
             Message.send(profile, 'Flight %s has already left' % flight.number)
-        request.session['messages'] = messages
+        request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
         return redirect(home)
 
-    request.session['messages'] = messages
+    request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
     return render_to_response('airport/home.html',
             {
                 'user': user,
@@ -132,6 +134,6 @@ def info(request):
         },
         default=dthandler
     )
-    request.session['messages'] = messages
+    request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
     return HttpResponse(json_str, mimetype='application/json')
 

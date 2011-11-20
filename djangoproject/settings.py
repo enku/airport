@@ -144,3 +144,6 @@ LOGGING = {
 }
 
 AUTH_PROFILE_MODULE = 'airport.UserProfile'
+
+# Maximum # of user messages that are stored in their session
+AIRPORT_MAX_SESSION_MESSAGES = 16
