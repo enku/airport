@@ -101,15 +101,15 @@
        }
        #message_widget {
            padding-top: 5px;
-           color: black;
+           color: #01004B;
            background-color: transparent;
-           width: 600px;
+           width: 400px;
            height: 100px;
            margin: auto;
            position: absolute;
            bottom: 1px;
            left: 50%;
-           margin-left: -300px;
+           margin-left: -200px;
            overflow: auto;
        }
      #message_header {
@@ -118,10 +118,25 @@
          padding: 0;
     }
     .message {
-        border-bottom: 1px solid black;
+        border-bottom: 1px solid #01004B;
         border-top 1px solid black;
         border-collapse: collapse:
         padding: 2px;
+    }
+    ::-webkit-scrollbar {
+        width: 7px;
+        background-color: #01004B;
+        border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #151BB9;
+        border: 1px solid #3B3B3B;
+        border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: #0000FF;
     }
     </style>
 </head>
@@ -233,7 +248,9 @@ $(document).ajaxSend(function(event, xhr, settings) {
                         + '" /></td></tr>\n');
             }
             else {
-                s = s + '<td class="buy">&nbsp;</td></tr>\n';
+                s = s + ('<td class="buy"><input disabled="disabled" type="submit" value="Buy" name="buy_' 
+                        + data['next_flights'][i]['number'] 
+                        + '" /></td></tr>\n');
             }
         };
         $('#flights').html(s);
@@ -249,7 +266,9 @@ $(document).ajaxSend(function(event, xhr, settings) {
         // messages
         $('#message_box').html('');
         for(var i=0; i<data['messages'].length; i++) {
-            $('#message_box').append('<div class="message">' + data['messages'][i] + '</div>\n');
+            $('#message_box').append('<div class="message">' 
+                    + '<img src="http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif" />&nbsp;'
+                    + data['messages'][i] + '</div>\n');
             // scroll to bottom
             $("#message_widget").prop({ scrollTop: $("#message_widget").prop("scrollHeight") });
         }
