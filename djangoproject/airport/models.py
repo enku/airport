@@ -58,9 +58,8 @@ class Airport(models.Model):
 
     __str__ = __unicode__
 
-    def next_flights(self, now=None):
+    def next_flights(self, now):
         """Return outgoing flights for airport, but not past flights"""
-        now = now or datetime.datetime.now()
 
         return self.flights.filter(depart_time__gt=now)
 
@@ -71,9 +70,8 @@ class Airport(models.Model):
             raise ValidationError(
                 u'Airport cannot have itself as a destination.')
 
-    def next_flight_to(self, city, now=None):
+    def next_flight_to(self, city, now):
         """Return the next flight to «city» or None"""
-        now = now or datetime.datetime.now()
         if isinstance(city, Airport):
             city = city.city
         next_flights = self.next_flights(now).filter(
@@ -83,10 +81,9 @@ class Airport(models.Model):
             return next_flights[0]
         return None
 
-    def create_flights(self, now=None):
+    def create_flights(self, now):
         """Create some flights starting from «now»"""
         cushion = 20 # minutes
-        now = now or datetime.datetime.now()
 
         for destination in self.destinations.all():
             Flight.objects.create(
@@ -131,9 +128,8 @@ class Flight(models.Model):
     def origin_city(self):
         return self.origin.city
 
-    def in_flight(self, now=None):
+    def in_flight(self, now):
         """Return true if flight is in the air"""
-        now = now or datetime.datetime.now()
         if self.flight_time == 0:
             return False
 
@@ -143,9 +139,8 @@ class Flight(models.Model):
 
         return False
 
-    def has_landed(self, now=None):
+    def has_landed(self, now):
         """Return True iff flight has landed"""
-        now = now or datetime.datetime.now()
 
         if self.flight_time == 0:
             return False
@@ -157,10 +152,9 @@ class Flight(models.Model):
         """Return True iff a flight is cancelled"""
         return self.flight_time == 0
 
-    def cancel(self, now=None):
+    def cancel(self, now):
         """Cancel a flight. In-flight flights (obviously) can't be
         cancelled"""
-        now = now or datetime.datetime.now()
 
         if not self.in_flight(now):
             self.flight_time = 0
@@ -218,10 +212,9 @@ class Flight(models.Model):
         ordering = ['depart_time']
 
 
-def random_time(now=None, max=60):
+def random_time(now, max=60):
     """Helper function, return a random time in the future (from «now»)
     with a maximium of «max» minutes in the future"""
-    now = now or datetime.datetime.now()
     # this is ghetto
     times = [now + datetime.timedelta(minutes=i) for i in range(max)]
     return random.choice(times)
@@ -236,8 +229,7 @@ class UserProfile(models.Model):
     def __unicode__(self):
         return u'Profile for %s' % self.user.username
 
-    def location(self, now=None):
-        now = now or datetime.datetime.now()
+    def location(self, now):
         if self.ticket:
             if self.ticket.in_flight(now):
                 return self.ticket
@@ -253,10 +245,9 @@ class UserProfile(models.Model):
 
         return self.airport
 
-    def purchase_flight(self, flight, now=None):
+    def purchase_flight(self, flight, now):
         """Purchase a flight.  User must be at the origin airport and must be a
         future flight"""
-        now = now or datetime.datetime.now()
 
         if isinstance(self.location(now), Flight):
             raise FlightAlreadyDeparted(flight,

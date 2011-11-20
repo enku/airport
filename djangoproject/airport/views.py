@@ -1,6 +1,8 @@
+"""
+Django views for the airport app
+"""
 import datetime
 import json
-import time
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -9,16 +11,21 @@ from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.template.defaultfilters import date
 
-from models import (Flight, FlightAlreadyDeparted, Message, UserProfile)
+from airport.models import (Flight, FlightAlreadyDeparted, Message)
 
 STARTTIME = datetime.datetime.now()
 TIMEFACTOR = 60
 MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
+DTHANDLER = lambda obj: (obj.isoformat()
+        if isinstance(obj, datetime.datetime) else None)
 
 # Remove all flights
 Flight.objects.all().delete()
 
 def get_time():
+    """Helper function to return the current "game" time for methods that
+    require it."""
+    # TODO: Move this into the Game class (when we get one)
     now = datetime.datetime.now()
 
     difference = now - STARTTIME
@@ -29,18 +36,18 @@ def get_time():
 def home(request):
     """Main view"""
 
-    time = get_time()
+    now = get_time()
     user = request.user
     profile = user.get_profile()
-    location = profile.location(time)
+    _location = profile.location(now)
     airport = profile.airport
     ticket = profile.ticket
-    next_flights = airport.next_flights(time)
+    next_flights = airport.next_flights(now)
     messages = request.session.get('messages', []) + Message.get_messages(user)
     context = RequestContext(request)
 
     if ticket:
-        in_flight = ticket.in_flight(time)
+        in_flight = ticket.in_flight(now)
     else:
         in_flight = False
 
@@ -50,8 +57,8 @@ def home(request):
     request.session['in_flight'] = in_flight
 
     if not in_flight and next_flights.count() == 0:
-        airport.create_flights(time)
-        next_flights = airport.next_flights(time)
+        airport.create_flights(now)
+        next_flights = airport.next_flights(now)
 
     if request.method == 'POST':
         # Purchase a flight
@@ -59,9 +66,9 @@ def home(request):
         flight_no = int(buy[4:])
         flight = get_object_or_404(Flight, number=flight_no)
 
-       # try to purchase the flight
+        # try to purchase the flight
         try:
-           profile.purchase_flight(flight, time)
+            profile.purchase_flight(flight, now)
         except FlightAlreadyDeparted:
             Message.send(profile, 'Flight %s has already left' % flight.number)
         request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
@@ -74,7 +81,7 @@ def home(request):
                 'profile': profile,
                 'airport': airport,
                 'ticket': ticket,
-                'time': time,
+                'time': now,
                 'next_flights': next_flights,
                 'messages': messages,
                 'in_flight': in_flight
@@ -87,18 +94,17 @@ def info(request):
     """Used ajax called to be used by the home() view.
     Returns basically all the info needed by home() but as as json
     dictionary"""
-    time = get_time()
+    now = get_time()
     user = request.user
     profile = user.get_profile()
-    location = profile.location(time)
+    location = profile.location(now)
     airport = profile.airport
     ticket = profile.ticket
-    next_flights = airport.next_flights(time)
+    next_flights = airport.next_flights(now)
     messages = request.session.get('messages', []) + Message.get_messages(user)
-    dthandler = lambda obj: obj.isoformat() if isinstance(obj, datetime.datetime) else None
 
     if ticket:
-        in_flight = ticket.in_flight(time)
+        in_flight = ticket.in_flight(now)
     else:
         in_flight = False
 
@@ -107,15 +113,15 @@ def info(request):
             ticket.origin))
     request.session['in_flight'] = in_flight
     if not in_flight and next_flights.count() == 0:
-        airport.create_flights(time)
-        next_flights = airport.next_flights(time)
+        airport.create_flights(now)
+        next_flights = airport.next_flights(now)
 
 
     nf_list = []
     for next_flight in next_flights:
         nf_dict = next_flight.to_dict()
         nf_dict['buyable'] = (nf_dict['status'] != 'CANCELLED'
-                and next_flight.depart_time > time
+                and next_flight.depart_time > now
                 and next_flight != ticket
         )
 
@@ -124,7 +130,7 @@ def info(request):
 
     json_str = json.dumps(
         {
-            'time': date(time, 'P'),
+            'time': date(now, 'P'),
             'location': str(location),
             'airport': airport.name,
             'ticket': None if not ticket else ticket.to_dict(),
@@ -132,7 +138,7 @@ def info(request):
             'messages': [i.text for i in messages],
             'in_flight': in_flight
         },
-        default=dthandler
+        default=DTHANDLER
     )
     request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
     return HttpResponse(json_str, mimetype='application/json')

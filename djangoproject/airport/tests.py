@@ -211,6 +211,7 @@ class FlightTest(TestCase):
         airports = models.Airport.objects.all()
         airport = random.choice(airports)
         destination = random.choice(airport.destinations.all())
+        now = datetime.datetime(2011, 11, 18, 4, 0)
         depart_time = datetime.datetime(2011, 11, 18, 4, 50)
         flight_time = 60
 
@@ -232,7 +233,7 @@ class FlightTest(TestCase):
         d = flight.to_dict()
         self.assertEqual(d['status'], 'Delayed')
 
-        flight.cancel()
+        flight.cancel(now)
         d = flight.to_dict()
         self.assertEqual(d['status'], 'Cancelled')
 
@@ -270,7 +271,7 @@ class UserProfileTest(TestCase):
         self.assertEqual(l, None)
 
         airport = random.choice(models.Airport.objects.all())
-        airport.create_flights()
+        airport.create_flights(now)
         flight = random.choice(airport.flights.all())
 
         self.up.airport = airport
@@ -302,7 +303,7 @@ class UserProfileTest(TestCase):
         self.assertEqual(l, None)
 
         airport = random.choice(models.Airport.objects.all())
-        airport.create_flights()
+        airport.create_flights(now)
         flight = random.choice(airport.flights.all())
 
         # assert we can't buy the ticket (flight) if we're not at the airport
