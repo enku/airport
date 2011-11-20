@@ -120,7 +120,7 @@ class FlightTest(TestCase):
 
         # verify that in-flight flights can't be cancelled
         now = datetime.datetime(2011, 11, 18, 5, 0)
-        self.assertRaises(models.SchedulingError, flight.cancel, now)
+        self.assertRaises(models.FlightAlreadyDeparted, flight.cancel, now)
 
         # cancel a flight and verify it's not in flight during it's usual
         # flight time
@@ -183,7 +183,5 @@ class FlightTest(TestCase):
         self.assertEqual(airport.next_flight_to(city2, now), flight3)
 
         # delay flight1
-        flight1.depart_time = datetime.datetime(2011, 11, 18, 7, 0)
-        flight1.save()
+        flight1.delay(datetime.timedelta(minutes=450), now)
         self.assertEqual(airport.next_flight_to(city, now), flight2)
-

@@ -142,3 +142,5 @@ LOGGING = {
         },
     }
 }
+
+AUTH_PROFILE_MODULE = 'airport.UserProfile'
