@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+"""Models for the airport django app"""
+
 import datetime
 import random
 
@@ -40,6 +42,7 @@ class City(models.Model):
 
 
     class Meta:
+        """metadata"""
         verbose_name_plural = 'cities'
 
 
@@ -91,11 +94,18 @@ class Airport(models.Model):
                     destination = destination,
                     depart_time = (datetime.timedelta(minutes=cushion) +
                         random_time(now)),
-                    flight_time = random.randint(MIN_FLIGHT_TIME, MAX_FLIGHT_TIME))
+                    flight_time = random.randint(MIN_FLIGHT_TIME,
+                        MAX_FLIGHT_TIME))
 
 
 class Flight(models.Model):
     """A flight from one airport to another"""
+
+    # NOTE: this is really a staticmethod, but if i decorate it with
+    # staticmethod() then Django chokes on the number field declaration
+    # because it doens't think the decorated method is "callable".  This is
+    # either a Python problem or a Django problem, but I've encoutered it
+    # before and it is quite annoying
     def random_flight_number():
         """Return a random number, not already a flight number"""
         while True:
@@ -118,14 +128,17 @@ class Flight(models.Model):
 
     @property
     def arrival_time(self):
+        """Compute and return the arrival time for this flight"""
         return self.depart_time + datetime.timedelta(minutes=self.flight_time)
 
     @property
     def destination_city(self):
+        """Return the City of the destination for this Flight"""
         return self.destination.city
 
     @property
     def origin_city(self):
+        """Return the City of the origin for this Flight"""
         return self.origin.city
 
     def in_flight(self, now):
@@ -196,7 +209,7 @@ class Flight(models.Model):
         }
 
 
-    def clean(self, *args, **kwargs):
+    def clean(self, *_args, **_kwargs):
         """Validate the model"""
 
         # Origin can't also be desitination
@@ -209,14 +222,15 @@ class Flight(models.Model):
 
 
     class Meta:
+        """metadata"""
         ordering = ['depart_time']
 
 
-def random_time(now, max=60):
+def random_time(now, maximum=60):
     """Helper function, return a random time in the future (from «now»)
-    with a maximium of «max» minutes in the future"""
+    with a maximium of «maximum» minutes in the future"""
     # this is ghetto
-    times = [now + datetime.timedelta(minutes=i) for i in range(max)]
+    times = [now + datetime.timedelta(minutes=i) for i in range(maximum)]
     return random.choice(times)
 
 
@@ -230,6 +244,17 @@ class UserProfile(models.Model):
         return u'Profile for %s' % self.user.username
 
     def location(self, now):
+        """Update and return user's current location info
+
+        This updates «ticket» and «airport» properties and returns either a
+        «Flight» object or an «Airport» object depending on whether the User
+        is currently in flight or not
+
+        All views should call this method on the user when the view is
+        first called, and subsequently after flights are purchased if
+        updated location data is needed.  Ideally this would be
+        automagically called but we haven't researched on how to do that
+        yet, so views call this manually!"""
         if self.ticket:
             if self.ticket.in_flight(now):
                 return self.ticket
@@ -239,7 +264,8 @@ class UserProfile(models.Model):
                 self.save()
                 for profile in UserProfile.objects.exclude(id=self.id):
                     Message.objects.create(profile=profile,
-                        text='%s has arrived at %s' % (self.user.username, self.airport)
+                        text='%s has arrived at %s' % (self.user.username,
+                            self.airport)
                     )
                 return self.airport
 
