@@ -1,11 +1,11 @@
 # Django settings for djangoproject project.
 import os
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Albert Hopkins', 'marduk@python.net'),
+    ('Albert Hopkins', 'marduk@letterboxes.org'),
 )
 
 MANAGERS = ADMINS
@@ -147,3 +147,9 @@ AUTH_PROFILE_MODULE = 'airport.UserProfile'
 
 # Maximum # of user messages that are stored in their session
 AIRPORT_MAX_SESSION_MESSAGES = 16
+MAX_FLIGHT_TIME = 60
+
+try:
+    from settings_local import *
+except ImportError:
+    pass

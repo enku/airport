@@ -14,6 +14,7 @@ urlpatterns = patterns('',
 
     url(r'^info$', 'airport.views.info', name='info'),
     url(r'^$', 'airport.views.home', name='home'),
+    url(r'^crash$', 'airport.views.crash'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 )

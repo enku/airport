@@ -6,3 +6,4 @@ bin
 db.sqlite
 share
 *.pyc
+djangoproject/settings_local.py

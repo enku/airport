@@ -10,97 +10,77 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.template.defaultfilters import date
+from django.views.generic import TemplateView
 
-from airport.models import (Flight, FlightAlreadyDeparted, Message)
+from airport.models import (Flight,
+        FlightAlreadyDeparted,
+        Game,
+        Goal,
+        Message,
+        Purchase)
 
-STARTTIME = datetime.datetime.now()
-TIMEFACTOR = 60
 MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
 DTHANDLER = lambda obj: (obj.isoformat()
         if isinstance(obj, datetime.datetime) else None)
-
-# Remove all flights
-Flight.objects.all().delete()
-
-def get_time():
-    """Helper function to return the current "game" time for methods that
-    require it."""
-    # TODO: Move this into the Game class (when we get one)
-    now = datetime.datetime.now()
-
-    difference = now - STARTTIME
-    new_secs = difference.total_seconds() * TIMEFACTOR
-    return STARTTIME + datetime.timedelta(seconds=new_secs)
+NUM_GOALS = 3
 
 @login_required
 def home(request):
     """Main view"""
+    return render_to_response('airport/home.html')
 
-    now = get_time()
-    user = request.user
-    profile = user.get_profile()
-    _location = profile.location(now)
-    airport = profile.airport
-    ticket = profile.ticket
-    next_flights = airport.next_flights(now)
-    messages = request.session.get('messages', []) + Message.get_messages(user)
-    context = RequestContext(request)
-
-    if ticket:
-        in_flight = ticket.in_flight(now)
-    else:
-        in_flight = False
-
-    if not request.session.get('in_flight', False) and in_flight:
-        # newly, in flight. Make an announcement
-        Message.announce(user, '%s has left %s' % (user, ticket.origin))
-    request.session['in_flight'] = in_flight
-
-    if not in_flight and next_flights.count() == 0:
-        airport.create_flights(now)
-        next_flights = airport.next_flights(now)
-
-    if request.method == 'POST':
-        # Purchase a flight
-        buy  = [i for i in request.POST if i.startswith('buy_')][0]
-        flight_no = int(buy[4:])
-        flight = get_object_or_404(Flight, number=flight_no)
-
-        # try to purchase the flight
-        try:
-            profile.purchase_flight(flight, now)
-        except FlightAlreadyDeparted:
-            Message.send(profile, 'Flight %s has already left' % flight.number)
-        request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
-        return redirect(home)
-
-    request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
-    return render_to_response('airport/home.html',
-            {
-                'user': user,
-                'profile': profile,
-                'airport': airport,
-                'ticket': ticket,
-                'time': now,
-                'next_flights': next_flights,
-                'messages': messages,
-                'in_flight': in_flight
-            },
-            context_instance=context
-    )
 
 @login_required
 def info(request):
     """Used ajax called to be used by the home() view.
     Returns basically all the info needed by home() but as as json
     dictionary"""
-    now = get_time()
     user = request.user
-    profile = user.get_profile()
-    location = profile.location(now)
-    airport = profile.airport
-    ticket = profile.ticket
-    next_flights = airport.next_flights(now)
+    profile = user.profile
+
+    try:
+        most_recent_game = Game.objects.all().order_by('-timestamp')[0]
+        if most_recent_game.state == 1:
+            # game in progress, continue
+            game = most_recent_game
+        elif most_recent_game.state == -1:
+            # not yet started
+            game = most_recent_game
+            game.begin()
+        else:
+            # game over, create new game
+            game = Game.create(profile, NUM_GOALS)
+            game.begin()
+    except IndexError:
+        game = Game.create(profile, NUM_GOALS)
+        game.begin()
+
+    if profile not in game.players.all():
+        game.add_player(profile)
+
+    now, airport, ticket = game.update(profile)
+    print 'Game: %s\nTime: %s' % (game.id, date(now, 'P'))
+
+    if request.method == 'POST':
+        if 'selected' in request.POST:
+            flight_no = int(request.POST['selected'])
+            flight = get_object_or_404(Flight, game=game, number=flight_no)
+
+            # try to purchase the flight
+            try:
+                profile.purchase_flight(flight, now)
+                ticket = flight
+            except FlightAlreadyDeparted:
+                Message.send(profile, 'Flight %s has already left' % flight.number)
+            return redirect(info)
+
+    if ticket and ticket.in_flight(now):
+        next_flights = ticket.destination.next_flights(game, now)
+    elif airport:
+        next_flights = airport.next_flights(game, now)
+    else:
+        next_flights = []
+
     messages = request.session.get('messages', []) + Message.get_messages(user)
 
     if ticket:
@@ -111,15 +91,13 @@ def info(request):
     if not request.session.get('in_flight', False) and in_flight:
         Message.announce(user, '%s has left %s' % (user,
             ticket.origin))
+        Purchase.objects.get_or_create(profile=profile, game=game,
+                flight=ticket)
     request.session['in_flight'] = in_flight
-    if not in_flight and next_flights.count() == 0:
-        airport.create_flights(now)
-        next_flights = airport.next_flights(now)
-
 
     nf_list = []
     for next_flight in next_flights:
-        nf_dict = next_flight.to_dict()
+        nf_dict = next_flight.to_dict(now)
         nf_dict['buyable'] = (nf_dict['status'] != 'CANCELLED'
                 and next_flight.depart_time > now
                 and next_flight != ticket
@@ -128,18 +106,28 @@ def info(request):
 
         nf_list.append(nf_dict)
 
+    goal_list = []
+    for goal in Goal.objects.filter(game=game):
+        achieved = goal.achievers.filter(id=profile.id,
+                achiever__timestamp__isnull=False).exists()
+        goal_list.append([goal.city.name, achieved])
+
     json_str = json.dumps(
         {
             'time': date(now, 'P'),
-            'location': str(location),
-            'airport': airport.name,
-            'ticket': None if not ticket else ticket.to_dict(),
+            'airport': airport.name if airport else ticket.origin,
+            'ticket': None if not ticket else ticket.to_dict(now),
             'next_flights': nf_list,
             'messages': [i.text for i in messages],
-            'in_flight': in_flight
+            'in_flight': in_flight,
+            'goals': goal_list,
+            'player': user.username
         },
         default=DTHANDLER
     )
     request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
     return HttpResponse(json_str, mimetype='application/json')
 
+def crash(_request):
+    """Case the app to crash"""
+    raise Exception('Crash forced!')
