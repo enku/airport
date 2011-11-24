@@ -11,6 +11,7 @@ from django.db import models
 from django.db import transaction
 from django.template.defaultfilters import date
 
+MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
 MIN_FLIGHT_TIME = getattr(settings, 'MIN_FLIGHT_TIME', 30)
 MAX_FLIGHT_TIME = getattr(settings, 'MAX_FLIGHT_TIME', 120)
 
@@ -404,20 +405,21 @@ class Message(models.Model):
         cls.objects.create(profile=user, text=text)
 
     @classmethod
-    def get_messages(cls, user, purge=True):
-        """Get messages for «user» (as a list)
+    def get_messages(cls, request, purge=True):
+        """Get messages for «request.user» (as a list)
             if «purge»=True (default), delete the messages"""
         # This should really be in a model manager, but i'm too lazy
 
-        if isinstance(user, User):
-            # we want the UserProfile, but allow the caller to pass User as well
-            user = user.profile
+        user = request.user
 
-        messages_qs = cls.objects.filter(profile=user)
-        messages_list = list(messages_qs)
+        messages = request.session.get('messages', [])
+        messages_qs = cls.objects.filter(profile=user.profile)
+        messages = (messages + list(messages_qs))[-MAX_SESSION_MESSAGES:]
+
+        request.session['messages'] = messages
         if purge:
             messages_qs.delete()
-        return messages_list
+        return messages
 
 class Game(models.Model):
     """This is a game.  A Game is hosted and has it's own game time and

@@ -19,7 +19,6 @@ from airport.models import (Flight,
         Message,
         Purchase)
 
-MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
 DTHANDLER = lambda obj: (obj.isoformat()
         if isinstance(obj, datetime.datetime) else None)
 NUM_GOALS = 3
@@ -81,7 +80,7 @@ def info(request):
     else:
         next_flights = []
 
-    messages = request.session.get('messages', []) + Message.get_messages(user)
+    messages = Message.get_messages(request)
 
     if ticket:
         in_flight = ticket.in_flight(now)
@@ -125,7 +124,6 @@ def info(request):
         },
         default=DTHANDLER
     )
-    request.session['messages'] = messages[-MAX_SESSION_MESSAGES:]
     return HttpResponse(json_str, mimetype='application/json')
 
 def crash(_request):
