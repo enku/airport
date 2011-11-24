@@ -8,7 +8,7 @@ function refresh_ui(data) {
     var message;
 
     $('#username').html(data['player']);
-    $('#current_time span').html(data['time']);
+    $('#clock span').html(data['time']);
 
     if (data['in_flight']) {
         $('#flight_status').html(data['player']
@@ -126,6 +126,8 @@ function refresh_cb(data, textStatus, jqXHR) {
 
 $(function() {
     $('#airplane_widget').hide();
+    $('#goal_widget').draggable();
+    $('#clock').draggable();
     $.ajax({
         url: "{% url info %}",
         success: refresh_cb,

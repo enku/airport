@@ -49,8 +49,8 @@ class City(models.Model):
 
 class Airport(models.Model):
     """An Airport"""
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=4)
+    name = models.CharField(max_length=255, unique=True)
+    code = models.CharField(max_length=4, unique=True)
     city = models.ForeignKey(City)
     destinations = models.ManyToManyField('self', null=True, blank=True,
             symmetrical=True)
