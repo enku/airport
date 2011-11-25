@@ -6,6 +6,7 @@ function refresh_ui(data) {
     var ticket;
     var goal;
     var message;
+    var s
 
     $('#username').html(data['player']);
     $('#clock span').html(data['time']);
@@ -110,6 +111,17 @@ function refresh_ui(data) {
             scrollTop: $("#message_widget").prop("scrollHeight") });
     }
 
+    // stats
+    s = ''
+    for (var i=0; i<data['stats'].length; i++) {
+        s = s + '<div>';
+        s = s + data['stats'][i][0] + ' ';
+        for (var j=0; j<data['stats'][i][1]; j++) {
+            s = s + '<img style="align: right" src="' + goldstar + '" />';
+        }
+        s = s + '</div>\n';
+    }
+    $('#stats_box').html(s);
 }
 
 function refresh_cb(data, textStatus, jqXHR) {
@@ -127,6 +139,7 @@ function refresh_cb(data, textStatus, jqXHR) {
 $(function() {
     $('#airplane_widget').hide();
     $('#goal_widget').draggable();
+    $('#stats_widget').draggable();
     $('#clock').draggable();
     $.ajax({
         url: "{% url info %}",

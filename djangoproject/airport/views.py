@@ -111,6 +111,10 @@ def info(request):
                 achiever__timestamp__isnull=False).exists()
         goal_list.append([goal.city.name, achieved])
 
+    stats = []
+    for player in game.players.all().distinct():
+        stats.append([player.user.username, game.goals_achieved_for(player)])
+
     json_str = json.dumps(
         {
             'time': date(now, 'P'),
@@ -120,6 +124,7 @@ def info(request):
             'messages': [i.text for i in messages],
             'in_flight': in_flight,
             'goals': goal_list,
+            'stats': stats,
             'player': user.username
         },
         default=DTHANDLER

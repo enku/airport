@@ -470,7 +470,7 @@ class Game(models.Model):
                     game = game,
                     order = i + 1
             )
-        Message.broadcast('Game %s created' % game)
+        Message.broadcast('%s has created %s' %(host.user.username, game))
         return game
 
     def begin(self):
@@ -520,7 +520,7 @@ class Game(models.Model):
         Message.objects.filter(profile=profile).delete()
 
         # Send out an announcement
-        Message.broadcast('%s has entered game %s' % (profile.user.username,
+        Message.broadcast('%s has joined game %s' % (profile.user.username,
                     self.id), self)
         # put the player at the starting airport and take away their
         # tickets
@@ -632,6 +632,11 @@ class Game(models.Model):
         if not achievers.exists():
             return None
         return [i.profile for i in achievers]
+
+    def goals_achieved_for(self, profile):
+        """Return the number of goals achieved for «profile»"""
+        return Achiever.objects.filter(game=self, profile=profile,
+                timestamp__isnull=False).count()
 
     @classmethod
     def get_or_create(cls, host):

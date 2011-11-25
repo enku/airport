@@ -65,7 +65,7 @@ td#airportname {
 tr.schedule td {
     border: 1px solid black;
     border-collapse: collapse;
-    padding: 5px;
+    padding: 2px 5px;
     color: yellow;
 }
 
@@ -160,7 +160,7 @@ tr.header td {
     color: #01004B;
     background-color: transparent;
     min-width: 400px;
-    min-height: 100px;
+    height: 100px;
     margin: auto;
     position: absolute;
     bottom: 1px;
@@ -204,6 +204,26 @@ tr.header td {
     margin-bottom: 3px;
 }
 
+#stats_widget {
+    width: 150px;
+    /* height: 100px; */
+    position: absolute;
+    right: 25px;
+    top: 55px; */
+    border: 1px solid #035702;
+    background: #7FC57F;
+    color: #035702;
+    padding: 2px 5px;
+    box-shadow: 2px 1px 1px #888888;
+}
+
+#stats_header {
+    color: yellow;
+    background: #035702;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 3px;
+}
 ::-webkit-scrollbar {
     width: 7px;
     background-color: #01004B;
