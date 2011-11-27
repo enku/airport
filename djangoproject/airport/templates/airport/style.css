@@ -225,19 +225,19 @@ tr.header td {
     margin-bottom: 3px;
 }
 
-#message_widget ::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 7px;
     background-color: #01004B;
     border-radius: 5px;
 }
 
-#message_widget ::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
     background-color: #151BB9;
     border: 1px solid #3B3B3B;
     border-radius: 5px;
 }
 
-#message_widget ::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
     background-color: #0000FF;
 }
 
