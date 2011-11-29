@@ -1,5 +1,14 @@
 var goldstar = "http://njwltech.wikispaces.com/file/view/gold_star.png/35350229/gold_star.png";
 var inbox = "http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif";
+var widgets = new Array(
+    'goal_widget',
+    'stats_widget',
+    'flight_schedule',
+    'ticket_widget',
+    'message_widget',
+    'clock'
+);
+
 
 function refresh_ui(data) {
     var odd_or_even;
@@ -151,15 +160,34 @@ function buy_ticket() {
     return false;
 }
 
+function save_position() {
+    var coords = $(this).offset();
+    var id = $(this).attr('id');
+    $.cookie(id + '_pos', coords.left + ',' + coords.top);
+}
+
+function load_position(widget) {
+    var coords = $.cookie(widget + '_pos');
+    var split, x, y;
+    if (coords != null) {
+        split = coords.split(',', 2);
+        x = split[0];
+        y = split[1];
+        $('#' + widget).offset({ left: x, top: y});
+    }
+}
+
 function main() {
     /* document.ready function */
     $('#airplane_widget').hide();
-    $('#goal_widget').draggable();
-    $('#stats_widget').draggable();
-    $('#flight_schedule').draggable();
-    $('#ticket_widget').draggable();
-    $('#message_widget').draggable();
-    $('#clock').draggable();
+    $('#airplane_widget').bind('dragstop', save_position);
+
+    for (var i=0; i<widgets.length; i++) {
+        $('#' + widgets[i]).draggable();
+        $('#' + widgets[i]).mouseover(function() {$(this).css('cursor', 'move');});
+        $('#' + widgets[i]).bind('dragstop', save_position);
+        load_position(widgets[i]);
+    }
 
     $('#frm').submit(buy_ticket);
 
