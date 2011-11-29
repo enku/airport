@@ -59,7 +59,7 @@ def info(request):
 
         elif game.state == 0:
             # game over
-            Message.send(profile, 'Game %s ended' % game)
+            Message.send(profile, '%s ended' % game)
             return json_redirect(reverse(games_home))
         else:
             return json_redirect(reverse(games_home))
