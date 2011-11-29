@@ -8,6 +8,11 @@ function refresh_ui(data) {
     var message;
     var s
 
+    if (data['redirect']) {
+        window.location.replace(data['redirect']);
+        return;
+    }
+
     $('#username').html(data['player']);
     $('#clock span').html(data['time']);
 
@@ -135,26 +140,35 @@ function refresh_cb(data, textStatus, jqXHR) {
         5000);
 }
 
+function buy_ticket() {
+    /* callback for when a buy ticket button has been clicked */
+    $.ajax({
+        type: 'POST',
+        success: function(data) { refresh_ui(data);},
+        data: $('#frm').serialize(),
+        url: "{% url info %}"
+    });
+    return false;
+}
 
-$(function() {
+function main() {
+    /* document.ready function */
     $('#airplane_widget').hide();
     $('#goal_widget').draggable();
     $('#stats_widget').draggable();
+    $('#flight_schedule').draggable();
+    $('#ticket_widget').draggable();
+    $('#message_widget').draggable();
     $('#clock').draggable();
+
+    $('#frm').submit(buy_ticket);
+
     $.ajax({
         url: "{% url info %}",
         success: refresh_cb,
         dataType: "json"
     });
 
-    $('#frm').submit(function() {
-        $.ajax({
-            type: 'POST',
-            success: function(data) { refresh_ui(data);},
-            data: $('#frm').serialize(),
-            url: "{% url info %}"
-        });
-     return false;
-    });
+}
 
-});
+$(document).ready(main);

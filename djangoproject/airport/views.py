@@ -6,6 +6,8 @@ import json
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
@@ -38,24 +40,31 @@ def info(request):
     profile = user.profile
 
     try:
-        most_recent_game = Game.objects.all().order_by('-timestamp')[0]
-        if most_recent_game.state == 1:
-            # game in progress, continue
-            game = most_recent_game
-        elif most_recent_game.state == -1:
-            # not yet started
-            game = most_recent_game
-            game.begin()
-        else:
-            # game over, create new game
-            game = Game.create(profile, NUM_GOALS)
-            game.begin()
-    except IndexError:
-        game = Game.create(profile, NUM_GOALS)
-        game.begin()
+        game = Game.objects.all().order_by('-timestamp')[0]
+        if game.state == 1 and game.players.filter(id=profile.id).exists():
+            # game in progress, continue unless you've already won
+            if profile in game.winners():
+                return json_redirect(reverse(games_home))
 
-    if profile not in game.players.all():
-        game.add_player(profile)
+        elif game.state == -1 and game.host == profile:
+                game.begin()
+                Message.broadcast('%s has started %s' %
+                        (game.host.user.username, game), game)
+        elif game.state == -1 and game.players.filter(id=profile.id).exists():
+                message = ('Waiting for %s to start %s' %
+                    (game.host.user.username, game))
+                messages = Message.get_messages(request, purge=False)
+                if message not in [i.text for i in messages]:
+                    Message.send(profile, message)
+
+        elif game.state == 0:
+            # game over
+            Message.send(profile, 'Game %s ended' % game)
+            return json_redirect(reverse(games_home))
+        else:
+            return json_redirect(reverse(games_home))
+    except IndexError:
+        return json_redirect(reverse(games_home))
 
     now, airport, ticket = game.update(profile)
     print 'Game: %s\nTime: %s' % (game.id, date(now, 'P'))
@@ -131,6 +140,98 @@ def info(request):
     )
     return HttpResponse(json_str, mimetype='application/json')
 
+@login_required
+def games_home(request):
+    """Main games view"""
+    return render_to_response('airport/games.html', {
+        'user': request.user.username
+        }
+    )
+
+@login_required
+def games_info(request):
+    """Just another json view"""
+
+    # active games
+    games = Game.objects.annotate(Count('players', distinct=True))
+    games = games.annotate(Count('goals', distinct=True))
+    games = games.exclude(state=0)
+    games = games.values('id', 'players__count', 'goals__count')
+    games = list(games)
+
+    current_game = (Game.objects
+            .exclude(state=0)
+            .filter(players=request.user.profile)
+            .distinct()
+            .order_by('-timestamp'))
+
+    if current_game.exists():
+        finished_current = request.user.profile in current_game[0].winners()
+        current_game = current_game[0].id
+    else:
+        current_game = None
+        finished_current = False
+
+    messages = Message.get_messages(request)
+
+    data = {
+            'games': games,
+            'current_game': current_game,
+            'finished_current': finished_current,
+            'messages': [i. text for i in messages]
+    }
+    return HttpResponse(json.dumps(data), mimetype='application/json')
+
+@login_required
+def games_create(request, goals):
+    """Create a game, or if the user is currently in a non-closed game,
+    send a message saying they can't create a game(yet).  Finally, redirect
+    to the games view
+    """
+    user = request.user
+    profile = user.profile
+    goals = int(goals)
+
+    games = Game.objects.exclude(state=0, players=profile)
+    print games, goals
+    if games.exists():
+        Message.send(profile, ('Cannot create a game since you are '
+            'already playing an open game.'))
+    else:
+        game = Game.create(profile, goals)
+        game.save()
+        print game
+
+    return redirect(games_home)
+
+@login_required
+def games_join(request, game_id):
+    """Join a game.  Game must exist and have not ended (you can join a
+    game that is in progress
+    """
+    profile = request.user.profile
+
+    print game_id
+    game = get_object_or_404(Game, id=game_id)
+    if game.state == 0:
+        Message.send(profile, 'Could not join you to %s because it is over'
+                % game)
+    elif game.players.filter(id=profile.id).exists():
+        Message.send(profile, 'You have already joined %s' % game)
+    else:
+        game.add_player(profile)
+
+    return redirect(reverse(games_home))
+
+
 def crash(_request):
     """Case the app to crash"""
     raise Exception('Crash forced!')
+
+def json_redirect(url):
+    """Return a simple json dictionary with a redirect key and url value"""
+    return HttpResponse(
+        json.dumps({'redirect': url}),
+        mimetype='application/json'
+    )
+

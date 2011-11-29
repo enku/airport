@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+{% include "airport/favicon.html" %}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<title>Airport - Games</title>
+
+<style type="text/css">
+{% include "airport/games.css" %}
+</style>
+
+</head>
+<body>
+
+<table id="games_widget">
+    <thead>
+        <tr><td colspan="3" id="username">{{ user }}</td></tr>
+        <tr><td colspan="3">Active Games</td></tr>
+        <tr><td>Game</td><td>Players</td><td>Goals</td></tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<div id="create_widget">
+    <a id="start_game" href="#">Start a new game with
+        &nbsp;
+        <input id="goals_range" type="range" min="1" max="5" value="1" step="1" />
+        &nbsp;
+        <span id="goals_count">1 Goal</span>
+    </a>
+</div>
+
+<div id="message_widget">
+    <div id="message_header">Messages</div>
+    <div id="message_box"></div>
+</div><!-- message_widget -->
+
+<script type="text/javascript">
+{% include "airport/games.js" %}
+</script>
+
+</body>
+</html>
+

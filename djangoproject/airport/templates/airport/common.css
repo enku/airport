@@ -1,0 +1,40 @@
+body {
+    font-family: "Droid Sans", sans-serif;
+    background-color: DeepSkyBlue;
+    background-image: url(http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg); 
+}
+
+a {
+    color: #01004B;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+#message_widget {
+    padding: 5px 3px;
+    color: #01004B;
+    background-color: transparent;
+    width: 400px;
+    height: 100px;
+    position: absolute;
+    bottom: 1px;
+    right: 5px;
+    overflow: auto;
+    font-size: smaller;
+    box-shadow: inset 0 2px 6px white, 0 3px 3px rgba(0,0,0,0.6);
+}
+
+#message_header {
+    background-color: transparent;
+    color: black;
+    padding: 0;
+}
+
+.message {
+    border-top 1px solid #BFBFBF;
+    border-collapse: collapse:
+    padding: 2px;
+}
+

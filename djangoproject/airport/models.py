@@ -476,7 +476,7 @@ class Game(models.Model):
     def begin(self):
         """start the game"""
         for player in self.players.all():
-            player.airport = self.start
+            player.airport = self.start_airport
             player.game = self
             player.save()
 
@@ -630,7 +630,7 @@ class Game(models.Model):
         achievers = Achiever.objects.filter(goal=last_goal,
                 timestamp__isnull=False).order_by('timestamp')
         if not achievers.exists():
-            return None
+            return []
         return [i.profile for i in achievers]
 
     def goals_achieved_for(self, profile):

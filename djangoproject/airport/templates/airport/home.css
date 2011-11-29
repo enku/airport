@@ -1,13 +1,9 @@
-body {
-    font-family: "Droid Sans", sans-serif;
-    background-color: DeepSkyBlue;
-    background-image: url(http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg); 
-}
-
+{% include "airport/common.css" %}
 table {
     border-collapse: collapse;
     margin: auto;
     margin-bottom: 60px;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
 }
 
 #flight_schedule {
@@ -51,6 +47,7 @@ td#username {
     background: #C70000;
     padding: 5px 0;
     border: 1px solid black;
+    box-shadow: inset 0 2px 6px white, 0 3px 3px rgba(0,0,0,0.6);
 }
 
 td#airportname {
@@ -92,6 +89,18 @@ tr.header td {
     background-color: black;
 }
 
+#exit {
+    border: 1px solid black;
+    padding: 3px 0 3px 3px;
+    background: #C70000;
+}
+
+#exit a {
+    display: block;
+    color: white;
+    font-weight: bold;
+}
+
 .time {
     font-family: "Monospace", fixed;
     font-weight: bold;
@@ -112,7 +121,7 @@ tr.header td {
 
 #ticket_widget {
     min-width: 200px; 
-    min-height: 100px;
+    height: 110px;
     font-size: 12px;
     font-family: "Monospace", fixed;
     font-weight: bold;
@@ -125,7 +134,7 @@ tr.header td {
     box-shadow: 2px 1px 1px #888888;
     position: absolute;
     left: 5px;
-    bottom: 5px;
+    bottom: 5px; 
     display: hidden;
 }
 
@@ -155,33 +164,6 @@ tr.header td {
     background: transparent;
 }
 
-#message_widget {
-    padding-top: 5px;
-    color: #01004B;
-    background-color: transparent;
-    min-width: 400px;
-    height: 100px;
-    margin: auto;
-    position: absolute;
-    bottom: 1px;
-    right: 5px;
-    overflow: auto;
-    font-size: smaller;
-}
-
-#message_header {
-    background-color: transparent;
-    color: black;
-    padding: 0;
-}
-
-.message {
-    border-bottom: 1px solid #01004B;
-    border-top 1px solid #BFBFBF;
-    border-collapse: collapse:
-    padding: 2px;
-}
-
 #goal_widget {
     width: 150px;
     /* height: 100px; */
@@ -192,7 +174,7 @@ tr.header td {
     background: #7FC57F;
     color: #035702;
     padding: 2px 5px;
-    box-shadow: 2px 1px 1px #888888;
+    box-shadow: 0 0 0 black, 2px 1px 1px rgba(0, 0, 0, 0.53);
 }
 
 #goal_header {
@@ -214,7 +196,7 @@ tr.header td {
     background: #7FC57F;
     color: #035702;
     padding: 2px 5px;
-    box-shadow: 2px 1px 1px #888888;
+    box-shadow: 0 0 0 black, 2px 1px 1px rgba(0, 0, 0, 0.53);
 }
 
 #stats_header {
@@ -223,22 +205,6 @@ tr.header td {
     text-align: center;
     font-weight: bold;
     margin-bottom: 3px;
-}
-
-::-webkit-scrollbar {
-    width: 7px;
-    background-color: #01004B;
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: #151BB9;
-    border: 1px solid #3B3B3B;
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background-color: #0000FF;
 }
 
 input[type="submit"] {
@@ -251,5 +217,6 @@ input[type="submit"] {
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
     -webkit-border-radius: 18px;
     border-radius: 18px;
+    -moz-border-radius: 18px;
     vertical-align: top;
 }
