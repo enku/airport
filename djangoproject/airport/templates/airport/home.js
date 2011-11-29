@@ -163,7 +163,7 @@ function buy_ticket() {
 function save_position() {
     var coords = $(this).offset();
     var id = $(this).attr('id');
-    $.cookie(id + '_pos', coords.left + ',' + coords.top);
+    $.cookie(id + '_pos', coords.left + ',' + coords.top, { expires: 30 });
 }
 
 function load_position(widget) {
@@ -184,7 +184,6 @@ function main() {
 
     for (var i=0; i<widgets.length; i++) {
         $('#' + widgets[i]).draggable();
-        $('#' + widgets[i]).mouseover(function() {$(this).css('cursor', 'move');});
         $('#' + widgets[i]).bind('dragstop', save_position);
         load_position(widgets[i]);
     }
