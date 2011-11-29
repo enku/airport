@@ -67,7 +67,6 @@ def info(request):
         return json_redirect(reverse(games_home))
 
     now, airport, ticket = game.update(profile)
-    print 'Game: %s\nTime: %s' % (game.id, date(now, 'P'))
 
     if request.method == 'POST':
         if 'selected' in request.POST:
@@ -193,14 +192,12 @@ def games_create(request, goals):
     goals = int(goals)
 
     games = Game.objects.exclude(state=0, players=profile)
-    print games, goals
     if games.exists():
         Message.send(profile, ('Cannot create a game since you are '
             'already playing an open game.'))
     else:
         game = Game.create(profile, goals)
         game.save()
-        print game
 
     return redirect(games_home)
 
@@ -211,7 +208,6 @@ def games_join(request, game_id):
     """
     profile = request.user.profile
 
-    print game_id
     game = get_object_or_404(Game, id=game_id)
     if game.state == 0:
         Message.send(profile, 'Could not join you to %s because it is over'
