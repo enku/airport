@@ -207,6 +207,12 @@ class Flight(models.Model):
             self.flight_time = 0
             self.save()
 
+            # if any players have tickets on this flight, they need to be
+            # revoked
+            for passenger in self.passengers.all():
+                passenger.ticket = None
+                passenger.save()
+
         else:
             raise FlightAlreadyDeparted(self,
                     'In-progress flight cannot be cancelled')
@@ -298,7 +304,8 @@ class UserProfile(models.Model):
     """Profile for players"""
     user = models.ForeignKey(User)
     airport = models.ForeignKey(Airport, null=True, blank=True)
-    ticket = models.ForeignKey(Flight, null=True, blank=True)
+    ticket = models.ForeignKey(Flight, null=True, blank=True,
+            related_name='passengers')
 
     def __unicode__(self):
         return u'Profile for %s' % self.user.username

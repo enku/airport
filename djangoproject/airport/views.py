@@ -3,6 +3,7 @@ Django views for the airport app
 """
 import datetime
 import json
+import random
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -10,9 +11,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.template import RequestContext
 from django.template.defaultfilters import date
-from django.views.generic import TemplateView
 
 from airport.models import (Flight,
         FlightAlreadyDeparted,
@@ -20,13 +19,15 @@ from airport.models import (Flight,
         Goal,
         Message,
         Purchase)
+from airport.monkeywrench import MonkeyWrenchFactory
 
 DTHANDLER = lambda obj: (obj.isoformat()
         if isinstance(obj, datetime.datetime) else None)
-NUM_GOALS = 3
+MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 20)
+MWF = MonkeyWrenchFactory()
 
 @login_required
-def home(request):
+def home(_request):
     """Main view"""
     return render_to_response('airport/home.html')
 
@@ -47,15 +48,15 @@ def info(request):
                 return json_redirect(reverse(games_home))
 
         elif game.state == -1 and game.host == profile:
-                game.begin()
-                Message.broadcast('%s has started %s' %
-                        (game.host.user.username, game), game)
+            game.begin()
+            Message.broadcast('%s has started %s' % (game.host.user.username,
+                game), game)
         elif game.state == -1 and game.players.filter(id=profile.id).exists():
-                message = ('Waiting for %s to start %s' %
-                    (game.host.user.username, game))
-                messages = Message.get_messages(request, purge=False)
-                if message not in [i.text for i in messages]:
-                    Message.send(profile, message)
+            message = ('Waiting for %s to start %s' %
+                (game.host.user.username, game))
+            messages = Message.get_messages(request, purge=False)
+            if message not in [i.text for i in messages]:
+                Message.send(profile, message)
 
         elif game.state == 0:
             # game over
@@ -65,6 +66,9 @@ def info(request):
             return json_redirect(reverse(games_home))
     except IndexError:
         return json_redirect(reverse(games_home))
+
+    if random.randint(1, MW_PROBABILITY) == MW_PROBABILITY:
+        MWF.create(game).throw()
 
     now, airport, ticket = game.update(profile)
 
@@ -105,7 +109,7 @@ def info(request):
     nf_list = []
     for next_flight in next_flights:
         nf_dict = next_flight.to_dict(now)
-        nf_dict['buyable'] = (nf_dict['status'] != 'CANCELLED'
+        nf_dict['buyable'] = (nf_dict['status'] != 'Cancelled'
                 and next_flight.depart_time > now
                 and next_flight != ticket
         )
