@@ -114,7 +114,6 @@ class DivertedFlight(MonkeyWrench):
         if not flights:
             return
         flight = random.choice(flights)
-        diverted_to = Airport.objects.exclude(id=flight.id)
         diverted_to = diverted_to.exclude(id=flight.destination.id)
         diverted_to = diverted_to.order_by('?')[0]
         flight.destination = diverted_to
