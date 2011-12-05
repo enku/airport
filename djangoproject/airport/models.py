@@ -366,6 +366,7 @@ class Message(models.Model):
     """Messages for users"""
     text = models.CharField(max_length=255)
     profile = models.ForeignKey(UserProfile, related_name='messages')
+    read = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.text
@@ -412,20 +413,20 @@ class Message(models.Model):
         cls.objects.create(profile=user, text=text)
 
     @classmethod
-    def get_messages(cls, request, purge=True):
+    def get_messages(cls, request, read=True):
         """Get messages for «request.user» (as a list)
-            if «purge»=True (default), delete the messages"""
+            if «read»=True (default), mark the messages as read"""
         # This should really be in a model manager, but i'm too lazy
 
         user = request.user
 
         messages = request.session.get('messages', [])
-        messages_qs = cls.objects.filter(profile=user.profile)
+        messages_qs = cls.objects.filter(profile=user.profile, read=False)
         messages = (messages + list(messages_qs))[-MAX_SESSION_MESSAGES:]
 
         request.session['messages'] = messages
-        if purge:
-            messages_qs.delete()
+        if read:
+            messages_qs.update(read=True)
         return messages
 
 class Game(models.Model):
@@ -570,6 +571,15 @@ class Game(models.Model):
                     return False
         return True
 
+    def stats(self):
+        """Return a list of 2-tuples of:
+            (username, goals_achieved)
+
+        for each player of the game"""
+        stats = []
+        for player in self.players.all().distinct():
+            stats.append([player.user.username, self.goals_achieved_for(player)])
+        return stats
 
     @transaction.commit_on_success
     def update(self, profile, now=None):
@@ -645,19 +655,6 @@ class Game(models.Model):
         return Achiever.objects.filter(game=self, profile=profile,
                 timestamp__isnull=False).count()
 
-    @classmethod
-    def get_or_create(cls, host):
-        """Get or create a game:
-
-        Returns the latest games that host is player in, if that game has
-        not ended.  Else creates and returns a new game.
-        Uses the same 2-tuple format as the Django model manager method
-
-        """
-        created = False
-        #open_games = cls.objects.filter(
-
-
 class Goal(models.Model):
     """Goal cities for a game"""
     city = models.ForeignKey(City)
@@ -691,7 +688,6 @@ class Achiever(models.Model):
     game = models.ForeignKey(Game)
     timestamp = models.DateTimeField(null=True)
 
-
     def save(self, *args, **kwargs):
         """Overriden save() method"""
         if self.goal:
@@ -707,7 +703,7 @@ class Purchase(models.Model):
 
     def __unicode__(self):
         return u'%s purchased flight %s from %s to %s' % (
-                profile.user.username,
-                flight.origin.code,
-                flight.destination.code
-        )
+                self.profile.user.username,
+                self.flight.number,
+                self.flight.origin.code,
+                self.flight.destination.code)

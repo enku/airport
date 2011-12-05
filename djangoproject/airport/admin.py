@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from models import (Airport, City, Flight, Game, UserProfile)
+from airport.models import (Airport, City, Flight, Game, UserProfile)
 
 
 admin.site.register(Airport)

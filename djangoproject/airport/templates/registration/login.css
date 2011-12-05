@@ -1,0 +1,71 @@
+body {
+    font-family: "Droid Sans", sans-serif;
+    background-color: DeepSkyBlue;
+    background-image: url(http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg); 
+}
+
+img, input {
+    display: inline-block;
+    vertical-align: 50%;
+}
+
+#login_box {
+    display: block;
+    width: 400px;
+    height: 240px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -120px;
+    margin-left: -200px;
+}                       
+
+label {                                                                         
+    display: none;
+    font-size: 8pt;
+    text-align: right;
+}
+
+#text_inputs {
+    display: inline-block;
+}
+
+#text_inputs hr {
+    border: none;
+}
+
+input.text_input {
+    border: 0;
+    background: white;
+}
+
+#submit {
+    text-align: right;
+    font-weight: bold;
+    font-size: larger;                                                          
+    background: transparent;
+}
+
+#text_inputs hr {
+    border: none;
+}                                                                               
+
+input[type="image"] {
+    display: block;
+    margin-left: 160px;
+}
+
+#lock {
+    margin-left: 40px;
+}
+
+#logo {
+    font-size: 50px;
+    text-align: center;
+    font-weight: bold;
+    font-style: italic;
+    letter-spacing: 25px;
+    margin-bottom: 10px;
+    color: #01004B;
+    text-shadow: 0px 6px 5px rgba(0, 0, 0, 0.6);
+}

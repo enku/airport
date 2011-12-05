@@ -2,13 +2,14 @@
 <html>
 <head>
 {% include "airport/favicon.html" %}
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-<script type="text/javascript" src="http://plugins.jquery.com/files/jquery.cookie.js__1.txt"></script>
 <title>Airport</title>
 
 <style type="text/css">
 {% include "airport/home.css" %}
+</style>
+
+<style type="text/css">
+{% include "airport/messages.css" %}
 </style>
 
 </head>
@@ -72,9 +73,16 @@
     <div id="stats_header">Players</div>
     <div id="stats_box"></div>
 </div>
-
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
+<script type="text/javascript" src="http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js"></script>
 <script type="text/javascript">
 {% include "csrf.js" %}
+</script>
+
+<script type="text/javascript">
+{% include "airport/messages.js" %}
 </script>
 
 <script type="text/javascript">

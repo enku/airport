@@ -4,7 +4,7 @@ import random
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-import models
+from airport  import models
 
 AP_TUPLE = (('RDU', 'Raleigh/Durham International', 'Raleigh'),
         ('DFW', 'Dallas/Fort Worth International', 'Dallas'),

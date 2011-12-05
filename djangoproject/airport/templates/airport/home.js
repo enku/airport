@@ -14,8 +14,7 @@ function refresh_ui(data) {
     var odd_or_even;
     var ticket;
     var goal;
-    var message;
-    var s
+    var s;
 
     if (data['redirect']) {
         window.location.replace(data['redirect']);
@@ -115,15 +114,7 @@ function refresh_ui(data) {
     }
 
     // messages
-    $('#message_box').html('');
-    for(var i=0; i<data['messages'].length; i++) {
-        message = data['messages'][i]
-        $('#message_box').append(
-            '<div class="message">' + '<img src="' + inbox + '" />&nbsp;' + message + '</div>\n');
-        // scroll to bottom
-        $("#message_widget").prop({
-            scrollTop: $("#message_widget").prop("scrollHeight") });
-    }
+    update_messages(data['messages']);
 
     // stats
     s = ''

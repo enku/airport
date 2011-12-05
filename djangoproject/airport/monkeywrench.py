@@ -17,7 +17,14 @@ and returns it to the caller
 import datetime
 import random
 
-from airport.models import Airport, Flight, Message
+from airport.models import (
+    Airport,
+    Flight,
+    FlightFinished,
+    Goal,
+    Message,
+    UserProfile
+)
 
 class MonkeyWrench(object):
     """A monkey wrench ☺"""
@@ -41,7 +48,6 @@ class MonkeyWrench(object):
                 in_flight.append(flight)
 
         return in_flight
-
 
 class CancelledFlight(MonkeyWrench):
     """Randomly Cancel a flight"""
@@ -70,7 +76,11 @@ class DelayedFlight(MonkeyWrench):
         flight = flight[0]
         minutes = random.randint(20, 60)
         timedelta = datetime.timedelta(minutes=minutes)
-        flight.delay(timedelta, now)
+        try:
+            flight.delay(timedelta, now)
+        except FlightFinished:
+            # damn, just missed it!
+            return
         Message.broadcast(
             'Flight %s from %s to %s is delayed %s minutes' %
             (flight.number, flight.origin.city.name,
@@ -88,7 +98,10 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
         minutes = random.randint(20, 60)
         timedelta = datetime.timedelta(minutes=minutes)
         for flight in flights:
-            flight.delay(timedelta, now)
+            try:
+                flight.delay(timedelta, now)
+            except FlightFinished:
+                continue
         Message.broadcast(
             'Due to weather, all flights from %s are delayed %s minutes' %
             (airport.code, minutes), self.game)
@@ -112,9 +125,10 @@ class DivertedFlight(MonkeyWrench):
     def throw(self):
         flights = self.flights_in_the_air()
         if not flights:
+            print 'no flights in the air'
             return
         flight = random.choice(flights)
-        diverted_to = diverted_to.exclude(id=flight.destination.id)
+        diverted_to = Flight.objects.exclude(id=flight.destination.id)
         diverted_to = diverted_to.order_by('?')[0]
         flight.destination = diverted_to
         flight.save()
@@ -123,6 +137,38 @@ class DivertedFlight(MonkeyWrench):
                 diverted_to),
             self.game)
         self.thrown = True
+        return
+
+class Hint(MonkeyWrench):
+    """This isn't a monkey wrench at all, it actually is helpful.  It
+    picks a random user of the game, finds their current goal, and sends a
+    message telling them what (random) airport goes to that goal"""
+    def throw(self):
+        try:
+            profile = (UserProfile.objects
+                        .filter(game=self.game)
+                        .order_by('?')[0])
+        except IndexError:
+            return
+
+        try:
+            achievers = profile.achiever_set.filter(
+                    game=self.game,
+                    timestamp=None)
+            current_goal = achievers[0].goal.city
+        except IndexError:
+            return
+
+        print 'current_goal: %r' % current_goal
+        airport_to_goal = (Airport.objects.filter(
+                destinations__city=current_goal)
+                .order_by('?')[0])
+
+        if airport_to_goal.city == current_goal:
+            return
+
+        Message.send(profile, u'Hint: %s goes to %s ;-)' % (
+                airport_to_goal, current_goal))
         return
 
 class MonkeyWrenchFactory(object):

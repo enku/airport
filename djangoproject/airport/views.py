@@ -31,7 +31,6 @@ def home(_request):
     """Main view"""
     return render_to_response('airport/home.html')
 
-
 @login_required
 def info(request):
     """Used ajax called to be used by the home() view.
@@ -54,7 +53,7 @@ def info(request):
         elif game.state == -1 and game.players.filter(id=profile.id).exists():
             message = ('Waiting for %s to start %s' %
                 (game.host.user.username, game))
-            messages = Message.get_messages(request, purge=False)
+            messages = Message.get_messages(request, read=False)
             if message not in [i.text for i in messages]:
                 Message.send(profile, message)
 
@@ -83,7 +82,7 @@ def info(request):
                 ticket = flight
             except FlightAlreadyDeparted:
                 Message.send(profile, 'Flight %s has already left' % flight.number)
-            return redirect(info)
+        return redirect(info)
 
     if ticket and ticket.in_flight(now):
         next_flights = ticket.destination.next_flights(game, now)
@@ -123,9 +122,7 @@ def info(request):
                 achiever__timestamp__isnull=False).exists()
         goal_list.append([goal.city.name, achieved])
 
-    stats = []
-    for player in game.players.all().distinct():
-        stats.append([player.user.username, game.goals_achieved_for(player)])
+    stats = game.stats()
 
     json_str = json.dumps(
         {
@@ -133,7 +130,7 @@ def info(request):
             'airport': airport.name if airport else ticket.origin,
             'ticket': None if not ticket else ticket.to_dict(now),
             'next_flights': nf_list,
-            'messages': [i.text for i in messages],
+            'messages': [{'id': i.id, 'text': i.text} for i in messages],
             'in_flight': in_flight,
             'goals': goal_list,
             'stats': stats,
@@ -181,7 +178,7 @@ def games_info(request):
             'games': games,
             'current_game': current_game,
             'finished_current': finished_current,
-            'messages': [i. text for i in messages]
+            'messages': [{'id': i.id, 'text': i.text} for i in messages]
     }
     return HttpResponse(json.dumps(data), mimetype='application/json')
 
@@ -196,7 +193,7 @@ def games_create(request, goals):
     goals = int(goals)
 
     games = Game.objects.exclude(state=0, players=profile)
-    if games.exists():
+    if games.exists() and not all([profile in i.winners() for i in games]):
         Message.send(profile, ('Cannot create a game since you are '
             'already playing an open game.'))
     else:

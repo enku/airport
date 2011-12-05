@@ -2,12 +2,14 @@
 <html>
 <head>
 {% include "airport/favicon.html" %}
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 <title>Airport - Games</title>
 
 <style type="text/css">
 {% include "airport/games.css" %}
+</style>
+
+<style type="text/css">
+{% include "airport/messages.css" %}
 </style>
 
 </head>
@@ -31,9 +33,21 @@
     </a>
 </div>
 
+<div id="logout">
+    <a href="{% url logout %}">Sign Out</a>
+</div>
+
 <div id="message_widget">
     <div id="message_box"></div>
 </div><!-- message_widget -->
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script type="text/javascript" src="http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js"></script>
+
+<script type="text/javascript">
+{% include "airport/messages.js" %}
+</script>
 
 <script type="text/javascript">
 {% include "airport/games.js" %}
