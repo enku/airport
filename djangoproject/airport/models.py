@@ -532,9 +532,6 @@ class Game(models.Model):
         profile.airport = self.start_airport
         profile.save()
 
-        # Delete player messages
-        Message.objects.filter(profile=profile).delete()
-
         # Send out an announcement
         Message.broadcast('%s has joined game %s' % (profile.user.username,
                     self.id), self)
