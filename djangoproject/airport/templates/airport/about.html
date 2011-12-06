@@ -1,18 +1,21 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
-    <title>About TeamPlayer</title>
-    <link rel="Shortcut Icon" href="{{ MEDIA_URL }}images/favicon.ico" />
-    <link href="{{ MEDIA_URL }}styles/main.css" media="all" rel="stylesheet" type="text/css" />
+    <title>About Airport</title>
+    {% include "airport/favicon.html" %}
+
+    <style type="text/css">
+    {% include "airport/home.css" %}
+    </style>
+
     <style type="text/css">
         body {
             width: 70%;
-            position: absolute;
-            right: 0;
+            margin: auto;
         }
         .label {
             font-weight: bold;
-            color: #CDCDCD;
+            color: #01004B;
             padding-right: 2em;
             text-align: right;
         }
@@ -29,14 +32,35 @@
             color: #CDCDCD;
             margin: 0;
         }
-        a { color: #CDCDCD; font-weight: bold; }
+        a { color: #01004B; text-decoration: none; }
+        #meta {
+            font-size: smaller;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+        }
+        #header {
+            color: #01004B;
+            text-shadow: 0px 3px 2px rgba(0, 0, 0, 0.6);
+        }
+        table {
+            box-shadow: inset 0 2px 6px white, 0 3px 3px rgba(0,0,0,0.6);
+        }
+        td {
+            padding: 7px;
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        .sup {
+            vertical-align: super;
+            font-size: smaller;
+        }
     </style>
 </head>
 <body>
-    <h2>About TeamPlayer</h2>
+    <h2 id="header">About Airport</h2>
     <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-            <td class="label">Teamplayer:</td>
+            <td class="label">Airport:</td>
             {% if repo_url %}
             <td><a href="{{ repo_url}}">{{ version }}</a></td>
             {% else %}
@@ -48,78 +72,19 @@
             <td>{{ django_version }}</td>
         </tr>
         <tr>
-            <td class="label">User Agent:</td>
+            <td class="label">Browser:</td>
             <td>{{ user_agent }}</td>
         </tr>
     </table>
-    <p>TeamPlayer is a democratic Internet radio station.  Members create
-    song lists and the virtual DJ, DJ Ango, goes from member to member
-    playing a song out of their list.  Members get to hear what their
-    fellow members' musical interests are, and contribute songs on their own.
-    With TeamPlayer everyone's musical tastes are heard and everyone gets
-    an equal chance to be heard.</p>
-    <p>Copyright&copy; 2010-2011 Marduk Enterprises.  All Rights Reserved.
-    TeamPlayer <em>will</em> be released as OSS someday...</p>
+    <p>Airport is a multiplayer game.  Each player starts at the same airport,
+    and the object of the game is to reach each goal city in sequence.  The
+    first player to acchieve all the goals for the game, in order, wins the
+    game.</p>
+    <p>Airport is fun for all ages.</p>
+    <p>Copyright<span class="sup">&copy;</span> 2011 Marduk Enterprises.  All Rights Reserved.</p>
 
-    <h2>Other Software</h2>
-    <p>TeamPlayer includes or uses software by:</p>
-    <div class="other_software">
-        <h3>Python</h3>
-        <p>Python standard library and interpreter by the Python Software
-        Foundation (<a href="http://www.python.org">www.python.org</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>Django</h3>
-        <p>Django High-level web framework by the Django Software
-        Foundation (<a
-            href="http://www.djangoproject.com">www.djangoproject.com</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>MPD</h3>
-        <p>Music Player Daemon (mpd) by Max Kellermann and others (<a
-            href="http://www.musicpd.org/">www.musicpd.org</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>Mutagen</h3>
-        <p>Mutagen library for handling audio metadata by Michael Urman and
-        others (<a
-            href="http://code.google.com/p/mutagen/">code.google.com/p/mutagen/</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>jQuery</h3>
-        <p>jQuery by The jQuery Project (<a
-            href="http://jquery.org">jquery.org</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>Ajax Upload</h3>
-        <p>Ajax Upload multi-file drag-and-drop file upload library by
-        Andrew Valums (<a
-            href="http://valums.com/ajax-upload/">valums.com</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>scrobber.py</h3>
-        <p>Python Scrobbler by "exhuma" (<a href="http://exhuma.wicked.lu/projects/python/scrobbler/">exhuma.wicked.lu</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>GNOME Icons</h3>
-        <p>The GNOME icon theme by The GNOME Project (<a
-            href="http://www.gnome.org/">www.gnome.org</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>Chromium Icons</h3>
-        <p>Some icons Copyright &copy;2011 by the Chromium Project (<a
-            href="http://dev.chromium.org/">chromium.org</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>FFMp3</h3>
-        <p>FFMp3 - The Flash MP3/OGG Live Stream Player by Federico Bricker (<a
-            href="http://ffmp3.sourceforge.net/">ffmp3.sourceforge.net</a>)</p>
-    </div>
-    <div class="other_software">
-        <h3>Last.fm SaaS</h3>
-        <p>Not software per-sé, but TeamPlayer utilizes the <a
-        href="http://last.fm/">Last.fm</a> API throughout.  Thanks to
-        Last.fm for connecting users and music.</p>
+    <div id="meta">
+        <a href="{% url home %}">Go Back</a>
     </div>
 </body>
 </html>

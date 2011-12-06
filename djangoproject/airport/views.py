@@ -5,6 +5,7 @@ import datetime
 import json
 import random
 
+from django import get_version
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -17,6 +18,7 @@ from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.template.defaultfilters import date
 
+from airport import VERSION
 from airport.models import (Flight,
         FlightAlreadyDeparted,
         Game,
@@ -258,10 +260,27 @@ def register(request):
                 messages.add_message(request, messages.INFO,
                     'Account activated. Please sign in.')
                 return redirect(home)
+        else:
+            context['error'] = form._errors
 
     context['users'] = UserProfile.objects.all()
     return render_to_response('registration/register.html', context,
             context_instance)
+
+def about(request):
+    """Classic /about view"""
+    repo_url = getattr(settings, 'AIRPORT_REPO_URL', None)
+    django_version = get_version()
+    user_agent = request.META['HTTP_USER_AGENT']
+
+    return render_to_response('airport/about.html',
+            {
+                'version': VERSION,
+                'repo_url': repo_url,
+                'django_version': django_version,
+                'user_agent': user_agent
+            }
+    )
 
 def create_user(username, password):
     """Create a (regular) user account"""
@@ -277,3 +296,4 @@ def create_user(username, password):
     userprofile.save()
 
     return new_user
+

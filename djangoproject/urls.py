@@ -15,5 +15,6 @@ urlpatterns = patterns('',
     url(r'^accounts/register/$', 'airport.views.register', name='register'),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout',
-        {'next_page': '/'}, name='logout')
+        {'next_page': '/'}, name='logout'),
+    url(r'^about$', 'airport.views.about')
 )
