@@ -7,4 +7,3 @@ db.sqlite
 share
 *.pyc
 *.swp
-djangoproject/settings_local.py

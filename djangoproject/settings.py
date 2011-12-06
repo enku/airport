@@ -148,8 +148,3 @@ AUTH_PROFILE_MODULE = 'airport.UserProfile'
 # Maximum # of user messages that are stored in their session
 AIRPORT_MAX_SESSION_MESSAGES = 16
 MAX_FLIGHT_TIME = 60
-
-try:
-    from settings_local import *
-except ImportError:
-    pass
