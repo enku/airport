@@ -19,7 +19,9 @@ from django.template import RequestContext
 from django.template.defaultfilters import date
 
 from airport import VERSION
-from airport.models import (Flight,
+from airport.models import (
+        Achiever,
+        Flight,
         FlightAlreadyDeparted,
         Game,
         Goal,
@@ -228,6 +230,28 @@ def games_join(request, game_id):
 
     return redirect(reverse(games_home))
 
+@login_required
+def games_stats(request):
+    """Return user stats on game"""
+    games_played = (Game.objects
+            .filter(players=request.user.profile).distinct())
+    games_won = [i for i in games_played if request.user.profile in
+            i.winners()]
+    goals = Achiever.objects.filter(profile=request.user.profile)
+    tickets = Purchase.objects.filter(profile=request.user.profile)
+
+    context = dict()
+    context['user'] = request.user
+    context['game_count'] = games_played.count()
+    context['won_count'] = len(games_won)
+    context['goal_count'] = goals.count()
+    context['ticket_count'] = tickets.count()
+    context['tix_per_goal'] = (1.0 * context['ticket_count'] /
+        context['goal_count'] if context['goal_count'] else 0)
+    context['hours_in_flight'] = sum((i.flight.flight_time for i in tickets)) / 60.0
+    context['hours_per_game'] = (context['hours_in_flight'] /
+        context['game_count'] if context['game_count'] else 0)
+    return render_to_response('airport/games_stats.html', context)
 
 def crash(_request):
     """Case the app to crash"""

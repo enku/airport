@@ -65,6 +65,7 @@ function main() {
     /* document.ready function */
     $('#goals_range').change(update_goals);
     $('#start_game').click(create_game);
+    $('#stats_widget').load('{% url airport.views.games_stats %}')
     $.ajax({
         url: "{% url games_info %}",
         success: refresh_cb,
