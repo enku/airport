@@ -462,7 +462,7 @@ class Game(models.Model):
     @classmethod
     def create(cls, host, num_goals=1):
         """Create a new «Game»"""
-        cities = City.objects.all()
+        airports = Airport.objects.all()
         game = cls.objects.create(
                 host=host,
                 state = -1,
@@ -470,14 +470,22 @@ class Game(models.Model):
         )
         game.add_player(host)
         # add goals
-        goal_cities = random.sample(cities.exclude(
-            id=game.start_airport.city.id), num_goals)
-        for i, goal_city in enumerate(goal_cities):
+        current_airport = game.start_airport
+        goal_airports = []
+        for i in range(1, num_goals + 1):
+            direct_flights = current_airport.destinations.all()
+            destination = (airports
+                    .exclude(id=current_airport.id)
+                    .exclude(id__in=[j.id for j in goal_airports])
+                    .exclude(id__in=[k.id for k in direct_flights])
+                    .order_by('?')[0])
             Goal.objects.create(
-                    city = goal_city,
-                    game = game,
-                    order = i + 1
+                    city=destination.city,
+                    game=game,
+                    order=i
             )
+            goal_airports.append(destination)
+            current_airport = destination
         Message.broadcast('%s has created %s' %(host.user.username, game))
         return game
 
