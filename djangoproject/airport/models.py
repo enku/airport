@@ -447,7 +447,6 @@ class Game(models.Model):
     TIMEFACTOR = 60
 
     host = models.ForeignKey(UserProfile, related_name='+')
-    #        null=True, blank=True, on_delete=models.SET_NULL)
     players = models.ManyToManyField(UserProfile, null=True, blank=True,
             through='Achiever')
     state = models.SmallIntegerField(choices=STATE_CHOICES, default=-1)
