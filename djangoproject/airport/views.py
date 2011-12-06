@@ -248,8 +248,9 @@ def games_stats(request):
     context['ticket_count'] = tickets.count()
     context['tix_per_goal'] = (1.0 * context['ticket_count'] /
         context['goal_count'] if context['goal_count'] else 0)
-    context['hours_in_flight'] = sum((i.flight.flight_time for i in tickets)) / 60.0
-    context['hours_per_game'] = (context['hours_in_flight'] /
+    context['flight_hours'] = sum((i.flight.flight_time
+        for i in tickets)) / 60.0
+    context['flight_hours_per_game'] = (context['hours_in_flight'] /
         context['game_count'] if context['game_count'] else 0)
     return render_to_response('airport/games_stats.html', context)
 
