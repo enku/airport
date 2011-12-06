@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Airport - Register</title>
+
+<style type="text/css">
+{% include "registration/login.css" %}
+</style>
+
+</head>
+<body>
+    {% if error %}
+    <div id="messages">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url register %}">{% csrf_token %}
+        <div id="logo">Register</div>
+        <div id="icon">
+            <img src="https://help.ess.msu.edu/themes/client_default/063684-green-metallic-orb-icon-people-things-handshake.png"
+        style="width: 65px; height: 75px" />
+        </div>
+        <span id="text_inputs">
+            <label for="username">Username</label>
+            <input type="text" id="username" 
+                name="username" maxlength="30" />
+            <br />
+
+            <label for="password1">Password</label>
+            <input type="password" name="password1"
+                id="password1" />
+            <br />
+
+            <label for="password2">Password confirmation</label>
+            <input type="password" name="password2"
+                id="password2" />
+            <div style="text-align: right">
+                <input type="submit" value="ok" />
+            </div>
+        </span>
+    </form>
+
+    <div id="meta">
+        <a href="{% url home %}">Go Back</a>
+    </div>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+
+    <script type="text/javascript">
+    {% include "registration/common.js" %}
+    </script>
+
+</body>
+</html>
