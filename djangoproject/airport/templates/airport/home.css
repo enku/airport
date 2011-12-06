@@ -8,10 +8,11 @@ table {
 
 #flight_schedule {
     width: 600px;
+    margin: auto;
 }
 
 #airplane_widget {
-    display: hidden;
+    display: none;
 }
 
 #flying {
@@ -135,7 +136,7 @@ tr.header td {
     position: absolute;
     left: 5px;
     bottom: 5px; 
-    display: hidden;
+    display: none;
 }
 
 .ticket_label {
@@ -191,7 +192,7 @@ tr.header td {
     /* height: 100px; */
     position: absolute;
     right: 25px;
-    top: 55px; */
+    top: 55px;
     border: 1px solid #035702;
     background: #7FC57F;
     color: #035702;

@@ -122,7 +122,7 @@ function refresh_ui(data) {
         s = s + '<div>';
         s = s + data['stats'][i][0] + ' ';
         for (var j=0; j<data['stats'][i][1]; j++) {
-            s = s + '<img style="align: right" src="' + goldstar + '" />';
+            s = s + '<img style="text-align: right" src="' + goldstar + '" />';
         }
         s = s + '</div>\n';
     }

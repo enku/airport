@@ -4,12 +4,17 @@ body {
     background-image: url(http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg); 
 }
 
+a {
+    color: #01004B;
+    text-decoration: none;
+}
+
 img, input {
     display: inline-block;
     vertical-align: 50%;
 }
 
-#login_box {
+form {
     display: block;
     width: 400px;
     height: 240px;
@@ -28,13 +33,14 @@ label {
 
 #text_inputs {
     display: inline-block;
+    vertical-align: top;
 }
 
 #text_inputs hr {
     border: none;
 }
 
-input.text_input {
+input[type="text"], input[type="password"] {
     border: 0;
     background: white;
 }
@@ -55,10 +61,6 @@ input[type="image"] {
     margin-left: 160px;
 }
 
-#lock {
-    margin-left: 40px;
-}
-
 #logo {
     font-size: 50px;
     text-align: center;
@@ -68,4 +70,32 @@ input[type="image"] {
     margin-bottom: 10px;
     color: #01004B;
     text-shadow: 0px 6px 5px rgba(0, 0, 0, 0.6);
+}
+
+#register_console {
+    display: block;
+    width: 300px;
+    height: 240px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -120px;
+    margin-left: -150px;
+}                       
+
+#add_user {
+    margin-left: 25px;
+}
+
+#meta {
+    font-size: smaller;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+
+#icon {
+    display: inline-block;
+    /* margin-top: 30px; */
+    margin-left: 65px;
 }

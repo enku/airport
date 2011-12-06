@@ -7,10 +7,14 @@ import random
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.template import RequestContext
 from django.template.defaultfilters import date
 
 from airport.models import (Flight,
@@ -18,7 +22,9 @@ from airport.models import (Flight,
         Game,
         Goal,
         Message,
-        Purchase)
+        Purchase,
+        UserProfile)
+
 from airport.monkeywrench import MonkeyWrenchFactory
 
 DTHANDLER = lambda obj: (obj.isoformat()
@@ -232,3 +238,42 @@ def json_redirect(url):
         mimetype='application/json'
     )
 
+def register(request):
+    """The view that handles the actual registration form"""
+
+    context = dict()
+    context['form'] = UserCreationForm()
+    context_instance = RequestContext(request)
+
+    if request.method == "POST":
+        context['form'] = form = UserCreationForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            try:
+                UserProfile.objects.get(user__username=username)
+                context['error'] = 'User "%s" already exists.' % username
+            except UserProfile.DoesNotExist:
+                create_user(username, password)
+                messages.add_message(request, messages.INFO,
+                    'Account activated. Please sign in.')
+                return redirect(home)
+
+    context['users'] = UserProfile.objects.all()
+    return render_to_response('registration/register.html', context,
+            context_instance)
+
+def create_user(username, password):
+    """Create a (regular) user account"""
+
+    new_user = User()
+    new_user.username = username
+    new_user.set_password(password)
+    new_user.is_active = True
+    new_user.save()
+
+    userprofile = UserProfile()
+    userprofile.user = new_user
+    userprofile.save()
+
+    return new_user

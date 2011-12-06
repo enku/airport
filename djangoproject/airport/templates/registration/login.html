@@ -6,14 +6,12 @@
 <style type="text/css">
 {% include "registration/login.css" %}
 </style>
-
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+
 <script type="text/javascript">
-    function supports_placeholder() {
-        var i = document.createElement('input');
-        return 'placeholder' in i;
-    }
+{% include "registration/common.js" %}
 </script>
+
 </head>
 <body>
     {% if messages %}
@@ -21,17 +19,19 @@
     {% for message in messages %}<p>{{ message }}</p>{% endfor %}
     </div>
     {% endif %}
-    <form id="login_box" action="" method="post">{% csrf_token %}
+    <form action="" method="post">{% csrf_token %}
         <div id="logo">Airport</div>
-        <img id="lock" src="http://www.ercmp.nic.in/images/login.png" 
-            style="width: 64px; height: 64px;"
-            alt="Login" />
+        <div id="icon">
+            <img id="lock" src="http://www.ercmp.nic.in/images/login.png" 
+                style="width: 64px; height: 64px;"
+                alt="Login" />
+        </div>
     <span id="text_inputs">
-        <input class="text_input" type="text" id="username" name="username" placeholder="Username" />
+        <input type="text" id="username" name="username" placeholder="Username" />
         <hr/>
         <label for="username">Username</label>
         <hr/>
-        <input class="text_input" type="password" id="password" name="password" placeholder="Password" />
+        <input type="password" id="password" name="password" placeholder="Password" />
         <hr/>
         <label for="password">Password</label>
     </span>
@@ -39,16 +39,11 @@
             src="http://tahatunga.net/downloads/icon/order/Concept_Icon_Set/Buttons/PNG/Button-Log%20off.png"
             style="width: 64px; height: 64px;" />
     </form>
-    <script type="text/javascript">
-        if (! supports_placeholder()) {
-            $('label').show();
-        }
-    </script>
-    {% comment %}
     <div id="meta">
-        <a id="register" href="{% url teamplayer.views.register %}">Sign Up</a>
+        <a id="register" href="{% url airport.views.register %}">Sign Up</a>
+    {% comment %}
          | 
-        <a id="about" target="_blank" href="{% url teamplayer.views.about %}">About</a>
+        <a id="about" target="_blank" href="{% url airport.views.about %}">About</a>
     </div>
     {% endcomment %}
 </body>
