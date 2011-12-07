@@ -1,14 +1,21 @@
 <table id="games_stats">
     <thead>
-        <tr><td colspan="2">Game Stats for {{ user }}</td></tr>
+        <tr><td colspan="4">Game Stats for {{ user }}</td></tr>
     </thead>
     <tbody>
-        <tr><td class="stat_name">Games Played</td><td class="numeric">{{ game_count }}</td></tr>
-        <tr><td class="stat_name">Games Won</td><td class="numeric">{{ won_count }}</td></tr>
-        <tr><td class="stat_name">Goals Achieved</td><td class="numeric">{{ goal_count }}</td></tr>
-        <tr><td class="stat_name">Tix Purchased</td><td class="numeric">{{ ticket_count }}</td></tr>
-        <tr><td class="stat_name">Avg. Tix/Goal</td><td class="numeric">{{ tix_per_goal|floatformat }}</td></tr>
-        <tr><td class="stat_name">Hours in Flight</td><td class="numeric">{{ flight_hours|floatformat }}</td></tr>
-        <tr><td class="stat_name">Flight Hours/Game</td><td class="numeric">{{ flight_hours_per_game|floatformat }}</td></tr>
+        <tr><td class="stat_name">Games Played</td><td class="numeric">{{ game_count }}</td>
+        <td class="stat_name">Games Won</td><td class="numeric">{{ won_count }}</td></tr>
+
+        <tr><td class="stat_name">Goals Achieved</td><td class="numeric">{{ goal_count }}</td>
+        <td class="stat_name">Avg. Goals / Game</td><td class="numeric">{{ goals_per_game|floatformat:"0" }}</td></tr>
+
+        <tr><td class="stat_name">Tix Purchased</td><td class="numeric">{{ ticket_count }}</td>
+        <td class="stat_name">Avg. Tix/Goal</td><td class="numeric">{{ tix_per_goal|floatformat }}</td></tr>
+
+        <tr><td class="stat_name">Hours in Flight</td><td class="numeric">{{ flight_hours|floatformat }}</td>
+        <td class="stat_name">Flight Hours/Game</td><td class="numeric">{{ flight_hours_per_game|floatformat }}</td></tr>
+
+        <tr><td class="stat_name">Σ Hours in Game</td><td class="numeric">{{ total_time|floatformat }}</td>
+        <td class="stat_name">Hours / Game</td><td class="numeric">{{ avg_time|floatformat }}</td></tr>
     </tbody>
 </table>

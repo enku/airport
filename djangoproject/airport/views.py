@@ -234,11 +234,17 @@ def games_join(request, game_id):
 def games_stats(request):
     """Return user stats on game"""
     profile = request.user.profile
+    games = profile.games
+
     context = dict()
     context['user'] = request.user
-    context['game_count'] = profile.games.count()
+    context['game_count'] = games.count()
     context['won_count'] = profile.games_won.count()
     context['goal_count'] = profile.goals.count()
+    context['goals_per_game'] = (
+            1.0 * context['goal_count'] / context['game_count']
+            if context['game_count']
+            else 0)
     context['ticket_count'] = profile.tickets.count()
     context['tix_per_goal'] = (1.0 * context['ticket_count'] /
         context['goal_count'] if context['goal_count'] else 0)
@@ -246,6 +252,18 @@ def games_stats(request):
         for i in profile.tickets)) / 60.0
     context['flight_hours_per_game'] = (context['flight_hours'] /
         context['game_count'] if context['game_count'] else 0)
+
+    # average game time
+    times = games.values('creation_time', 'timestamp')
+    context['total_time'] = sum(((i['timestamp'] - i['creation_time'])
+        .total_seconds() for i in times))
+    context['avg_time'] = (
+            1.0 * context['total_time'] / context['game_count']
+            if context['game_count']
+            else 0)
+    # we really want hours though
+    context['total_time'] = context['total_time'] / 3600.0 * Game.TIMEFACTOR
+    context['avg_time'] = context['avg_time'] / 3600.0 * Game.TIMEFACTOR
     return render_to_response('airport/games_stats.html', context)
 
 def crash(_request):

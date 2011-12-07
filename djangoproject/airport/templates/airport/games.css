@@ -76,8 +76,12 @@ a#start_game {
 
 #stats_widget {
     position: absolute;
-    top: 5px;
-    right: 25px;
+    bottom: 5px;
+    left: 5px;
+}
+
+#games_stats {
+    margin: 0;
 }
 
 #games_stats thead td {
