@@ -34,8 +34,14 @@ class FlightFinished(FlightBaseException):
     """Flight has already landed or is cancelled"""
     pass
 
+class AirportModel(models.Model):
+    """Base class for airport models"""
+    creation_time = models.DateTimeField(auto_now_add=True)
 
-class City(models.Model):
+    class Meta:
+        abstract = True
+
+class City(AirportModel):
     """A City"""
     name = models.CharField(max_length=50, unique=True)
 
@@ -47,8 +53,7 @@ class City(models.Model):
         """metadata"""
         verbose_name_plural = 'cities'
 
-
-class Airport(models.Model):
+class Airport(AirportModel):
     """An Airport"""
     name = models.CharField(max_length=255, unique=True)
     code = models.CharField(max_length=4, unique=True)
@@ -136,7 +141,7 @@ class Airport(models.Model):
         return Flight.objects.filter(id__in=flight_ids)
 
 
-class Flight(models.Model):
+class Flight(AirportModel):
     """A flight from one airport to another"""
 
     # NOTE: this is really a staticmethod, but if i decorate it with
@@ -300,7 +305,7 @@ def random_time(now, maximum=40):
     flight_time = random.randint(0, maximum)
     return now + datetime.timedelta(minutes=flight_time)
 
-class UserProfile(models.Model):
+class UserProfile(AirportModel):
     """Profile for players"""
     user = models.ForeignKey(User)
     airport = models.ForeignKey(Airport, null=True, blank=True)
@@ -362,7 +367,7 @@ class UserProfile(models.Model):
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
-class Message(models.Model):
+class Message(AirportModel):
     """Messages for users"""
     text = models.CharField(max_length=255)
     profile = models.ForeignKey(UserProfile, related_name='messages')
@@ -429,7 +434,7 @@ class Message(models.Model):
             messages_qs.update(read=True)
         return messages
 
-class Game(models.Model):
+class Game(AirportModel):
     """This is a game.  A Game is hosted and has it's own game time and
     players and stuff like that.  A Game is either not started, in progress or
     ended.
@@ -659,7 +664,7 @@ class Game(models.Model):
         return Achiever.objects.filter(game=self, profile=profile,
                 timestamp__isnull=False).count()
 
-class Goal(models.Model):
+class Goal(AirportModel):
     """Goal cities for a game"""
     city = models.ForeignKey(City)
     game = models.ForeignKey(Game)
@@ -685,7 +690,7 @@ class Goal(models.Model):
         """metadata"""
         ordering = ['game', 'order']
 
-class Achiever(models.Model):
+class Achiever(AirportModel):
     """Users who have achieved a goal"""
     profile = models.ForeignKey(UserProfile)
     goal = models.ForeignKey(Goal)
@@ -699,7 +704,7 @@ class Achiever(models.Model):
 
         super(Achiever, self).save(*args, **kwargs)
 
-class Purchase(models.Model):
+class Purchase(AirportModel):
     """Table used to track purchases"""
     profile = models.ForeignKey(UserProfile)
     game = models.ForeignKey(Game, related_name='+')
