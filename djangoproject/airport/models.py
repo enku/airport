@@ -319,6 +319,50 @@ class UserProfile(AirportModel):
     def __unicode__(self):
         return u'Profile for %s' % self.user.username
 
+    @property
+    def games(self):
+        return self.game_set.distinct()
+
+    @property
+    def games_finished(self):
+        """Return qs of games finished"""
+        excludes = set()
+        for game in self.games:
+            nonachievers = (Achiever.objects.filter(game=game, profile=self,
+                    timestamp__isnull=True)
+                    .distinct()
+                    .values_list('goal__id', flat=True))
+            excludes.update(nonachievers)
+        return self.games.exclude( goal__id__in=excludes).distinct()
+
+    @property
+    def games_won(self):
+        """Return qs of games won"""
+        winner_ids = set()
+        for game in self.games_finished:
+            last_goal = Goal.objects.filter(game=game).order_by('-order')[0]
+            winner_time = Achiever.objects.filter(goal=last_goal,
+                timestamp__isnull=False).order_by('timestamp')[0].timestamp
+            winners = Achiever.objects.filter(goal=last_goal,
+                    timestamp=winner_time)
+            for winner in winners:
+                if winner.profile == self:
+                    winner_ids.add(game.id)
+                    break
+        return Game.objects.filter(id__in=winner_ids)
+
+    @property
+    def goals(self):
+        """Return a qs of all goals acquired"""
+        ach = Achiever.objects.filter(
+            profile=self).values_list('id', flat=True)
+        return Goal.objects.filter(achievers__id__in=ach)
+
+    @property
+    def tickets(self):
+        """Return qs of Purchases"""
+        return self.purchase_set.all()
+
     def location(self, now, game):
         """Update and return user's current location info
 
