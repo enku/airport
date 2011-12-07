@@ -297,13 +297,17 @@ class Flight(AirportModel):
         """metadata"""
         ordering = ['depart_time']
 
-
 def random_time(now, maximum=40):
     """Helper function, return a random time in the future (from «now»)
     with a maximium of «maximum» minutes in the future"""
 
     flight_time = random.randint(0, maximum)
     return now + datetime.timedelta(minutes=flight_time)
+
+def strftime(dt=None):
+    if dt is None:
+        dt = datetime.datetime.now()
+    return '[%s]' % dt.strftime('%d/%b/%Y %H:%M:%S')
 
 class UserProfile(AirportModel):
     """Profile for players"""
@@ -379,7 +383,7 @@ class Message(AirportModel):
     @classmethod
     def broadcast(cls, text, game=None):
         """Send a message to all users in «game» with a UserProfile"""
-        print 'BROADCAST: %s' % text
+        print '%s BROADCAST: %s' % (strftime(), text)
 
         if game:
             profiles = UserProfile.objects.filter(game=game).distinct()
@@ -392,7 +396,7 @@ class Message(AirportModel):
     @classmethod
     def announce(cls, announcer, text, game=None):
         """Sends a message to all users but «announcer»"""
-        print 'ANNOUNCE: %s' % text
+        print '%s ANNOUNCE: %s' % (strftime(), text)
 
         if isinstance(announcer, User):
             # we want the UserProfile, but allow the caller to pass User as well
@@ -413,7 +417,7 @@ class Message(AirportModel):
             # we want the UserProfile, but allow the caller to pass User as well
             user = user.get_profile()
 
-        print 'MESSAGE(%s): %s' % (user.user.username, text)
+        print '%s MESSAGE(%s): %s' % (strftime(), user.user.username, text)
 
         cls.objects.create(profile=user, text=text)
 
