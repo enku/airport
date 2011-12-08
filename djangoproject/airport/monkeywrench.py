@@ -42,7 +42,7 @@ class MonkeyWrench(object):
         """Return a list of flights currently in the air"""
         now = self.game.time
         in_flight = []
-        flights = Flight.objects.filter(game=self.game, depart_time__gte=now)
+        flights = Flight.objects.filter(game=self.game, depart_time__lt=now)
         for flight in flights:
             if flight.in_flight(now):
                 in_flight.append(flight)
@@ -125,11 +125,11 @@ class DivertedFlight(MonkeyWrench):
     def throw(self):
         flights = self.flights_in_the_air()
         if not flights:
-            print 'no flights in the air'
             return
         flight = random.choice(flights)
-        diverted_to = Flight.objects.exclude(id=flight.destination.id)
-        diverted_to = diverted_to.order_by('?')[0]
+        diverted_to = (Airport.objects
+                .exclude(id=flight.destination.id)
+                .order_by('?')[0])
         flight.destination = diverted_to
         flight.save()
         Message.broadcast(
@@ -159,7 +159,6 @@ class Hint(MonkeyWrench):
         except IndexError:
             return
 
-        print 'current_goal: %r' % current_goal
         airport_to_goal = (Airport.objects.filter(
                 destinations__city=current_goal)
                 .order_by('?')[0])
