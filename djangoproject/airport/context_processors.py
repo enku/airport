@@ -29,5 +29,4 @@ def externals(request):
         context_extras[external] = external_settings.get(external,
                 EXTERNALS[external])
 
-    print context_extras
     return context_extras
