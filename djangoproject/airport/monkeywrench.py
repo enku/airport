@@ -15,6 +15,7 @@ and returns it to the caller
 """
 
 import datetime
+import os
 import random
 
 from airport.models import (
@@ -139,6 +140,34 @@ class DivertedFlight(MonkeyWrench):
         self.thrown = True
         return
 
+class LateFlight(MonkeyWrench):
+    """Make an in-air flight run late"""
+    MIN_LATENESS = 10 # Minutes
+    MAX_LATENESS = 36
+    RANDOM_MESSAGES = (
+        'Flight {flight_number} is running {minutes} minutes late',
+        'Flight {flight_number} caught some head wind. {minutes} minutes late',
+        '{destination}\'s controller fell asleep. Flight {flight_number} will arrive {minutes} minutes late'
+    )
+
+    def throw(self):
+        flights = self.flights_in_the_air()
+        if not flights:
+            return
+        flight = random.choice(flights)
+        minutes = random.randint(self.MIN_LATENESS, self.MAX_LATENESS)
+        flight.flight_time = flight.flight_time + minutes
+        flight.delayed = True
+        flight.save()
+        message = random.choice(self.RANDOM_MESSAGES)
+        Message.broadcast(message.format(
+                flight_number=flight.number,
+                minutes=minutes,
+                destination=flight.destination),
+            self.game)
+        self.thrown = True
+        return
+
 class Hint(MonkeyWrench):
     """This isn't a monkey wrench at all, it actually is helpful.  It
     picks a random user of the game, finds their current goal, and sends a
@@ -179,8 +208,12 @@ class MonkeyWrenchFactory(object):
     >>> mw = mwf.create()
     """
     def __init__(self):
-        self.wrenches = [i for i in globals().values()
-                if type(i) is type and issubclass(i, MonkeyWrench)]
+        mw_test = os.environ.get('MONKEYWRENCH_TEST', None)
+        if mw_test:
+            self.wrenches = [globals()[mw_test]]
+        else:
+            self.wrenches = [i for i in globals().values()
+                    if type(i) is type and issubclass(i, MonkeyWrench)]
 
     def create(self, game):
         """Create and return a new MonkeyWrench object"""
