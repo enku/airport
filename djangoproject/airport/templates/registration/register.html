@@ -18,7 +18,7 @@
     <form method="post" action="{% url register %}">{% csrf_token %}
         <div id="logo">Register</div>
         <div id="icon">
-            <img src="https://help.ess.msu.edu/themes/client_default/063684-green-metallic-orb-icon-people-things-handshake.png"
+            <img src="{{ register_icon }}"
         style="width: 65px; height: 75px" />
         </div>
         <span id="text_inputs">

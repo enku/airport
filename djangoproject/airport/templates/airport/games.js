@@ -1,4 +1,4 @@
-var inbox = "http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif";
+var inbox = "{{ inbox_icon }}";
 
 function update_games_list(data) {
     /* update the games list widget */

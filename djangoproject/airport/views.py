@@ -37,9 +37,10 @@ MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 20)
 MWF = MonkeyWrenchFactory()
 
 @login_required
-def home(_request):
+def home(request):
     """Main view"""
-    return render_to_response('airport/home.html')
+    context_instance = RequestContext(request)
+    return render_to_response('airport/home.html', {}, context_instance)
 
 @login_required
 def info(request):
@@ -153,9 +154,11 @@ def info(request):
 @login_required
 def games_home(request):
     """Main games view"""
+    context_instance = RequestContext(request)
     return render_to_response('airport/games.html', {
         'user': request.user.username
-        }
+        },
+        context_instance
     )
 
 @login_required
@@ -309,6 +312,7 @@ def about(request):
     repo_url = getattr(settings, 'AIRPORT_REPO_URL', None)
     django_version = get_version()
     user_agent = request.META['HTTP_USER_AGENT']
+    context_instance = RequestContext(request)
 
     return render_to_response('airport/about.html',
             {
@@ -316,7 +320,8 @@ def about(request):
                 'repo_url': repo_url,
                 'django_version': django_version,
                 'user_agent': user_agent
-            }
+            },
+            context_instance
     )
 
 def create_user(username, password):

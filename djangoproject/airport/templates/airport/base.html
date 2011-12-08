@@ -14,22 +14,10 @@
     {% block content %}Base Template{% endblock %}
 
     {% block scripts %}
-    <script 
-        type="text/javascript" 
-        src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js">
-    </script>
-    <script 
-        type="text/javascript" 
-        src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js">
-    </script>
-    <script 
-        type="text/javascript" 
-        src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js">
-    </script>
-    <script 
-        type="text/javascript" 
-        src="http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js">
-    </script>
+    <script type="text/javascript" src="{{ jquery }}"></script>
+    <script type="text/javascript" src="{{ jquery_ui }}"></script>
+    <script type="text/javascript" src="{{ jquery_cookie }}"></script>
+    <script type="text/javascript" src="{{ jquery_scrollto }}"></script>
     <script type="text/javascript">
         {% include "csrf.js" %}
     </script>

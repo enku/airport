@@ -17,7 +17,7 @@
     <form action="" method="post">{% csrf_token %}
         <div id="logo">Airport</div>
         <div id="icon">
-            <img id="lock" src="http://www.ercmp.nic.in/images/login.png" 
+            <img id="lock" src="{{ login_icon }}" 
                 style="width: 64px; height: 64px;"
                 alt="Login" />
         </div>
@@ -31,7 +31,7 @@
         <label for="password">Password</label>
     </span>
             <input id="login_button" type="image" value="Login"
-            src="http://tahatunga.net/downloads/icon/order/Concept_Icon_Set/Buttons/PNG/Button-Log%20off.png"
+            src="{{ login_button }}"
             style="width: 64px; height: 64px;" />
     </form>
     <div id="meta">

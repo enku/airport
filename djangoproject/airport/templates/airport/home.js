@@ -1,5 +1,5 @@
-var goldstar = "http://njwltech.wikispaces.com/file/view/gold_star.png/35350229/gold_star.png";
-var inbox = "http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif";
+var goldstar = "{{ gold_star }}";
+var inbox = "{{ inbox_icon }}";
 var widgets = new Array(
     'goal_widget',
     'stats_widget',
