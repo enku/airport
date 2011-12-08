@@ -1,20 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-{% include "airport/favicon.html" %}
-<title>Airport</title>
+{# Main page for Airport #}
+{% extends "airport/base.html" %}
 
-<style type="text/css">
-{% include "airport/home.css" %}
-</style>
+{% block title %}Airport{% endblock %}
 
-<style type="text/css">
-{% include "airport/messages.css" %}
-</style>
+{% block css %}
+    {% include "airport/home.css" %}
+    {% include "airport/messages.css" %}
+{% endblock %}
 
-</head>
-<body>
-
+{% block content %}
 <div id="airport_widget">
     <form id="frm" action="">
         <input type="hidden" id="selected" name="selected" value="" />
@@ -73,21 +67,13 @@
     <div id="stats_header">Players</div>
     <div id="stats_box"></div>
 </div>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-<script type="text/javascript" src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
-<script type="text/javascript" src="http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js"></script>
-<script type="text/javascript">
-{% include "csrf.js" %}
-</script>
+{% endblock %}{# content #}
 
-<script type="text/javascript">
-{% include "airport/messages.js" %}
-</script>
+{% block scripts %}
+    {{ block.super }}
 
-<script type="text/javascript">
-{% include "airport/home.js" %}
-</script>
-
-</body>
-</html>
+    <script type="text/javascript">
+        {% include "airport/messages.js" %}
+        {% include "airport/home.js" %}
+    </script>
+{% endblock %}

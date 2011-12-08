@@ -1,91 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>About Airport</title>
-    {% include "airport/favicon.html" %}
+{# About page #}
+{% extends "airport/base.html" %}
 
-    <style type="text/css">
+{% block title %}About Airport{% endblock %}
+
+{% block css %}
     {% include "airport/home.css" %}
-    </style>
+    {% include "airport/about.css" %}
+{% endblock %}
 
-    <style type="text/css">
-        body {
-            width: 70%;
-            margin: auto;
-        }
-        .label {
-            font-weight: bold;
-            color: #01004B;
-            padding-right: 2em;
-            text-align: right;
-        }
-        .other_software {
-            margin-left: 20px;
-            width: 50%;
-            margin: 15px 0;
-            border: 0;
-            border-left: 5px solid gray;
-            padding-left: 1ex;
-            font-size: 110%;
-        }
-        .other_software h3 {
-            color: #CDCDCD;
-            margin: 0;
-        }
-        a { color: #01004B; text-decoration: none; }
-        #meta {
-            font-size: smaller;
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-        }
-        #header {
-            color: #01004B;
-            text-shadow: 0px 3px 2px rgba(0, 0, 0, 0.6);
-        }
-        table {
-            box-shadow: inset 0 2px 6px white, 0 3px 3px rgba(0,0,0,0.6);
-        }
-        td {
-            padding: 7px;
-            background-color: rgba(255, 255, 255, 0.4);
-        }
-        .sup {
-            vertical-align: super;
-            font-size: smaller;
-        }
-    </style>
-</head>
-<body>
-    <h2 id="header">About Airport</h2>
-    <table cellpadding="0" cellspacing="0" border="0">
-        <tr>
-            <td class="label">Airport:</td>
-            {% if repo_url %}
-            <td><a href="{{ repo_url}}">{{ version }}</a></td>
-            {% else %}
-            <td>{{ version }}</td>
-            {% endif %}
-        </tr>
-        <tr>
-            <td class="label">Django:</td>
-            <td>{{ django_version }}</td>
-        </tr>
-        <tr>
-            <td class="label">Browser:</td>
-            <td>{{ user_agent }}</td>
-        </tr>
-    </table>
-    <p>
-    Airport is a multi-player game where each player starts at the same
-    airport in a race to goal cities.  The player who reaches the final goal 
-    first wins the game.
-    </p>
-    <p>Airport is fun for all ages.</p>
-    <p>Copyright<span class="sup">&copy;</span> 2011 Marduk Enterprises.  All Rights Reserved.</p>
+{% block content %}
+<h2 id="header">About Airport</h2>
+<table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+        <td class="label">Airport:</td>
+        {% if repo_url %}
+        <td><a href="{{ repo_url}}">{{ version }}</a></td>
+        {% else %}
+        <td>{{ version }}</td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td class="label">Django:</td>
+        <td>{{ django_version }}</td>
+    </tr>
+    <tr>
+        <td class="label">Browser:</td>
+        <td>{{ user_agent }}</td>
+    </tr>
+</table>
+<p>
+Airport is a multi-player game where each player starts at the same
+airport in a race to goal cities.  The player who reaches the final goal 
+first wins the game.
+</p>
+<p>Airport is fun for all ages.</p>
+<p>Copyright<span class="sup">&copy;</span> 2011 Marduk Enterprises.  All Rights Reserved.</p>
 
-    <div id="meta">
-        <a href="{% url home %}">Go Back</a>
-    </div>
-</body>
-</html>
+<div id="meta">
+    <a href="{% url home %}">Go Back</a>
+</div>
+{% endblock %}{# content #}
+
+{% block scripts %}{% endblock %}

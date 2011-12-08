@@ -1,20 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-{% include "airport/favicon.html" %}
-<title>Airport - Games</title>
+{# Games screen #}
+{% extends "airport/base.html" %}
 
-<style type="text/css">
-{% include "airport/games.css" %}
-</style>
+{% block title %}{{ block.super }} - Games{% endblock %}
 
-<style type="text/css">
-{% include "airport/messages.css" %}
-</style>
+{% block css %}
+    {% include "airport/games.css" %}
+    {% include "airport/messages.css" %}
+{% endblock %}
 
-</head>
-<body>
-
+{% block content %}
 <table id="games_widget">
     <thead>
         <tr><td colspan="3" id="username">{{ user }}</td></tr>
@@ -42,19 +36,13 @@
 </div><!-- message_widget -->
 
 <div id="stats_widget"></div>
+{% endblock %}{# content #}
 
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-<script type="text/javascript" src="http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js"></script>
+{% block scripts %}
+    {{ block.super }}
 
-<script type="text/javascript">
-{% include "airport/messages.js" %}
-</script>
-
-<script type="text/javascript">
-{% include "airport/games.js" %}
-</script>
-
-</body>
-</html>
-
+    <script type="text/javascript">
+        {% include "airport/messages.js" %}
+        {% include "airport/games.js" %}
+    </script>
+{% endblock %}
