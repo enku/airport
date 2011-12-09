@@ -338,6 +338,7 @@ class UserProfile(AirportModel):
     @property
     def games_won(self):
         """Return qs of games won"""
+        # TODO: There has got to be a better way to do this
         winner_ids = set()
         for game in self.games_finished:
             last_goal = Goal.objects.filter(game=game).order_by('-order')[0]
@@ -354,9 +355,10 @@ class UserProfile(AirportModel):
     @property
     def goals(self):
         """Return a qs of all goals acquired"""
-        ach = Achiever.objects.filter(
-            profile=self).values_list('id', flat=True)
-        return Goal.objects.filter(achievers__id__in=ach)
+        return Goal.objects.filter(
+            achievers=self,
+            achiever__timestamp__isnull=False,
+        )
 
     @property
     def tickets(self):
