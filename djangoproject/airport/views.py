@@ -51,7 +51,7 @@ def info(request):
     profile = user.profile
 
     try:
-        game = Game.objects.all().order_by('-timestamp')[0]
+        game = profile.games.order_by('-timestamp')[0]
         if game.state == 1 and game.players.filter(id=profile.id).exists():
             # game in progress, continue unless you've already won
             if profile in game.winners():
