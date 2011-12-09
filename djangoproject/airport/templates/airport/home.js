@@ -39,47 +39,13 @@ function refresh_ui(data) {
     }
     else {
         $('#airplane_widget').hide();
+
+        $('#flights').load('{% url airport.views.flights %}');
+
+
         $('#airport_widget').show();
         $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
     }
-
-    /* iterate over the schedules */
-    var s = '';
-    for(var i=0; i<data['next_flights'].length; i++) {
-        if (i%2) {
-            odd_or_even = "odd";
-        }
-        else {
-            odd_or_even = "even";
-        }
-        s = s + (
-            '<tr class="schedule ' + odd_or_even + '" id="flight_"' + data['next_flights'][i]['number'] + '>\n'
-            + '<td>' + data['next_flights'][i]['destination'] + '</td>\n'
-            + '<td class="flightno">' + data['next_flights'][i]['number'] + '</td>\n'
-            + '<td>' + data['next_flights'][i]['depart_time'] + '</td>\n'
-            + '<td>' + data['next_flights'][i]['arrival_time'] + '</td>\n'
-            + '<td>' + data['next_flights'][i]['status'] + '</td>\n');
-
-        if (data['next_flights'][i]['buyable']) {
-            s = s + (
-                '<td class="buy"><input type="submit" value="Buy" name="buy_' 
-                + data['next_flights'][i]['number'] 
-                + '" /></td></tr>\n');
-        }
-        else {
-            s = s + (
-                '<td class="buy"><input disabled="disabled" type="submit" value="Buy" name="buy_' 
-                + data['next_flights'][i]['number'] 
-                + '" /></td></tr>\n');
-        }
-    };
-    $('#flights').html(s);
-
-    $('input').click(function() {
-            var name = $(this).attr('name');
-            var ticket_no = name.substring(4);
-            $('#selected').val(ticket_no);
-    });
 
     ticket = data['ticket'];
     if (ticket) {

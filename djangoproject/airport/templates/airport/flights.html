@@ -1,0 +1,25 @@
+{% if flights %}
+{% for flight in flights %}
+<tr class="schedule {% cycle 'odd' 'even' %}" id="flight_{{ flight.id }}">
+    <td>{{ flight.destination }}</td>
+    <td class="flightno">{{ flight.number }}</td>
+    <td>{{ flight.depart_time|date:"P" }}</td>
+    <td>{{ flight.arrival_time|date:"P" }}</td>
+    <td>{{ flight.remarks }}</td>
+    {% if flight.buyable %}
+    <td class="buy"><input type="submit" value="Buy" name="buy_{{ flight.number }}" /></td>
+    {% else %}
+    <td class="buy"><input type="submit" value="Buy" name="buy_{{ flight.number }}" disabled="disabled" /></td>
+    {% endif %}
+</tr>
+{% endfor %}
+<script type="text/javascript">
+    $('input').click(function() {
+            var name = $(this).attr('name');
+            var ticket_no = name.substring(4);
+            $('#selected').val(ticket_no);
+    });
+</script>
+{% else %}
+<tr><td colspan="6"><img src="{{ finished_image }}"/></td></tr>
+{% endif %}{# flights #}

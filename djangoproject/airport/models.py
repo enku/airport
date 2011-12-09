@@ -236,8 +236,15 @@ class Flight(AirportModel):
         self.delayed = True
         self.save()
 
-    def to_dict(self, now):
-        """Helper method to return Flight as a json-serializable dict"""
+    def get_remarks(self, now):
+        """Return textual remark about a ticket
+
+        Text can be:
+        "Cancelled" for cancelled tickets
+        "Delayed" for Delayed flights
+        "Departed" if the flight is currently in the air
+        "Arrived" if the flight has arrived at its destination
+        """
         if self.cancelled:
             status = 'Cancelled'
         elif self.delayed:
@@ -249,6 +256,20 @@ class Flight(AirportModel):
                 status = 'Arrived'
         else:
             status = 'On time'
+        return status
+
+    def buyable(self, profile, now):
+        """Return True if a ticket is buyable else return False"""
+
+        return (
+            not self.cancelled
+            and self.depart_time > now
+            and self != profile.ticket
+        )
+
+    def to_dict(self, now):
+        """Helper method to return Flight as a json-serializable dict"""
+        status = self.get_remarks(now)
 
         return {
             'number': self.number,

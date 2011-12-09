@@ -15,7 +15,8 @@ EXTERNALS = {
     'background_image': 'http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg',
     'inflight_image': 'http://av-mech.com/images/flyinganimated_20airplane.gif',
     'gold_star': 'http://njwltech.wikispaces.com/file/view/gold_star.png/35350229/gold_star.png',
-    'inbox_icon': 'http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif'
+    'inbox_icon': 'http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif',
+    'finished_image': 'http://www.moodiereport.com/images2/munich_airport_600px_dec09.jpg'
 }
 
 

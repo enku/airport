@@ -95,13 +95,6 @@ def info(request):
                 Message.send(profile, 'Flight %s has already left' % flight.number)
         return redirect(info)
 
-    if ticket and ticket.in_flight(now):
-        next_flights = ticket.destination.next_flights(game, now)
-    elif airport:
-        next_flights = airport.next_flights(game, now)
-    else:
-        next_flights = []
-
     messages = Message.get_messages(request)
 
     if ticket:
@@ -116,17 +109,6 @@ def info(request):
                 flight=ticket)
     request.session['in_flight'] = in_flight
 
-    nf_list = []
-    for next_flight in next_flights:
-        nf_dict = next_flight.to_dict(now)
-        nf_dict['buyable'] = (nf_dict['status'] != 'Cancelled'
-                and next_flight.depart_time > now
-                and next_flight != ticket
-        )
-
-
-        nf_list.append(nf_dict)
-
     goal_list = []
     for goal in Goal.objects.filter(game=game):
         achieved = goal.achievers.filter(id=profile.id,
@@ -140,7 +122,6 @@ def info(request):
             'time': date(now, 'P'),
             'airport': airport.name if airport else ticket.origin,
             'ticket': None if not ticket else ticket.to_dict(now),
-            'next_flights': nf_list,
             'messages': [{'id': i.id, 'text': i.text} for i in messages],
             'in_flight': in_flight,
             'goals': goal_list,
@@ -150,6 +131,39 @@ def info(request):
         default=DTHANDLER
     )
     return HttpResponse(json_str, mimetype='application/json')
+
+@login_required
+def flights(request):
+    """render the flights widget for the user"""
+    try:
+        profile = request.user.profile
+    except AttributeError:
+        return HttpResponse('')
+
+    try:
+        game = profile.games.order_by('-timestamp')[0]
+    except IndexError:
+        return HttpResponse('')
+
+    ticket = profile.ticket
+    now, airport, ticket = game.update(profile)
+
+    if ticket and ticket.in_flight(now):
+        flights = ticket.destination.next_flights(game, now)
+    elif airport:
+        flights = airport.next_flights(game, now)
+    else:
+        flights = []
+
+    # Annotate the flight objects with .remarks and .buyable
+    for flight in flights:
+        flight.remarks = flight.get_remarks(now)
+        flight.buyable = flight.buyable(profile, now)
+
+    return render_to_response(
+            'airport/flights.html',
+            {'flights': flights},
+            RequestContext(request))
 
 @login_required
 def games_home(request):
