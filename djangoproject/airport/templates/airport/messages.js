@@ -8,5 +8,9 @@ function update_messages(messages) {
                 + '</div>\n');
         }
     }
-    $('#message_widget').scrollTo('max', 500);
+    $('#message_widget').scrollTo('max', {
+        axis: 'y',
+        duration: 500,
+        margin: true
+        });
 }
