@@ -2,4 +2,5 @@
 Airport
 """
 
-VERSION = '0.0.1 ($Revision: $)'
+APPNAME = 'Airport'
+VERSION = APPNAME + ' 0.0.1 ($Revision: $)'
