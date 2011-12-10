@@ -1,8 +1,9 @@
 syntax: glob
+bin
+etc
+include
 lib
 lib64
-include
-bin
 db.sqlite
 share
 *.pyc
