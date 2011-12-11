@@ -377,6 +377,34 @@ class UserProfile(AirportModel):
         return Game.objects.filter(id__in=winner_ids)
 
     @property
+    def current_game(self):
+        """Return user's current open game or None if there is none"""
+        try:
+            game = self.games.order_by('-timestamp')[0]
+            if game.state == 1:
+                # game in progress, continue unless you've already won
+                if self in game.winners():
+                    return None
+                else:
+                    return game
+
+            if game.state == -1 and game.host == self:
+                game.begin()
+                return game
+
+            if game.state == -1:
+                return None
+
+            elif game.state == 0:
+                # game over
+                return None
+
+            return None
+
+        except IndexError:
+            return None
+
+    @property
     def goals(self):
         """Return a qs of all goals acquired"""
         return Goal.objects.filter(

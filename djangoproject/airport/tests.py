@@ -1,3 +1,4 @@
+# -*- encoding: utf8 -*-
 import datetime
 import random
 
@@ -20,6 +21,22 @@ AP_TUPLE = (('RDU', 'Raleigh/Durham International', 'Raleigh'),
         ('EWR', 'Newark Liberty International', 'Newark'),
         ('JFK', 'John F. Kennedy International', 'New York'),
         ('LGA', 'LaGuardia International', 'New York'))
+
+def create_users(num_users):
+    """create «num_users»  users and UserProfiles, return a tuple of the
+    users created"""
+    users = []
+    for i in range(1, num_users + 1):
+        user = User.objects.create_user(
+            username = 'user%s' % i,
+            email = 'user%s@test.com' % i,
+            password = 'test'
+        )
+        up = models.UserProfile()
+        up.user = user
+        up.save()
+        users.append(user)
+    return tuple(users)
 
 class AirportTest(TestCase):
     """Test Airport Model"""
@@ -145,7 +162,8 @@ class FlightTest(TestCase):
 
         # verify that in-flight flights can't be cancelled
         now = datetime.datetime(2011, 11, 18, 5, 0)
-        self.assertRaises(models.FlightAlreadyDeparted, flight.cancel, now)
+        with self.assertRaises(models.FlightAlreadyDeparted):
+            flight.cancel(now)
 
         # cancel a flight and verify it's not in flight during it's usual
         # flight time
@@ -378,3 +396,66 @@ class UserProfileTest(TestCase):
         self.assertRaises(models.FlightAlreadyDeparted, self.up.purchase_flight,
                 flight3, now)
 
+class CurrentGameTest(TestCase):
+    """Test the current_game() method in UserProfile"""
+    def setUp(self):
+        self.users = create_users(2)
+
+        # create some cities and airport
+        for i in range(10):
+            city = models.City()
+            city.name = '%s City' % i
+            city.save()
+
+            airport = models.Airport()
+            airport.city = city
+            airport.name = '%s Airport' % i
+            airport.code = 'AP%s' % i
+            airport.save()
+
+    def test_no_games_created(self):
+        """Test that when there are not games created, current_game is
+        None"""
+        user = self.users[0]
+        self.assertEqual(user.profile.current_game, None)
+
+    def test_game_not_started(self):
+        """Test that current_game doesn't return a game until it's begun"""
+        user = self.users[0]
+        game = models.Game.create(host=user.profile)
+        self.assertEqual(user.profile.current_game, None)
+
+        game.begin()
+        self.assertEqual(user.profile.current_game, game)
+
+    def test_game_joining(self):
+        """Test that a game is returned when you join it, but not until it
+        has begun"""
+
+        user1 = self.users[0]
+        user2 = self.users[1]
+        game = models.Game.create(host=user1.profile)
+
+        game.add_player(user2.profile)
+        self.assertEqual(user2.profile.current_game, None)
+
+        game.begin()
+        self.assertEqual(user2.profile.current_game, game)
+
+    def test_game_over(self):
+        """Test that when a game is over current_game returns None"""
+        user = self.users[0]
+        game = models.Game.create(host=user.profile)
+
+        self.assertEqual(user.profile.current_game, None)
+
+        game.begin()
+        self.assertEqual(user.profile.current_game, game)
+
+        # monkey
+        game.is_over = lambda: True
+        game.update(user)
+
+        # game should be over
+        self.assertEqual(game.state, 0)
+        self.assertEqual(user.profile.current_game, None)

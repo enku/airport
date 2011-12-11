@@ -39,8 +39,7 @@ MWF = MonkeyWrenchFactory()
 @login_required
 def home(request):
     """Main view"""
-    context_instance = RequestContext(request)
-    return render_to_response('airport/home.html', {}, context_instance)
+    return render_to_response('airport/home.html', {}, RequestContext(request))
 
 @login_required
 def info(request):
@@ -50,37 +49,13 @@ def info(request):
     user = request.user
     profile = user.profile
 
-    try:
-        game = profile.games.order_by('-timestamp')[0]
-        if game.state == 1 and game.players.filter(id=profile.id).exists():
-            # game in progress, continue unless you've already won
-            if profile in game.winners():
-                return json_redirect(reverse(games_home))
-
-        elif game.state == -1 and game.host == profile:
-            game.begin()
-            Message.broadcast('%s has started %s' % (game.host.user.username,
-                game), game)
-        elif game.state == -1 and game.players.filter(id=profile.id).exists():
-            message = ('Waiting for %s to start %s' %
-                (game.host.user.username, game))
-            messages = Message.get_messages(request, read=False)
-            if message not in [i.text for i in messages]:
-                Message.send(profile, message)
-
-        elif game.state == 0:
-            # game over
-            Message.send(profile, '%s ended' % game)
-            return json_redirect(reverse(games_home))
-        else:
-            return json_redirect(reverse(games_home))
-    except IndexError:
+    game = profile.current_game
+    if not game:
         return json_redirect(reverse(games_home))
+    now, airport, ticket = game.update(profile)
 
     if random.randint(1, MW_PROBABILITY) == MW_PROBABILITY:
         MWF.create(game).throw()
-
-    now, airport, ticket = game.update(profile)
 
     if request.method == 'POST':
         if 'selected' in request.POST:
@@ -89,8 +64,7 @@ def info(request):
 
             # try to purchase the flight
             try:
-                profile.purchase_flight(flight, now)
-                ticket = flight
+                ticket = profile.purchase_flight(flight, now)
             except FlightAlreadyDeparted:
                 Message.send(profile, 'Flight %s has already left' % flight.number)
         return redirect(info)
@@ -168,11 +142,10 @@ def flights(request):
 @login_required
 def games_home(request):
     """Main games view"""
-    context_instance = RequestContext(request)
     return render_to_response('airport/games.html', {
         'user': request.user.username
         },
-        context_instance
+        RequestContext(request)
     )
 
 @login_required
@@ -299,7 +272,6 @@ def register(request):
 
     context = dict()
     context['form'] = UserCreationForm()
-    context_instance = RequestContext(request)
 
     if request.method == "POST":
         context['form'] = form = UserCreationForm(request.POST)
@@ -319,23 +291,24 @@ def register(request):
 
     context['users'] = UserProfile.objects.all()
     return render_to_response('registration/register.html', context,
-            context_instance)
+            RequestContext(request))
 
 def about(request):
     """Classic /about view"""
     repo_url = getattr(settings, 'AIRPORT_REPO_URL', None)
     django_version = get_version()
     user_agent = request.META['HTTP_USER_AGENT']
-    context_instance = RequestContext(request)
+    context = {
+            'version': VERSION,
+            'repo_url': repo_url,
+            'django_version': django_version,
+            'user_agent': user_agent
+    }
 
-    return render_to_response('airport/about.html',
-            {
-                'version': VERSION,
-                'repo_url': repo_url,
-                'django_version': django_version,
-                'user_agent': user_agent
-            },
-            context_instance
+    return render_to_response(
+            'airport/about.html',
+            context,
+            RequestContext(request)
     )
 
 def create_user(username, password):
