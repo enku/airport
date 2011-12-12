@@ -7,21 +7,6 @@ from django.test import TestCase
 
 from airport  import models
 
-AP_TUPLE = (('RDU', 'Raleigh/Durham International', 'Raleigh'),
-        ('DFW', 'Dallas/Fort Worth International', 'Dallas'),
-        ('PHX', 'Phoenix Sky Harbor', 'Phoenix'),
-        ('LAX', 'Los Angeles International', 'Los Angeles'),
-        ('SFO', 'San Francisco International', 'San Francisco'),
-        ('MIA', 'Miami Internationa', 'Miami'),
-        ('ORD', 'Chicago O\'Hare', 'Chicago'),
-        ('MDW', 'Chicago Midway', 'Chicago'),
-        ('BWI', 'Baltimore/Washington International', 'Baltimore'),
-        ('BOS', 'Boston Logan', 'Boston'),
-        ('LAS', 'McCarran International', 'Las Vegas'),
-        ('EWR', 'Newark Liberty International', 'Newark'),
-        ('JFK', 'John F. Kennedy International', 'New York'),
-        ('LGA', 'LaGuardia International', 'New York'))
-
 def create_users(num_users):
     """create «num_users»  users and UserProfiles, return a tuple of the
     users created"""
@@ -44,23 +29,6 @@ class AirportTest(TestCase):
     def setUp(self):
         "setup"
 
-        # create some airports
-        for t in AP_TUPLE:
-            city = models.City.objects.get_or_create(name=t[2])[0]
-            models.Airport.objects.create(
-                    name=t[1],
-                    code=t[0],
-                    city=city)
-
-        airports = models.Airport.objects.all()
-        for airport in airports:
-            for i in range(5):
-                destination = random.choice(airports)
-                if destination.city != airport.city:
-                    airport.destinations.add(destination)
-            airport.clean()
-            airport.save()
-
         # create user and game
         self.user = User.objects.create(
               username='test',
@@ -68,12 +36,12 @@ class AirportTest(TestCase):
         models.UserProfile.objects.create(user=self.user)
 
         # create a game
-        self.game = models.Game.create(host=self.user.profile)
+        self.game = models.Game.create(self.user.profile, 1, 10)
 
 
     def test_next_flights(self):
         """Test that we can see next flights"""
-        airport = random.choice(models.Airport.objects.all())
+        airport = self.game.airports.order_by('?')[0]
         now = datetime.datetime(2011, 11, 17, 11, 0)
         time1 = datetime.datetime(2011, 11, 17, 11, 30)
         dest1 = random.choice(airport.destinations.all())
@@ -110,23 +78,6 @@ class FlightTest(TestCase):
     def setUp(self):
         "setup"
 
-        # create some airports
-        for t in AP_TUPLE:
-            city = models.City.objects.get_or_create(name=t[2])[0]
-            models.Airport.objects.create(
-                    name=t[1],
-                    code=t[0],
-                    city=city)
-
-        airports = models.Airport.objects.all()
-        for airport in airports:
-            for i in range(5):
-                destination = random.choice(airports)
-                if destination.city != airport.city:
-                    airport.destinations.add(destination)
-            airport.clean()
-            airport.save()
-
         # create user and game
         self.user = User.objects.create(
               username='test',
@@ -134,11 +85,11 @@ class FlightTest(TestCase):
         models.UserProfile.objects.create(user=self.user)
 
         # create a game
-        self.game = models.Game.create(host=self.user.profile)
+        self.game = models.Game.create(self.user.profile, 1, 10)
 
     def test_in_flight(self):
         """Test the in_flight() and cancel() methods"""
-        airports = models.Airport.objects.all()
+        airports = models.Airport.objects.filter(game=self.game)
         airport = random.choice(airports)
         destination = random.choice(airport.destinations.all())
         depart_time = datetime.datetime(2011, 11, 18, 4, 50)
@@ -162,8 +113,7 @@ class FlightTest(TestCase):
 
         # verify that in-flight flights can't be cancelled
         now = datetime.datetime(2011, 11, 18, 5, 0)
-        with self.assertRaises(models.FlightAlreadyDeparted):
-            flight.cancel(now)
+        self.assertRaises(models.Flight.AlreadyDeparted, flight.cancel, now)
 
         # cancel a flight and verify it's not in flight during it's usual
         # flight time
@@ -193,11 +143,14 @@ class FlightTest(TestCase):
     def test_next_flight_to(self):
         """Test the next_flight_to() method"""
         now = datetime.datetime(2011, 11, 17, 11, 0)
-        airport = random.choice(models.Airport.objects.all())
-        city = random.choice(models.City.objects.exclude(
-            id=airport.city.id))
+        airport = self.game.airports.order_by('?')[0]
+        city_id = (self.game.airports
+            .exclude(city=airport.city)
+            .values_list('city', flat=True)
+            .order_by('?')[0])
+        city = models.City.objects.get(id=city_id)
 
-        dest = models.Airport.objects.filter(city=city)[0]
+        dest = models.Airport.objects.filter(game=self.game, city=city)[0]
         time1 = datetime.datetime(2011, 11, 17, 11, 30)
         flight1 = models.Flight.objects.create(
                 game = self.game,
@@ -214,9 +167,12 @@ class FlightTest(TestCase):
                 depart_time = time2,
                 flight_time = 200)
 
-        city2 = random.choice(models.City.objects.exclude(
-            id=airport.city.id).exclude(id=city.id))
-        dest2 = models.Airport.objects.filter(city=city2)[0]
+        city_id = (self.game.airports
+            .exclude(city=airport.city)
+            .values_list('city', flat=True)
+            .order_by('?')[0])
+        city2 = models.City.objects.get(id=city_id)
+        dest2 = models.Airport.objects.filter(game=self.game, city=city2)[0]
         flight3 = models.Flight.objects.create(
                 game = self.game,
                 origin = airport,
@@ -295,25 +251,8 @@ class UserProfileTest(TestCase):
             email='test@test.com', password='test')
         self.up = models.UserProfile.objects.create(user=self.user)
 
-        # create some airports
-        for t in AP_TUPLE:
-            city = models.City.objects.get_or_create(name=t[2])[0]
-            models.Airport.objects.create(
-                    name=t[1],
-                    code=t[0],
-                    city=city)
-
-        airports = models.Airport.objects.all()
-        for airport in airports:
-            for i in range(5):
-                destination = random.choice(airports)
-                if destination.city != airport.city:
-                    airport.destinations.add(destination)
-            airport.clean()
-            airport.save()
-
         # create a game
-        self.game = models.Game.create(host=self.user.profile, num_goals=3)
+        self.game = models.Game.create(self.user.profile, 3, 25)
         self.game.begin()
 
     def test_location_and_update(self):
@@ -364,7 +303,7 @@ class UserProfileTest(TestCase):
         flight = random.choice(airport.flights.all())
 
         # assert we can't buy the ticket (flight) if we're not at the airport
-        self.assertRaises(models.FlightNotAtDepartingAirport,
+        self.assertRaises(models.Flight.NotAtDepartingAirport,
                 self.up.purchase_flight, flight, now)
 
         self.up.airport = airport
@@ -374,8 +313,8 @@ class UserProfileTest(TestCase):
         self.up.purchase_flight(flight, now)
         now = flight.depart_time
         flight2 = random.choice(airport.flights.exclude(id=flight.id))
-        self.assertRaises(models.FlightAlreadyDeparted, self.up.purchase_flight,
-                flight2, now)
+        self.assertRaises(models.Flight.AlreadyDeparted,
+                self.up.purchase_flight, flight2, now)
 
         # ok let's land
         now = flight.arrival_time + datetime.timedelta(minutes=1)
@@ -393,25 +332,13 @@ class UserProfileTest(TestCase):
             depart_time__lte=now))
 
         # try to buy it
-        self.assertRaises(models.FlightAlreadyDeparted, self.up.purchase_flight,
-                flight3, now)
+        self.assertRaises(models.Flight.AlreadyDeparted,
+                self.up.purchase_flight, flight3, now)
 
 class CurrentGameTest(TestCase):
     """Test the current_game() method in UserProfile"""
     def setUp(self):
         self.users = create_users(2)
-
-        # create some cities and airport
-        for i in range(10):
-            city = models.City()
-            city.name = '%s City' % i
-            city.save()
-
-            airport = models.Airport()
-            airport.city = city
-            airport.name = '%s Airport' % i
-            airport.code = 'AP%s' % i
-            airport.save()
 
     def test_no_games_created(self):
         """Test that when there are not games created, current_game is
@@ -420,10 +347,15 @@ class CurrentGameTest(TestCase):
         self.assertEqual(user.profile.current_game, None)
 
     def test_game_not_started(self):
-        """Test that current_game doesn't return a game until it's begun"""
+        """Test that current_game doesn't return a game until it's begun,
+        except for the host, which is is started and returns the game"""
         user = self.users[0]
-        game = models.Game.create(host=user.profile)
-        self.assertEqual(user.profile.current_game, None)
+        user2 = self.users[1]
+
+        game = models.Game.create(user.profile, 1, 10)
+        game.add_player(user2.profile)
+        self.assertEqual(user2.profile.current_game, None)
+        self.assertEqual(user.profile.current_game, game)
 
         game.begin()
         self.assertEqual(user.profile.current_game, game)
@@ -434,7 +366,7 @@ class CurrentGameTest(TestCase):
 
         user1 = self.users[0]
         user2 = self.users[1]
-        game = models.Game.create(host=user1.profile)
+        game = models.Game.create(user1.profile, 1, 10)
 
         game.add_player(user2.profile)
         self.assertEqual(user2.profile.current_game, None)
@@ -445,9 +377,7 @@ class CurrentGameTest(TestCase):
     def test_game_over(self):
         """Test that when a game is over current_game returns None"""
         user = self.users[0]
-        game = models.Game.create(host=user.profile)
-
-        self.assertEqual(user.profile.current_game, None)
+        game = models.Game.create(user.profile, 1, 10)
 
         game.begin()
         self.assertEqual(user.profile.current_game, game)
@@ -457,5 +387,18 @@ class CurrentGameTest(TestCase):
         game.update(user)
 
         # game should be over
-        self.assertEqual(game.state, 0)
+        self.assertEqual(game.state, game.GAME_OVER)
         self.assertEqual(user.profile.current_game, None)
+
+class PerGameAirports(TestCase):
+    def setUp(self):
+        self.user = create_users(1)[0]
+
+    def test_game_has_subset_of_airports(self):
+        game = models.Game.create(
+                host = self.user.profile,
+                goals = 4,
+                airports = 10,
+                dest_per_airport = 2)
+
+        self.assertEqual(game.airports.count(), 10)

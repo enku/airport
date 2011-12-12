@@ -8,8 +8,11 @@ function update_games_list(data) {
     for (var i=0; i<data['games'].length; i++) {
         game = data['games'][i];
         s = s + ('<tr><td><a href="{% url games_join %}' + game['id'] + '">' + game['id'] + '</a></td>' 
-                + '<td>' +  game['players__count'] + '</td>'
-                + '<td>' + game['goals__count'] + '</td></tr>\n');
+                + '<td>' + game['goals'] + '</td><'
+                + '<td>' + game['airports'] + '</td>'
+                + '<td>' +  game['players'] + '</td>'
+                + '<td>' + game['host'] + '</td>'
+                + '</tr>\n');
     }
     $('#games_widget tbody').html(s);
 }
@@ -48,14 +51,13 @@ function refresh_cb(data, textStatus, jqXHR) {
 
 function update_goals() {
     var goals = $('#goals_range').val();
-    if (goals > 1) {
-        $('#goals_count').html(goals + ' Goals');
-    }
-    else {
-        $('#goals_count').html('1 Goal');
-    }
+    $('#goals_count').html(goals);
 }
 
+function update_airports() {
+    var airports = $('#airports_range').val();
+    $('#airports_count').html(airports);
+}
 function create_game() {
     var goals = $('#goals_range').val();
     window.location.replace('{% url games_create %}' + goals );
@@ -64,8 +66,15 @@ function create_game() {
 function main() {
     /* document.ready function */
     $('#goals_range').change(update_goals);
+    $('#airports_range').change(update_airports);
     $('#start_game').click(create_game);
-    $('#stats_widget').load('{% url airport.views.games_stats %}')
+    $('#stats_widget').load('{% url airport.views.games_stats %}');
+
+    /* widgets that are draggable and remember their positions */
+    $('#games_widget').memdraggable();
+    $('#create_widget').memdraggable();
+    $('#message_widget').memdraggable();
+
     $.ajax({
         url: "{% url games_info %}",
         success: refresh_cb,

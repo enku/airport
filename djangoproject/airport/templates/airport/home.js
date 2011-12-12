@@ -1,14 +1,5 @@
 var goldstar = "{{ gold_star }}";
 var inbox = "{{ inbox_icon }}";
-var widgets = new Array(
-    'goal_widget',
-    'stats_widget',
-    'flight_schedule',
-    'ticket_widget',
-    'message_widget',
-    'clock'
-);
-
 
 function refresh_ui(data) {
     var odd_or_even;
@@ -117,33 +108,16 @@ function buy_ticket() {
     return false;
 }
 
-function save_position() {
-    var coords = $(this).offset();
-    var id = $(this).attr('id');
-    $.cookie(id + '_pos', coords.left + ',' + coords.top, { expires: 30 });
-}
-
-function load_position(widget) {
-    var coords = $.cookie(widget + '_pos');
-    var split, x, y;
-    if (coords != null) {
-        split = coords.split(',', 2);
-        x = split[0];
-        y = split[1];
-        $('#' + widget).offset({ left: x, top: y});
-    }
-}
-
 function main() {
     /* document.ready function */
     $('#airplane_widget').hide();
-    $('#airplane_widget').bind('dragstop', save_position);
 
-    for (var i=0; i<widgets.length; i++) {
-        $('#' + widgets[i]).draggable();
-        $('#' + widgets[i]).bind('dragstop', save_position);
-        load_position(widgets[i]);
-    }
+    $('#goal_widget').memdraggable();
+    $('#stats_widget').memdraggable();
+    $('#flight_schedule').memdraggable();
+    $('#ticket_widget').memdraggable();
+    $('#message_widget').memdraggable();
+    $('#clock').memdraggable();
 
     $('#frm').submit(buy_ticket);
 

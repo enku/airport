@@ -2,6 +2,7 @@
 """Models for the airport django app"""
 
 import datetime
+import logging
 import random
 
 from django.conf import settings
@@ -14,25 +15,6 @@ from django.template.defaultfilters import date
 MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
 MIN_FLIGHT_TIME = getattr(settings, 'MIN_FLIGHT_TIME', 30)
 MAX_FLIGHT_TIME = getattr(settings, 'MAX_FLIGHT_TIME', 120)
-
-class FlightBaseException(Exception):
-    """Base Exception for scheduling/ticketing errors"""
-    def __init__(self, flight, *args):
-        self.flight = flight
-        super(FlightBaseException, self).__init__(*args)
-
-class FlightAlreadyDeparted(FlightBaseException):
-    """A Flight is already departed"""
-    pass
-
-class FlightNotAtDepartingAirport(FlightBaseException):
-    """Exception raised when a player attempts to purchase a flight at a
-    different airport than they are located in"""
-    pass
-
-class FlightFinished(FlightBaseException):
-    """Flight has already landed or is cancelled"""
-    pass
 
 class AirportModel(models.Model):
     """Base class for airport models"""
@@ -53,21 +35,47 @@ class City(AirportModel):
         """metadata"""
         verbose_name_plural = 'cities'
 
-class Airport(AirportModel):
+class AirportMaster(AirportModel):
     """An Airport"""
     name = models.CharField(max_length=255, unique=True)
     code = models.CharField(max_length=4, unique=True)
     city = models.ForeignKey(City)
+
+    def __unicode__(self):
+        return u'Master Airport: %s' % self.name
+    __str__ = __unicode__
+
+class Airport(AirportModel):
+    """Airports associated with a particular game"""
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=4)
+    city = models.ForeignKey(City)
+    game = models.ForeignKey('Game', related_name='airports')
     destinations = models.ManyToManyField('self', null=True, blank=True,
             symmetrical=True)
 
     def __unicode__(self):
-        aiports_per_city = Airport.objects.filter(city=self.city).count()
+        aiports_per_city = Airport.objects.filter(game=self.game,
+                city=self.city).count()
         if aiports_per_city > 1:
             return u'%s (%s)' % (self.city.name, self.code)
         return self.city.name
-
     __str__ = __unicode__
+
+
+    @classmethod
+    def copy_from_master(cls, game, master):
+        """Copy airport from the AirportMaster into «game> and populate it
+        with destinations"""
+        airport = cls()
+        airport.name = master.name
+        airport.code = master.code
+        airport.game = game
+        airport.city = master.city
+        airport.save()
+
+        return airport
+
 
     def next_flights(self, game, now, future_only=False, auto_create=True):
         """Return next Flights out from «self», creating new flights if
@@ -88,7 +96,7 @@ class Airport(AirportModel):
         future_flights = self.flights.filter(game=game, depart_time__gt=now)
 
         if not future_only:
-            other_flights = Flight.objects.filter(game=game, origin=self)[:10]
+            other_flights = game.flights.filter(origin=self)[:10]
         else:
             other_flights = Flight.objects.none()
 
@@ -140,17 +148,29 @@ class Airport(AirportModel):
         transaction.commit()
         return Flight.objects.filter(id__in=flight_ids)
 
+def _get_destinations_for(airport, dest_count):
+    """Get the destinations for airport. rules are:
+
+    * Can't have more than «dest_count» destinations
+    * destination airports can't add more than «dest_count»
+    * destination can't be in the same city
+    """
+    qs = Airport.objects.exclude(city=airport.city)
+    qs = qs.filter(game=airport.game)
+    qs = qs.exclude(id=airport.id)
+    qs = qs.annotate(num_dest=models.Count('destinations'))
+    qs = qs.filter(num_dest__lt=dest_count)
+
+    try:
+        return random.sample(qs, dest_count)
+    except ValueError:
+        # try again
+        return _get_destinations_for(airport, dest_count-1)
 
 class Flight(AirportModel):
     """A flight from one airport to another"""
-
-    # NOTE: this is really a staticmethod, but if i decorate it with
-    # staticmethod() then Django chokes on the number field declaration
-    # because it doens't think the decorated method is "callable".  This is
-    # either a Python problem or a Django problem, but I've encoutered it
-    # before and it is quite annoying
-
-    game = models.ForeignKey('Game', null=False)
+    ### Fields ###
+    game = models.ForeignKey('Game', null=False, related_name='flights')
     number = models.IntegerField(editable=False)
     origin = models.ForeignKey(Airport, related_name='flights')
     destination = models.ForeignKey(Airport, related_name='+')
@@ -158,13 +178,7 @@ class Flight(AirportModel):
     flight_time = models.IntegerField()
     delayed = models.BooleanField(default=False)
 
-    def __unicode__(self):
-        return u'%s from %s to %s departing %s' % (
-                self.number,
-                self.origin.code,
-                self.destination.code,
-                date(self.depart_time, 'P'))
-
+    ## Properties ###
     @property
     def arrival_time(self):
         """Compute and return the arrival time for this flight"""
@@ -219,18 +233,17 @@ class Flight(AirportModel):
                 passenger.save()
 
         else:
-            raise FlightAlreadyDeparted(self,
-                    'In-progress flight cannot be cancelled')
+            raise self.AlreadyDeparted('In-progress flight cannot be cancelled')
 
     def delay(self, timedelta, now):
         """Delay the flight by «timedelta»"""
         now = now or datetime.datetime.now()
 
         if self.in_flight(now) or self.has_landed(now):
-            raise FlightAlreadyDeparted(self)
+            raise flight.AlreadyDeparted()
 
         if self.flight_time == 0:
-            raise FlightFinished(self)
+            raise self.Finished()
 
         self.depart_time = self.depart_time + timedelta
         self.delayed = True
@@ -300,14 +313,13 @@ class Flight(AirportModel):
         """Return a random number, not already a flight number"""
         while True:
             number = random.randint(100, 9999)
-            flight = Flight.objects.filter(game=self.game, number=number)
+            flight = self.game.flights.filter(number=number)
             if flight.exists():
                 continue
             return number
 
     def clean(self, *_args, **_kwargs):
         """Validate the model"""
-
         # Origin can't also be desitination
         if self.origin == self.destination:
             raise ValidationError(u'Origin and destination cannot be the same')
@@ -316,7 +328,33 @@ class Flight(AirportModel):
             raise ValidationError(u'%s not accessible from %s' %
                     (self.destination.code, self.origin.code))
 
+    ### Special Methods ###
+    def __unicode__(self):
+        return u'%s from %s to %s departing %s' % (
+                self.number,
+                self.origin.code,
+                self.destination.code,
+                date(self.depart_time, 'P'))
 
+    ### Exceptions ###
+    class BaseException(Exception):
+        """Base Exception for scheduling/ticketing errors"""
+        pass
+
+    class AlreadyDeparted(BaseException):
+        """A Flight is already departed"""
+        pass
+
+    class NotAtDepartingAirport(BaseException):
+        """Exception raised when a player attempts to purchase a flight at a
+        different airport than they are located in"""
+        pass
+
+    class Finished(BaseException):
+        """Flight has already landed or is cancelled"""
+        pass
+
+    ### Meta ###
     class Meta:
         """metadata"""
         ordering = ['depart_time']
@@ -381,22 +419,20 @@ class UserProfile(AirportModel):
         """Return user's current open game or None if there is none"""
         try:
             game = self.games.order_by('-timestamp')[0]
-            if game.state == 1:
-                # game in progress, continue unless you've already won
+            if game.state == game.GAME_OVER:
+                return None
+
+            if game.state == game.IN_PROGRESS:
                 if self in game.winners():
                     return None
                 else:
                     return game
 
-            if game.state == -1 and game.host == self:
+            if game.state == game.NOT_STARTED and game.host == self:
                 game.begin()
                 return game
 
-            if game.state == -1:
-                return None
-
-            elif game.state == 0:
-                # game over
+            if game.state == game.NOT_STARTED:
                 return None
 
             return None
@@ -447,16 +483,15 @@ class UserProfile(AirportModel):
         future flight"""
 
         if self.ticket and self.ticket.in_flight(now):
-            raise FlightAlreadyDeparted(flight,
-                    'Cannot purchase a flight while in flight')
+            raise flight.AlreadyDeparted('Cannot purchase a flight while in flight')
 
         if self.airport != flight.origin:
-            raise FlightNotAtDepartingAirport(flight,
+            raise flight.NotAtDepartingAirport(
                 'Must be at the departing airport (%s) to purchase flight' %
                 flight.origin)
 
         if flight.depart_time <= now:
-            raise FlightAlreadyDeparted(flight, 'Flight already departed')
+            raise flight.AlreadyDeparted('Flight already departed')
 
         self.ticket = flight
         self.save()
@@ -481,7 +516,7 @@ class Message(AirportModel):
     @classmethod
     def broadcast(cls, text, game=None):
         """Send a message to all users in «game» with a UserProfile"""
-        print '%s BROADCAST: %s' % (strftime(), text)
+        logging.info('%s BROADCAST: %s', strftime(), text)
 
         if game:
             profiles = UserProfile.objects.filter(game=game).distinct()
@@ -494,7 +529,7 @@ class Message(AirportModel):
     @classmethod
     def announce(cls, announcer, text, game=None):
         """Sends a message to all users but «announcer»"""
-        print '%s ANNOUNCE: %s' % (strftime(), text)
+        logging.info('%s ANNOUNCE: %s', strftime(), text)
 
         if isinstance(announcer, User):
             # we want the UserProfile, but allow the caller to pass User as well
@@ -515,7 +550,7 @@ class Message(AirportModel):
             # we want the UserProfile, but allow the caller to pass User as well
             user = user.get_profile()
 
-        print '%s MESSAGE(%s): %s' % (strftime(), user.user.username, text)
+        logging.info('%s MESSAGE(%s): %s', strftime(), user.user.username, text)
 
         cls.objects.create(profile=user, text=text)
 
@@ -546,10 +581,11 @@ class Game(AirportModel):
     goals.
 
     The Game is the God of Airport"""
+    NOT_STARTED, GAME_OVER, IN_PROGRESS = -1, 0, 1
     STATE_CHOICES = (
-            (-1, 'Not Started'),
-            ( 0, 'Game Over'),
-            ( 1, 'In Progress'))
+            (-1, NOT_STARTED),
+            ( 0, GAME_OVER),
+            ( 1, IN_PROGRESS))
 
     TIMEFACTOR = 60
 
@@ -557,8 +593,9 @@ class Game(AirportModel):
     players = models.ManyToManyField(UserProfile, null=True, blank=True,
             through='Achiever')
     state = models.SmallIntegerField(choices=STATE_CHOICES, default=-1)
-    start_airport = models.ForeignKey(Airport, related_name='+')
     goals = models.ManyToManyField(City, through='Goal')
+    #airports = models.ManyToManyField(Airport)
+    start_airport = models.ForeignKey(Airport, null=True, related_name='+')
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
@@ -566,32 +603,58 @@ class Game(AirportModel):
         return u'Game %s' % self.pk
 
     @classmethod
-    def create(cls, host, num_goals=1):
+    def create(cls, host, goals, airports, dest_per_airport=4):
         """Create a new «Game»"""
-        airports = Airport.objects.all()
-        game = cls.objects.create(
-                host=host,
-                state = -1,
-                start_airport = Airport.objects.all().order_by('?')[0]
-        )
-        game.add_player(host)
+        master_airports = AirportMaster.objects.all().order_by('?')
+
+        game = cls()
+        game.host = host
+        game.state = cls.NOT_STARTED
+        game.save()
+
+        # start airport
+        master = master_airports[0]
+        start_airport = Airport()
+        start_airport.name = master.name
+        start_airport.code = master.code
+        start_airport.city = master.city
+        start_airport.game = game
+        start_airport.save()
+
+        game.start_airport = start_airport
+        game.save()
+
+
+        # add other airports
+        for i in range(1, airports):
+            master = master_airports[i]
+            airport = Airport.copy_from_master(game, master)
+
+        # populate the airports with destinations
+        for airport in game.airports.all():
+            airport.destinations = _get_destinations_for(airport,
+                    dest_per_airport)
+
         # add goals
         current_airport = game.start_airport
         goal_airports = []
-        for i in range(1, num_goals + 1):
+        for i in range(1, goals + 1):
             direct_flights = current_airport.destinations.all()
-            destination = (airports
-                    .exclude(id=current_airport.id)
-                    .exclude(id__in=[j.id for j in goal_airports])
-                    .exclude(id__in=[k.id for k in direct_flights])
-                    .order_by('?')[0])
-            Goal.objects.create(
-                    city=destination.city,
-                    game=game,
-                    order=i
-            )
-            goal_airports.append(destination)
-            current_airport = destination
+            dest = Airport.objects.filter(game=game)
+            dest = dest.exclude(id=current_airport.id)
+            dest = dest.exclude(id__in=[j.id for j in goal_airports])
+            dest = dest.exclude(id__in=[j.id for j in direct_flights])
+            dest = dest.order_by('?')
+            dest = dest[0]
+
+            goal = Goal()
+            goal.city = dest.city
+            goal.game = game
+            goal.order = i
+            goal.save()
+            goal_airports.append(dest)
+
+        game.add_player(host)
         Message.broadcast('%s has created %s' %(host.user.username, game))
         return game
 
@@ -602,13 +665,13 @@ class Game(AirportModel):
             player.game = self
             player.save()
 
-        self.state = 1
+        self.state = self.IN_PROGRESS
         self.timestamp = datetime.datetime.now()
         self.save()
 
     def end(self):
         """End the Game"""
-        self.state = 0
+        self.state = self.GAME_OVER
         self.timestamp = datetime.datetime.now()
         self.save()
         for player in self.players.all():
@@ -618,10 +681,12 @@ class Game(AirportModel):
 
     def add_player(self, profile):
         """Add player to profile if game hasn't ended"""
-        if self.state == 0:
+        if self.state == self.GAME_OVER:
+            print 'game over, cannot add players'
             return
 
         if profile in self.players.all():
+            print 'already in players'
             return
 
         # This is a pain in the ass to do, basically we need to create an
@@ -652,7 +717,7 @@ class Game(AirportModel):
         """Return current game time"""
         now = datetime.datetime.now()
 
-        if self.state != 1:
+        if self.state != self.IN_PROGRESS:
             return now
 
         difference = now - self.timestamp
@@ -698,7 +763,7 @@ class Game(AirportModel):
         profile_ticket = profile_airport = None
         winners_before = self.winners()
         now = now or self.time
-        if self.state == 0:
+        if self.state == self.GAME_OVER:
             return (self.timestamp, None, None)
 
         if self.is_over():
@@ -749,7 +814,7 @@ class Game(AirportModel):
         """Return the winners of the game or [] if there are no
         winners(yet)"""
 
-        if self.state == -1:
+        if self.state == self.NOT_STARTED:
             # no winner if game hasn't started yet
             return []
 

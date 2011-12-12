@@ -1,0 +1,1762 @@
+[
+    {
+        "pk": 1, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Atlanta"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Chicago"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Los Angeles"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Dallas/Fort Worth"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Denver"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Las Vegas"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "New York City"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Phoenix"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Houston"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Newark"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Detroit"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Minneapolis - St. Paul"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Orlando"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "San Francisco"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Miami"
+        }
+    }, 
+    {
+        "pk": 16, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Philadelphia"
+        }
+    }, 
+    {
+        "pk": 17, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Charlotte"
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Seattle"
+        }
+    }, 
+    {
+        "pk": 19, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Boston"
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Washington, DC"
+        }
+    }, 
+    {
+        "pk": 21, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Baltimore"
+        }
+    }, 
+    {
+        "pk": 22, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Salt Lake City"
+        }
+    }, 
+    {
+        "pk": 23, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Fort Lauderdale"
+        }
+    }, 
+    {
+        "pk": 24, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Honolulu"
+        }
+    }, 
+    {
+        "pk": 25, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Milwaukee"
+        }
+    }, 
+    {
+        "pk": 26, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Tampa"
+        }
+    }, 
+    {
+        "pk": 27, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "San Diego"
+        }
+    }, 
+    {
+        "pk": 28, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Cincinnati"
+        }
+    }, 
+    {
+        "pk": 29, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Oakland"
+        }
+    }, 
+    {
+        "pk": 30, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "St. Louis"
+        }
+    }, 
+    {
+        "pk": 31, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Portland, Oregon"
+        }
+    }, 
+    {
+        "pk": 32, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Memphis"
+        }
+    }, 
+    {
+        "pk": 33, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Kansas City"
+        }
+    }, 
+    {
+        "pk": 34, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Cleveland"
+        }
+    }, 
+    {
+        "pk": 35, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "San Jose, California"
+        }
+    }, 
+    {
+        "pk": 36, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Sacramento"
+        }
+    }, 
+    {
+        "pk": 37, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Pittsburgh"
+        }
+    }, 
+    {
+        "pk": 38, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Nashville"
+        }
+    }, 
+    {
+        "pk": 39, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Orange County"
+        }
+    }, 
+    {
+        "pk": 40, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Raleigh"
+        }
+    }, 
+    {
+        "pk": 41, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Indianapolis"
+        }
+    }, 
+    {
+        "pk": 42, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Austin, Texas"
+        }
+    }, 
+    {
+        "pk": 43, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "San Antonio"
+        }
+    }, 
+    {
+        "pk": 44, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Fort Myers"
+        }
+    }, 
+    {
+        "pk": 45, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Dallas"
+        }
+    }, 
+    {
+        "pk": 46, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Palm Beach"
+        }
+    }, 
+    {
+        "pk": 47, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Hartford - Springfield"
+        }
+    }, 
+    {
+        "pk": 48, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Ontario"
+        }
+    }, 
+    {
+        "pk": 49, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Columbus"
+        }
+    }, 
+    {
+        "pk": 50, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Albuquerque"
+        }
+    }, 
+    {
+        "pk": 51, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "New Orleans"
+        }
+    }, 
+    {
+        "pk": 52, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Kahului"
+        }
+    }, 
+    {
+        "pk": 53, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Jacksonville"
+        }
+    }, 
+    {
+        "pk": 54, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Burbank"
+        }
+    }, 
+    {
+        "pk": 55, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Providence"
+        }
+    }, 
+    {
+        "pk": 56, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Buffalo"
+        }
+    }, 
+    {
+        "pk": 57, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Reno"
+        }
+    }, 
+    {
+        "pk": 58, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Anchorage"
+        }
+    }, 
+    {
+        "pk": 59, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Tucson"
+        }
+    }, 
+    {
+        "pk": 60, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Omaha"
+        }
+    }, 
+    {
+        "pk": 61, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Manchester, New Hampshire"
+        }
+    }, 
+    {
+        "pk": 62, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Norfolk"
+        }
+    }, 
+    {
+        "pk": 63, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Louisville"
+        }
+    }, 
+    {
+        "pk": 64, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Oklahoma City"
+        }
+    }, 
+    {
+        "pk": 65, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "El Paso"
+        }
+    }, 
+    {
+        "pk": 66, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Boise"
+        }
+    }, 
+    {
+        "pk": 67, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Richmond"
+        }
+    }, 
+    {
+        "pk": 68, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Spokane"
+        }
+    }, 
+    {
+        "pk": 69, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Tulsa"
+        }
+    }, 
+    {
+        "pk": 70, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Birmingham"
+        }
+    }, 
+    {
+        "pk": 71, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Kailua Kona"
+        }
+    }, 
+    {
+        "pk": 72, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Albany"
+        }
+    }, 
+    {
+        "pk": 73, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Rochester"
+        }
+    }, 
+    {
+        "pk": 74, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Agana, Guam"
+        }
+    }, 
+    {
+        "pk": 75, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Pensacola"
+        }
+    }, 
+    {
+        "pk": 76, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Long Beach"
+        }
+    }, 
+    {
+        "pk": 77, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Lihue"
+        }
+    }, 
+    {
+        "pk": 78, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Dayton"
+        }
+    }, 
+    {
+        "pk": 79, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Little Rock"
+        }
+    }, 
+    {
+        "pk": 80, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Islip"
+        }
+    }, 
+    {
+        "pk": 81, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Syracuse"
+        }
+    }, 
+    {
+        "pk": 82, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Bentonville"
+        }
+    }, 
+    {
+        "pk": 83, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Grand Rapids"
+        }
+    }, 
+    {
+        "pk": 84, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Colorado Springs"
+        }
+    }, 
+    {
+        "pk": 85, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Savannah"
+        }
+    }, 
+    {
+        "pk": 86, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Des Moines"
+        }
+    }, 
+    {
+        "pk": 87, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Charleston"
+        }
+    }, 
+    {
+        "pk": 88, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Springfield"
+        }
+    }, 
+    {
+        "pk": 89, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Knoxville"
+        }
+    }, 
+    {
+        "pk": 90, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Madison"
+        }
+    }, 
+    {
+        "pk": 91, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Palm Springs"
+        }
+    }, 
+    {
+        "pk": 92, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Greenville-Spartanburg"
+        }
+    }, 
+    {
+        "pk": 93, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Jackson"
+        }
+    }, 
+    {
+        "pk": 94, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Huntsville"
+        }
+    }, 
+    {
+        "pk": 95, 
+        "model": "airport.city", 
+        "fields": {
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Wichita"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 1, 
+            "code": "ATL", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Hartsfield-Jackson Atlanta International"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 2, 
+            "code": "ORD", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "O'Hare International"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 3, 
+            "code": "LAX", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Los Angeles International"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 4, 
+            "code": "DFW", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Dallas/Fort Worth International"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 5, 
+            "code": "DEN", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Denver International"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 6, 
+            "code": "LAS", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "McCarran International"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 7, 
+            "code": "JFK", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "John F. Kennedy International"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 8, 
+            "code": "PHX", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Phoenix Sky Harbor International"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 9, 
+            "code": "IAH", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "George Bush Intercontinental"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 10, 
+            "code": "EWR", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Newark Liberty International"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 11, 
+            "code": "DTW", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Detroit Metropolitan Wayne County"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 12, 
+            "code": "MSP", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Minneapolis-Saint Paul International Airport/Wold-Chamberlain"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 13, 
+            "code": "MCO", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Orlando International"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 14, 
+            "code": "SFO", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "San Francisco International"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 15, 
+            "code": "MIA", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Miami International"
+        }
+    }, 
+    {
+        "pk": 16, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 16, 
+            "code": "PHL", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Philadelphia International"
+        }
+    }, 
+    {
+        "pk": 17, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 17, 
+            "code": "CLT", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Charlotte/Douglas International"
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 18, 
+            "code": "SEA", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Seattle-Tacoma International"
+        }
+    }, 
+    {
+        "pk": 19, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 19, 
+            "code": "BOS", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Logan International"
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 7, 
+            "code": "LGA", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "LaGuardia"
+        }
+    }, 
+    {
+        "pk": 21, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 20, 
+            "code": "IAD", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Washington Dulles International"
+        }
+    }, 
+    {
+        "pk": 22, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 21, 
+            "code": "BWI", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Baltimore-Washington International Thurgood Marshall"
+        }
+    }, 
+    {
+        "pk": 23, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 22, 
+            "code": "SLC", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Salt Lake City International"
+        }
+    }, 
+    {
+        "pk": 24, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 23, 
+            "code": "FLL", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Fort Lauderdale-Hollywood International"
+        }
+    }, 
+    {
+        "pk": 25, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 24, 
+            "code": "HNL", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Honolulu International"
+        }
+    }, 
+    {
+        "pk": 26, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 25, 
+            "code": "MKE", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "General Mitchell International"
+        }
+    }, 
+    {
+        "pk": 27, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 26, 
+            "code": "TPA", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Tampa International"
+        }
+    }, 
+    {
+        "pk": 28, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 20, 
+            "code": "DCA", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Ronald Reagan Washington National"
+        }
+    }, 
+    {
+        "pk": 29, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 2, 
+            "code": "MDW", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Chicago Midway International"
+        }
+    }, 
+    {
+        "pk": 30, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 27, 
+            "code": "SAN", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "San Diego International"
+        }
+    }, 
+    {
+        "pk": 31, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 28, 
+            "code": "CVG", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Cincinnati/Northern Kentucky International"
+        }
+    }, 
+    {
+        "pk": 32, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 29, 
+            "code": "OAK", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Oakland International"
+        }
+    }, 
+    {
+        "pk": 33, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 30, 
+            "code": "STL", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Lambert-St. Louis International"
+        }
+    }, 
+    {
+        "pk": 34, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 31, 
+            "code": "PDX", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Portland International"
+        }
+    }, 
+    {
+        "pk": 35, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 32, 
+            "code": "MEM", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Memphis International"
+        }
+    }, 
+    {
+        "pk": 36, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 33, 
+            "code": "MCI", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Kansas City International"
+        }
+    }, 
+    {
+        "pk": 37, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 34, 
+            "code": "CLE", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Cleveland Hopkins International"
+        }
+    }, 
+    {
+        "pk": 38, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 35, 
+            "code": "SJC", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "San Jose International"
+        }
+    }, 
+    {
+        "pk": 39, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 36, 
+            "code": "SMF", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Sacramento International"
+        }
+    }, 
+    {
+        "pk": 40, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 37, 
+            "code": "PIT", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Pittsburgh International"
+        }
+    }, 
+    {
+        "pk": 41, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 38, 
+            "code": "BNA", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Nashville International"
+        }
+    }, 
+    {
+        "pk": 42, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 39, 
+            "code": "SNA", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "John Wayne"
+        }
+    }, 
+    {
+        "pk": 43, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 40, 
+            "code": "RDU", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Raleigh-Durham International"
+        }
+    }, 
+    {
+        "pk": 44, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 9, 
+            "code": "HOU", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "William P. Hobby"
+        }
+    }, 
+    {
+        "pk": 45, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 41, 
+            "code": "IND", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Indianapolis International"
+        }
+    }, 
+    {
+        "pk": 46, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 42, 
+            "code": "AUS", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Austin-Bergstrom International"
+        }
+    }, 
+    {
+        "pk": 47, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 43, 
+            "code": "SAT", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "San Antonio International"
+        }
+    }, 
+    {
+        "pk": 48, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 44, 
+            "code": "RSW", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Southwest Florida International"
+        }
+    }, 
+    {
+        "pk": 49, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 45, 
+            "code": "DAL", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Dallas Love Field"
+        }
+    }, 
+    {
+        "pk": 50, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 46, 
+            "code": "PBI", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Palm Beach International"
+        }
+    }, 
+    {
+        "pk": 51, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 47, 
+            "code": "BDL", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Bradley International"
+        }
+    }, 
+    {
+        "pk": 52, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 48, 
+            "code": "ONT", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "LA/Ontario International"
+        }
+    }, 
+    {
+        "pk": 53, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 49, 
+            "code": "CMH", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Port Columbus International"
+        }
+    }, 
+    {
+        "pk": 54, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 50, 
+            "code": "ABQ", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Albuquerque International Sunport"
+        }
+    }, 
+    {
+        "pk": 55, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 51, 
+            "code": "MSY", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Louis Armstrong New Orleans International"
+        }
+    }, 
+    {
+        "pk": 56, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 52, 
+            "code": "OGG", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Kahului"
+        }
+    }, 
+    {
+        "pk": 57, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 53, 
+            "code": "JAX", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Jacksonville International"
+        }
+    }, 
+    {
+        "pk": 58, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 54, 
+            "code": "BUR", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Bob Hope"
+        }
+    }, 
+    {
+        "pk": 59, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 55, 
+            "code": "PVD", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Theodore Francis Green"
+        }
+    }, 
+    {
+        "pk": 60, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 56, 
+            "code": "BUF", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Buffalo Niagara International"
+        }
+    }, 
+    {
+        "pk": 61, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 57, 
+            "code": "RNO", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Reno-Tahoe International"
+        }
+    }, 
+    {
+        "pk": 62, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 58, 
+            "code": "ANC", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Ted Stevens Anchorage International"
+        }
+    }, 
+    {
+        "pk": 63, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 59, 
+            "code": "TUS", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Tucson International"
+        }
+    }, 
+    {
+        "pk": 64, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 60, 
+            "code": "OMA", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Eppley Airfield"
+        }
+    }, 
+    {
+        "pk": 65, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 61, 
+            "code": "MHT", 
+            "creation_time": "2011-12-11 11:06:15", 
+            "name": "Manchester-Boston Regional"
+        }
+    }, 
+    {
+        "pk": 66, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 62, 
+            "code": "ORF", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Norfolk International"
+        }
+    }, 
+    {
+        "pk": 67, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 63, 
+            "code": "SDF", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Louisville International Airport-Standiford Field"
+        }
+    }, 
+    {
+        "pk": 68, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 64, 
+            "code": "OKC", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Will Rogers World"
+        }
+    }, 
+    {
+        "pk": 69, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 65, 
+            "code": "ELP", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "El Paso International"
+        }
+    }, 
+    {
+        "pk": 70, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 66, 
+            "code": "BOI", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Boise Airport/Gowen Field"
+        }
+    }, 
+    {
+        "pk": 71, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 67, 
+            "code": "RIC", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Richmond International"
+        }
+    }, 
+    {
+        "pk": 72, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 68, 
+            "code": "GEG", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Spokane International"
+        }
+    }, 
+    {
+        "pk": 73, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 69, 
+            "code": "TUL", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Tulsa International"
+        }
+    }, 
+    {
+        "pk": 74, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 70, 
+            "code": "BHM", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Birmingham-Shuttlesworth International"
+        }
+    }, 
+    {
+        "pk": 75, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 71, 
+            "code": "KOA", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Kona International"
+        }
+    }, 
+    {
+        "pk": 76, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 72, 
+            "code": "ALB", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Albany International"
+        }
+    }, 
+    {
+        "pk": 77, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 73, 
+            "code": "ROC", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Greater Rochester International"
+        }
+    }, 
+    {
+        "pk": 78, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 74, 
+            "code": "GUM", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Antonio B. Won Pat International"
+        }
+    }, 
+    {
+        "pk": 79, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 75, 
+            "code": "PNS", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Pensacola Regional"
+        }
+    }, 
+    {
+        "pk": 80, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 76, 
+            "code": "LGB", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Long Beach Airport (Daugherty Field)"
+        }
+    }, 
+    {
+        "pk": 81, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 77, 
+            "code": "LIH", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Lihue"
+        }
+    }, 
+    {
+        "pk": 82, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 78, 
+            "code": "DAY", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Dayton International"
+        }
+    }, 
+    {
+        "pk": 83, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 79, 
+            "code": "LIT", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Little Rock National Airport (Adams Field)"
+        }
+    }, 
+    {
+        "pk": 84, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 80, 
+            "code": "ISP", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Long Island MacArthur"
+        }
+    }, 
+    {
+        "pk": 85, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 81, 
+            "code": "SYR", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Syracuse Hancock International"
+        }
+    }, 
+    {
+        "pk": 86, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 82, 
+            "code": "XNA", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Northwest Arkansas Regional"
+        }
+    }, 
+    {
+        "pk": 87, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 83, 
+            "code": "GRR", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Gerald R. Ford International"
+        }
+    }, 
+    {
+        "pk": 88, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 84, 
+            "code": "COS", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Colorado Springs"
+        }
+    }, 
+    {
+        "pk": 89, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 85, 
+            "code": "SAV", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Savannah/Hilton Head International"
+        }
+    }, 
+    {
+        "pk": 90, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 86, 
+            "code": "DSM", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Des Moines International"
+        }
+    }, 
+    {
+        "pk": 91, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 87, 
+            "code": "CHS", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Charleston International Airport/AFB"
+        }
+    }, 
+    {
+        "pk": 92, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 13, 
+            "code": "SFB", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Orlando Sanford International"
+        }
+    }, 
+    {
+        "pk": 93, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 88, 
+            "code": "SGF", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Springfield-Branson National"
+        }
+    }, 
+    {
+        "pk": 94, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 89, 
+            "code": "TYS", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "McGhee Tyson"
+        }
+    }, 
+    {
+        "pk": 95, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 90, 
+            "code": "MSN", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Dane County Regional Airport-Truax Field"
+        }
+    }, 
+    {
+        "pk": 96, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 91, 
+            "code": "PSP", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Palm Springs International"
+        }
+    }, 
+    {
+        "pk": 97, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 92, 
+            "code": "GSP", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Greenville-Spartanburg International"
+        }
+    }, 
+    {
+        "pk": 98, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 93, 
+            "code": "JAN", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Jackson-Evers International"
+        }
+    }, 
+    {
+        "pk": 99, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 94, 
+            "code": "HSV", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "Huntsville International"
+        }
+    }, 
+    {
+        "pk": 100, 
+        "model": "airport.airportmaster", 
+        "fields": {
+            "city": 95, 
+            "code": "ICT", 
+            "creation_time": "2011-12-11 11:06:16", 
+            "name": "New Wichita Mid-Continent"
+        }
+    }
+]

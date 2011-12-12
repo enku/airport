@@ -11,21 +11,52 @@
 {% block content %}
 <table id="games_widget">
     <thead>
-        <tr><td colspan="3" id="username">{{ user }}</td></tr>
-        <tr><td colspan="3">Active Games</td></tr>
-        <tr><td>Game</td><td>Players</td><td>Goals</td></tr>
+        <tr><td colspan="5" id="username">{{ user }}</td></tr>
     </thead>
+    <tfoot>
+        <tr><td colspan="5">Active Games</td></tr>
+        <tr>
+            <td>Game</td>
+            <td>Goals</td>
+            <td>Airports</td>
+            <td>Players</td>
+            <td>Host</td>
+        </tr>
+    </tfoot>
     <tbody></tbody>
 </table>
 
+{% if open_game %}
 <div id="create_widget">
-    <a id="start_game" href="#">Start a new game with
-        &nbsp;
-        <input id="goals_range" type="range" min="1" max="5" value="1" step="1" />
-        &nbsp;
-        <span id="goals_count">1 Goal</span>
-    </a>
+    <a href="{% url home %}">Join {{ open_game }}</a>
 </div>
+{% else %}
+<form id="create_widget" method="POST" action="{% url games_create %}">{% csrf_token %}
+<table>
+    <thead>
+        <tr><td colspan="3">Start a new game</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td># Goals</td>
+            <td><input id="goals_range" name="goals" type="range" min="1" max="5"
+                value="1" step="1" /></td>
+            <td id="goals_count">1</td>
+        </tr>
+        <tr>
+            <td># Airports</td>
+            <td><input id="airports_range" name="airports" type="range" min="10" max="{{ airport_count }}" value="10" /></td>
+            <td id="airports_count">10</td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <input type="submit" value="Create" />
+            </td>
+        </tr>
+    </tbody>
+</table>
+</form>
+{% endif %}{# current_game #}
 
 <div id="logout">
     <a href="{% url logout %}">Sign Out</a>
@@ -42,6 +73,7 @@
     {{ block.super }}
 
     <script type="text/javascript">
+        {% include "airport/common.js" %}
         {% include "airport/messages.js" %}
         {% include "airport/games.js" %}
     </script>

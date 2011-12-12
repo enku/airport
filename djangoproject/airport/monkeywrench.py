@@ -18,14 +18,7 @@ import datetime
 import os
 import random
 
-from airport.models import (
-    Airport,
-    Flight,
-    FlightFinished,
-    Goal,
-    Message,
-    UserProfile
-)
+from airport.models import Message
 
 class MonkeyWrench(object):
     """A monkey wrench ☺"""
@@ -43,7 +36,7 @@ class MonkeyWrench(object):
         """Return a list of flights currently in the air"""
         now = self.game.time
         in_flight = []
-        flights = Flight.objects.filter(game=self.game, depart_time__lt=now)
+        flights = self.game.flights.filter(depart_time__lt=now)
         for flight in flights:
             if flight.in_flight(now):
                 in_flight.append(flight)
@@ -54,8 +47,7 @@ class CancelledFlight(MonkeyWrench):
     """Randomly Cancel a flight"""
     def throw(self):
         now = self.game.time
-        flight = Flight.objects.filter(game=self.game,
-                depart_time__gt=now).order_by('?')
+        flight = self.game.flights.filter(depart_time__gt=now).order_by('?')
         if not flight.exists():
             return
         flight = flight[0]
@@ -70,8 +62,7 @@ class DelayedFlight(MonkeyWrench):
     """Delay a flight that hasn't departed yet"""
     def throw(self):
         now = self.game.time
-        flight = Flight.objects.filter(game=self.game,
-                depart_time__gt=now).order_by('?')
+        flight = self.game.flights.filter(depart_time__gt=now).order_by('?')
         if not flight.exists():
             return
         flight = flight[0]
@@ -79,7 +70,7 @@ class DelayedFlight(MonkeyWrench):
         timedelta = datetime.timedelta(minutes=minutes)
         try:
             flight.delay(timedelta, now)
-        except FlightFinished:
+        except flight.Finished:
             # damn, just missed it!
             return
         Message.broadcast(
@@ -91,27 +82,30 @@ class DelayedFlight(MonkeyWrench):
         return
 
 class AllFlightsFromAirportDelayed(MonkeyWrench):
+    """Take a random airport and delay all outgoing flights by a random
+    number of minutes"""
     def throw(self):
         now = self.game.time
-        airport = Airport.objects.all().order_by('?')[0]
-        flights = Flight.objects.filter(game=self.game, origin=airport,
+        airport = self.game.airports.order_by('?')[0]
+        flights = self.game.flights.filter(origin=airport,
                 depart_time__gt=now)
         minutes = random.randint(20, 60)
         timedelta = datetime.timedelta(minutes=minutes)
         for flight in flights:
             try:
                 flight.delay(timedelta, now)
-            except FlightFinished:
+            except flight.Finished:
                 continue
         Message.broadcast(
             'Due to weather, all flights from %s are delayed %s minutes' %
             (airport.code, minutes), self.game)
 
 class AllFlightsFromAirportCancelled(MonkeyWrench):
+    """Cancel all future flights from a random airport"""
     def throw(self):
         now = self.game.time
-        airport = Airport.objects.all().order_by('?')[0]
-        flights = Flight.objects.filter(game=self.game, origin=airport,
+        airport = self.game.airports.order_by('?')[0]
+        flights = self.game.flights.filter(origin=airport,
                 depart_time__gt=now)
         for flight in flights:
             flight.cancel(now)
@@ -128,7 +122,7 @@ class DivertedFlight(MonkeyWrench):
         if not flights:
             return
         flight = random.choice(flights)
-        diverted_to = (Airport.objects
+        diverted_to = (self.game.airports
                 .exclude(id=flight.destination.id)
                 .order_by('?')[0])
         flight.destination = diverted_to
@@ -147,7 +141,8 @@ class LateFlight(MonkeyWrench):
     RANDOM_MESSAGES = (
         'Flight {flight_number} is running {minutes} minutes late',
         'Flight {flight_number} caught some head wind. {minutes} minutes late',
-        '{destination}\'s controller fell asleep. Flight {flight_number} will arrive {minutes} minutes late'
+        ('{destination}\'s controller fell asleep. '
+         'Flight {flight_number} will arrive {minutes} minutes late')
     )
 
     def throw(self):
@@ -174,9 +169,7 @@ class Hint(MonkeyWrench):
     message telling them what (random) airport goes to that goal"""
     def throw(self):
         try:
-            profile = (UserProfile.objects
-                        .filter(game=self.game)
-                        .order_by('?')[0])
+            profile = self.game.players.order_by('?')[0]
         except IndexError:
             return
 
@@ -188,7 +181,7 @@ class Hint(MonkeyWrench):
         except IndexError:
             return
 
-        airport_to_goal = (Airport.objects.filter(
+        airport_to_goal = (self.game.airports.filter(
                 destinations__city=current_goal)
                 .order_by('?')[0])
 
@@ -219,3 +212,14 @@ class MonkeyWrenchFactory(object):
         """Create and return a new MonkeyWrench object"""
         return random.choice(self.wrenches)(game)
 
+    def test(self, wrench):
+        """Only throw this «wrench»
+
+        «wrench» is a MonkeyWrench (sub)class or a string representing one"""
+        try:
+            if issubclass(wrench, MonkeyWrench):
+                self.wrenches = [wrench]
+                return
+        except TypeError:
+            pass
+        self.wrenches = [globals()[wrench]]

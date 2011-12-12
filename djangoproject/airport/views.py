@@ -7,22 +7,23 @@ import random
 
 from django import get_version
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
-from django.template.defaultfilters import date
+from django.template.defaultfilters import date, escape
+from django.views.decorators.http import require_http_methods
 
 from airport import VERSION
 from airport.models import (
         Achiever,
+        AirportMaster,
         Flight,
-        FlightAlreadyDeparted,
         Game,
         Goal,
         Message,
@@ -51,6 +52,8 @@ def info(request):
 
     game = profile.current_game
     if not game:
+        Message.send(profile,
+            'The game has either ended or not yet started')
         return json_redirect(reverse(games_home))
     now, airport, ticket = game.update(profile)
 
@@ -65,7 +68,7 @@ def info(request):
             # try to purchase the flight
             try:
                 ticket = profile.purchase_flight(flight, now)
-            except FlightAlreadyDeparted:
+            except Flight.AlreadyDeparted:
                 Message.send(profile, 'Flight %s has already left' % flight.number)
         return redirect(info)
 
@@ -142,8 +145,19 @@ def flights(request):
 @login_required
 def games_home(request):
     """Main games view"""
+    try:
+        open_game = Game.objects.exclude(state=0)
+        open_game = open_game.filter(players=request.user.profile)[0]
+        if request.user.profile in open_game.winners():
+            open_game = None
+    except IndexError:
+        open_game = None
+    airport_count = AirportMaster.objects.all().count()
+
     return render_to_response('airport/games.html', {
-        'user': request.user.username
+        'user': request.user.username,
+        'open_game': open_game,
+        'airport_count': airport_count
         },
         RequestContext(request)
     )
@@ -154,10 +168,24 @@ def games_info(request):
 
     # active games
     games = Game.objects.annotate(Count('players', distinct=True))
+    games = games.annotate(Count('airports', distinct=True))
     games = games.annotate(Count('goals', distinct=True))
     games = games.exclude(state=0)
-    games = games.values('id', 'players__count', 'goals__count')
-    games = list(games)
+    games = games.order_by('creation_time')
+    games = games.values_list(
+        'id',
+        'players__count',
+        'host__user__username',
+        'goals__count',
+        'airports__count')
+    glist = []
+    for game in games:
+        glist.append(dict(
+            id = game[0],
+            players = game[1],
+            host = escape(game[2]),
+            goals = game[3],
+            airports = game[4]))
 
     current_game = (Game.objects
             .exclude(state=0)
@@ -175,29 +203,40 @@ def games_info(request):
     messages = Message.get_messages(request)
 
     data = {
-            'games': games,
+            'games': glist,
             'current_game': current_game,
             'finished_current': finished_current,
             'messages': [{'id': i.id, 'text': i.text} for i in messages]
     }
     return HttpResponse(json.dumps(data), mimetype='application/json')
 
+@require_http_methods(['POST'])
 @login_required
-def games_create(request, goals):
+def games_create(request):
     """Create a game, or if the user is currently in a non-closed game,
     send a message saying they can't create a game(yet).  Finally, redirect
     to the games view
     """
     user = request.user
     profile = user.profile
-    goals = int(goals)
 
-    games = Game.objects.exclude(state=0, players=profile)
+    try:
+        num_goals = int(request.POST['goals'])
+        num_airports = int(request.POST['airports'])
+    except KeyError:
+        text = ('Error creating game.  Incorrect params: '
+                'goals: %s, airports: %s' % (request.POST.get('goals'),
+                    request.POST.get('params')))
+        Message.send(profile, text)
+        return redirect(games_home)
+
+    games = Game.objects.exclude(state=Game.GAME_OVER)
+    games = games.filter(players=profile)
     if games.exists() and not all([profile in i.winners() for i in games]):
         Message.send(profile, ('Cannot create a game since you are '
             'already playing an open game.'))
     else:
-        game = Game.create(profile, goals)
+        game = Game.create(profile, num_goals, num_airports)
         game.save()
 
     return redirect(games_home)
