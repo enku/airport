@@ -590,7 +590,8 @@ class Game(AirportModel):
     @classmethod
     def create(cls, host, goals, airports, dest_per_airport=5):
         """Create a new «Game»"""
-        master_airports = list(AirportMaster.objects.distinct().order_by('?'))
+        master_airports = list(AirportMaster.objects.distinct())
+        random.shuffle(master_airports)
 
         game = cls()
         game.host = host
