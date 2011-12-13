@@ -11,9 +11,7 @@
 {% block content %}
 <table id="games_widget">
     <thead>
-        <tr><td colspan="5" id="username">{{ user }}</td></tr>
-    </thead>
-    <tfoot>
+        <tr><td class="titlebar" colspan="5" id="username">{{ user }}</td></tr>
         <tr><td colspan="5">Active Games</td></tr>
         <tr>
             <td>Game</td>
@@ -22,7 +20,7 @@
             <td>Players</td>
             <td>Host</td>
         </tr>
-    </tfoot>
+    </thead>
     <tbody></tbody>
 </table>
 
@@ -33,7 +31,7 @@
     <form method="post" action="{% url games_create %}">{% csrf_token %}
     <table>
         <thead>
-            <tr><td colspan="3">Start a new game</td></tr>
+            <tr><td class="titlebar" colspan="3">Start a new game</td></tr>
         </thead>
         <tbody>
             <tr>
