@@ -628,7 +628,7 @@ class Game(AirportModel):
         current_airport = game.start_airport
         goal_airports = []
         for i in range(1, goals + 1):
-            direct_flights = current_airport.destinations.all()
+            direct_flights = current_airport.destinations.distinct()
             dest = Airport.objects.filter(game=game)
             dest = dest.exclude(id=current_airport.id)
             dest = dest.exclude(id__in=[j.id for j in goal_airports])
@@ -642,6 +642,8 @@ class Game(AirportModel):
             goal.order = i
             goal.save()
             goal_airports.append(dest)
+
+            current_airport = dest
 
         game.add_player(host)
         Message.broadcast('%s has created %s' %(host.user.username, game))
