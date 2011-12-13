@@ -155,6 +155,9 @@ def _get_destinations_for(airport, dest_count):
     * destination airports can't add more than «dest_count»
     * destination can't be in the same city
     """
+    #if dest_count < 1:
+    #    raise ValueError("Can't have < 1 destinations on an airport")
+
     qs = Airport.objects.exclude(city=airport.city)
     qs = qs.filter(game=airport.game)
     qs = qs.exclude(id=airport.id)
@@ -418,26 +421,8 @@ class UserProfile(AirportModel):
     def current_game(self):
         """Return user's current open game or None if there is none"""
         try:
-            game = self.games.order_by('-timestamp')[0]
-            if game.state == game.GAME_OVER:
-                return None
-
-            if game.state == game.IN_PROGRESS:
-                if self in game.winners():
-                    return None
-                else:
-                    return game
-
-            if game.state == game.NOT_STARTED and game.host == self:
-                game.begin()
-                return game
-
-            if game.state == game.NOT_STARTED:
-                return None
-
-            return None
-
-        except IndexError:
+            return self.games.latest('timestamp')
+        except Game.DoesNotExist:
             return None
 
     @property
@@ -603,9 +588,9 @@ class Game(AirportModel):
         return u'Game %s' % self.pk
 
     @classmethod
-    def create(cls, host, goals, airports, dest_per_airport=4):
+    def create(cls, host, goals, airports, dest_per_airport=5):
         """Create a new «Game»"""
-        master_airports = AirportMaster.objects.all().order_by('?')
+        master_airports = list(AirportMaster.objects.distinct().order_by('?'))
 
         game = cls()
         game.host = host
@@ -632,8 +617,12 @@ class Game(AirportModel):
 
         # populate the airports with destinations
         for airport in game.airports.all():
-            airport.destinations = _get_destinations_for(airport,
+            new_destinations = _get_destinations_for(airport,
                     dest_per_airport)
+            for destination in new_destinations:
+                if airport.destinations.count() >= dest_per_airport:
+                    break
+                airport.destinations.add(destination)
 
         # add goals
         current_airport = game.start_airport

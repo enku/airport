@@ -68,9 +68,10 @@ function main() {
     $('#goals_range').change(update_goals);
     $('#airports_range').change(update_airports);
     $('#start_game').click(create_game);
-    $('#stats_widget').load('{% url airport.views.games_stats %}');
+    $('#my_stats_widget').load('{% url airport.views.games_stats %}');
 
     /* widgets that are draggable and remember their positions */
+    $('#my_stats_widget').memdraggable();
     $('#games_widget').memdraggable();
     $('#create_widget').memdraggable();
     $('#message_widget').memdraggable();

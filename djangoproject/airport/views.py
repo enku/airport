@@ -40,6 +40,23 @@ MWF = MonkeyWrenchFactory()
 @login_required
 def home(request):
     """Main view"""
+    profile = request.user.profile
+    game = profile.current_game
+
+    if not game:
+        return redirect(games_home)
+    if game.state == game.GAME_OVER:
+        Message.send(profile, '%s is over' % game)
+        return redirect(games_home)
+    if profile in game.winners():
+        return redirect(games_home)
+    if game.state == game.NOT_STARTED:
+        if profile == game.host:
+            game.begin()
+        else:
+            Message.send(profile, 'Waiting for %s to start the game' %
+                    game.host.user.username)
+            return redirect(games_home)
     return render_to_response('airport/home.html', {}, RequestContext(request))
 
 @login_required
@@ -51,9 +68,7 @@ def info(request):
     profile = user.profile
 
     game = profile.current_game
-    if not game:
-        Message.send(profile,
-            'The game has either ended or not yet started')
+    if not game or game.state == game.GAME_OVER or profile in game.winners():
         return json_redirect(reverse(games_home))
     now, airport, ticket = game.update(profile)
 
@@ -145,13 +160,14 @@ def flights(request):
 @login_required
 def games_home(request):
     """Main games view"""
-    try:
-        open_game = Game.objects.exclude(state=0)
-        open_game = open_game.filter(players=request.user.profile)[0]
-        if request.user.profile in open_game.winners():
-            open_game = None
-    except IndexError:
+    profile = request.user.profile
+    open_game = profile.current_game
+    print open_game
+
+    if open_game and (open_game.state == open_game.GAME_OVER or profile in
+            open_game.winners()):
         open_game = None
+
     airport_count = AirportMaster.objects.all().count()
 
     return render_to_response('airport/games.html', {
@@ -253,7 +269,10 @@ def games_join(request, game_id):
         Message.send(profile, 'Could not join you to %s because it is over'
                 % game)
     elif game.players.filter(id=profile.id).exists():
-        Message.send(profile, 'You have already joined %s' % game)
+        if profile in game.winners():
+            Message.send(profile, 'You have already finished %s' % game)
+        else:
+            Message.send(profile, 'You have already joined %s' % game)
     else:
         game.add_player(profile)
 

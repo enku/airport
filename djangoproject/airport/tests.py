@@ -72,6 +72,14 @@ class AirportTest(TestCase):
                 future_only=True, auto_create=False)
         self.assertEqual(len(next_flights), 0)
 
+    def test_distinct_airports(self):
+        """Ensure games doesn't have duplicate airports"""
+        for i in range(10):
+            game = models.Game.create(self.user.profile, 1,
+                    random.randint(10, 50))
+            codes = game.airports.values_list('code', flat=True)
+            self.assertEqual(len(set(codes)), len(codes))
+
 class FlightTest(TestCase):
     """Test the Flight Model"""
 
@@ -126,7 +134,7 @@ class FlightTest(TestCase):
         """Test properties on the Flight model"""
         airports = models.Airport.objects.all()
         airport = random.choice(airports)
-        destination = random.choice(airport.destinations.all())
+        destination = self.game.airports.order_by('?')[0]
         depart_time = datetime.datetime(2011, 11, 18, 4, 50)
         flight_time = 60
 
@@ -341,41 +349,35 @@ class CurrentGameTest(TestCase):
         self.users = create_users(2)
 
     def test_no_games_created(self):
-        """Test that when there are not games created, current_game is
+        """Test that when there are no games created, current_game is
         None"""
         user = self.users[0]
         self.assertEqual(user.profile.current_game, None)
 
     def test_game_not_started(self):
-        """Test that current_game doesn't return a game until it's begun,
-        except for the host, which is is started and returns the game"""
+        """Test that th when a Game has not yet begun, but the player is in
+        the game, returns the Game"""
         user = self.users[0]
         user2 = self.users[1]
 
         game = models.Game.create(user.profile, 1, 10)
-        game.add_player(user2.profile)
-        self.assertEqual(user2.profile.current_game, None)
         self.assertEqual(user.profile.current_game, game)
+        self.assertEqual(user.profile.current_game.state, game.NOT_STARTED)
 
-        game.begin()
-        self.assertEqual(user.profile.current_game, game)
-
-    def test_game_joining(self):
-        """Test that a game is returned when you join it, but not until it
-        has begun"""
-
-        user1 = self.users[0]
-        user2 = self.users[1]
-        game = models.Game.create(user1.profile, 1, 10)
-
-        game.add_player(user2.profile)
+        # add a user to the game, don't start it yet
         self.assertEqual(user2.profile.current_game, None)
-
-        game.begin()
+        game.add_player(user2.profile)
         self.assertEqual(user2.profile.current_game, game)
+        self.assertEqual(user2.profile.current_game.state, game.NOT_STARTED)
+
+        game.begin()
+        self.assertEqual(user.profile.current_game, game)
+        self.assertEqual(user.profile.current_game.state, game.IN_PROGRESS)
+        self.assertEqual(user2.profile.current_game.state, game.IN_PROGRESS)
 
     def test_game_over(self):
-        """Test that when a game is over current_game returns None"""
+        """Test that when a game is over current_game returns the game, but
+        statis us GAME_OVER"""
         user = self.users[0]
         game = models.Game.create(user.profile, 1, 10)
 
@@ -387,8 +389,8 @@ class CurrentGameTest(TestCase):
         game.update(user)
 
         # game should be over
+        self.assertEqual(user.profile.current_game, game)
         self.assertEqual(game.state, game.GAME_OVER)
-        self.assertEqual(user.profile.current_game, None)
 
 class PerGameAirports(TestCase):
     def setUp(self):

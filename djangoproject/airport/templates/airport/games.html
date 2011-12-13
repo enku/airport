@@ -26,47 +26,48 @@
     <tbody></tbody>
 </table>
 
-{% if open_game %}
 <div id="create_widget">
-    <a href="{% url home %}">Join {{ open_game }}</a>
-</div>
+{% if open_game %}
+    <a href="{% url home %}">Enter Airport <span style="font-size: smaller">({{ open_game }})</span></a>
 {% else %}
-<form id="create_widget" method="POST" action="{% url games_create %}">{% csrf_token %}
-<table>
-    <thead>
-        <tr><td colspan="3">Start a new game</td></tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td># Goals</td>
-            <td><input id="goals_range" name="goals" type="range" min="1" max="5"
-                value="1" step="1" /></td>
-            <td id="goals_count">1</td>
-        </tr>
-        <tr>
-            <td># Airports</td>
-            <td><input id="airports_range" name="airports" type="range" min="10" max="{{ airport_count }}" value="10" /></td>
-            <td id="airports_count">10</td>
-        </tr>
-        <tr>
-            <td colspan="3">
-                <input type="submit" value="Create" />
-            </td>
-        </tr>
-    </tbody>
-</table>
-</form>
-{% endif %}{# current_game #}
-
-<div id="logout">
-    <a href="{% url logout %}">Sign Out</a>
-</div>
+    <form method="post" action="{% url games_create %}">{% csrf_token %}
+    <table>
+        <thead>
+            <tr><td colspan="3">Start a new game</td></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td># Goals</td>
+                <td><input id="goals_range" name="goals" type="range" min="1" max="5"
+                    value="1" step="1" /></td>
+                <td id="goals_count">1</td>
+            </tr>
+            <tr>
+                <td># Airports</td>
+                <td><input id="airports_range" name="airports" type="range" min="10" max="{{ airport_count }}" value="10" /></td>
+                <td id="airports_count">10</td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <input type="submit" value="Create" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </form>
+{% endif %}{# open_game #}
+</div>{# create_widget #}
 
 <div id="message_widget">
     <div id="message_box"></div>
 </div><!-- message_widget -->
 
-<div id="stats_widget"></div>
+<div id="my_stats_widget"></div>
+
+<div id="logout">
+    <a href="{% url logout %}">Sign Out</a>
+</div>
+
 {% endblock %}{# content #}
 
 {% block scripts %}

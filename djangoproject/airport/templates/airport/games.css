@@ -1,13 +1,19 @@
 {% include "airport/common.css" %}
 #games_widget {
-    min-width: 600px;
-    margin: auto;
-    margin-bottom: 60px;
+    /* width: 600px; */
+    width: 45%;
+}
+
+tbody {
+    overflow: scroll;
+}
+
+#games_widget tbody *::-webkit-scrollbar {
+    visibility: visible;
 }
 
 table {
     border-collapse: collapse;
-    margin: auto;
     margin-bottom: 60px;
 }
 
@@ -21,10 +27,16 @@ td {
 }
 
 a {
-    display: inline-block;
-    color: yellow;
-    border: 2px solid blue;
-    padding: 3px;
+    color: #01004B;
+    text-decoration: none;
+}
+
+#games_widget a, #create_widget a {
+    font-weight: bold;
+    text-decoration: underline;
+    color: white;
+    border: 1px solid black;
+    padding: 3px 7px;
     background: #C70000;
     box-shadow: inset 0 2px 6px white, 0 3px 3px rgba(0,0,0,0.6);
 }
@@ -45,7 +57,9 @@ thead tr td {
 }
 
 #create_widget {
-    margin: auto;
+    position: absolute;
+    top: 5px;
+    right: 5px;
 }
 
 a#start_game {
@@ -62,8 +76,8 @@ a#start_game {
 
 #logout {
     position: absolute;
-    top: 5px;
-    left: 5px;
+    bottom: 5px;
+    left: 5px; */
 }
 
 .stat_name {
@@ -74,9 +88,9 @@ a#start_game {
     text-align: right;
 }
 
-#stats_widget {
+#my_stats_widget {
     position: absolute;
-    bottom: 5px;
+    top: 50%;
     left: 5px;
 }
 
