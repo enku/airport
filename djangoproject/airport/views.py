@@ -99,6 +99,12 @@ def info(request):
             ticket.origin))
         Purchase.objects.get_or_create(profile=profile, game=game,
                 flight=ticket)
+
+    if request.session.get('in_flight', False) and not in_flight:
+        notify = 'You have arrived at %s' % airport
+    else:
+        notify = None
+
     request.session['in_flight'] = in_flight
 
     goal_list = []
@@ -118,6 +124,7 @@ def info(request):
             'in_flight': in_flight,
             'goals': goal_list,
             'stats': stats,
+            'notify': notify,
             'player': user.username
         },
         default=DTHANDLER

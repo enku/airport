@@ -1,5 +1,19 @@
 var goldstar = "{{ gold_star }}";
 var inbox = "{{ inbox_icon }}";
+var notify_timeout = 20000 /* milliseconds */
+
+function notify(message) {
+    /* send a desktop notification, if allowed */
+    if (!window.webkitNotifications) {
+        return;
+    }
+    if (window.webkitNotifications.checkPermission() == 0) {
+        var notification = window.webkitNotifications.createNotification(
+            '{{ notification_icon }}', 'Airport', message);
+        notification.show();
+        setTimeout(function() { notification.cancel();}, notify_timeout);
+    }
+}
 
 function refresh_ui(data) {
     var odd_or_even;
@@ -10,6 +24,10 @@ function refresh_ui(data) {
     if (data['redirect']) {
         window.location.replace(data['redirect']);
         return;
+    }
+
+    if (data['notify']) {
+        notify(data['notify']);
     }
 
     $('#username').html(data['player']);
@@ -108,9 +126,29 @@ function buy_ticket() {
     return false;
 }
 
+function show_notifications_widget() {
+    /* show the notifications permission checkbox if the browser supports it,
+     * but the user has not allowed the permission */
+    if (window.webkitNotifications 
+        && window.webkitNotifications.checkPermission() != 0) {
+        $('#notification_permission').show();
+    }
+}
+
+function permit_notifications_cb() {
+    /* call requestPermissions if the user has clicked on the allow
+     * notifications checkbox */
+    $('#notification_permission').fadeOut();
+    if (window.webkitNotifications) {
+        window.webkitNotifications.requestPermission();
+    }
+}
+
 function main() {
     /* document.ready function */
     $('#airplane_widget').hide();
+    $('#notification_permission').hide();
+    show_notifications_widget();
 
     $('#goal_widget').memdraggable();
     $('#stats_widget').memdraggable();
@@ -120,6 +158,7 @@ function main() {
     $('#clock').memdraggable();
 
     $('#frm').submit(buy_ticket);
+    $('#permit_notify').click(permit_notifications_cb);
 
     $.ajax({
         url: "{% url info %}",

@@ -207,3 +207,11 @@ tr.header td {
     font-weight: bold;
     margin-bottom: 3px;
 }
+
+#notification_permission {
+    display: none;
+    font-size: 8pt;
+    position: absolute;
+    left: 3px;
+    bottom: 3px;
+}
