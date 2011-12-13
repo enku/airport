@@ -89,11 +89,12 @@ a#start_game {
 }
 
 #my_stats_widget {
+    width: 420px;
+    height: 205px;
     position: absolute;
-    top: 50%;
+    top: 400px;
     left: 5px;
 }
 
 #games_stats {
-    margin: 0;
 }
