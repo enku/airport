@@ -77,13 +77,9 @@ a#start_game {
 }
 
 #my_stats_widget {
-    width: 420px;
-    height: 200px;
     position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -100px;
-    margin-left: -210px;
+    left: 470px;
+    bottom: 5px; 
 }
 
 #games_stats {
