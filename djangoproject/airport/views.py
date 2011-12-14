@@ -98,7 +98,7 @@ def info(request):
 
     if not request.session.get('in_flight', False) and in_flight:
         Message.announce(user, '%s has left %s' % (user,
-            ticket.origin))
+            ticket.origin), game)
         Purchase.objects.get_or_create(profile=profile, game=game,
                 flight=ticket)
 
@@ -215,7 +215,7 @@ def games_info(request):
             host = escape(game[2]),
             goals = game[3],
             airports = game[4],
-            status = ['New', 'Started', 'Finished'][game[5] + 1],
+            status = ['New', 'Finished', 'Started'][game[5] + 1],
             created = naturaltime(game[6])))
 
     current_game = (Game.objects

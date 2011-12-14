@@ -778,7 +778,7 @@ class Game(AirportModel):
                     ach.timestamp = previous_ticket.arrival_time
                     ach.save()
                     Message.announce(player, '%s has achieved %s'
-                            % (player.user.username, goal))
+                            % (player.user.username, goal), self)
                     break
                 else:
                     break
