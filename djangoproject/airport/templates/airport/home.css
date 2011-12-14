@@ -1,6 +1,5 @@
 {% include "airport/common.css" %}
 table {
-    margin: auto;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
 }
 
@@ -130,6 +129,8 @@ tr.header td {
     left: 470px;
     bottom: 5px; 
     display: none;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .ticket_label {
@@ -144,17 +145,17 @@ tr.header td {
     background: transparent;
 }
 
-#ticket_widget div {
+#ticket_widget tr td {
     padding-top: 8px;
     padding-right: 10px;
     margin: 1px 0;
 }
 
-#ticket_widget div.odd {
+#ticket_widget tr.odd  td {
     background: #90EE90;
 }
 
-#ticket_widget div.even {
+#ticket_widget tr.even td {
     background: transparent;
 }
 

@@ -28,17 +28,24 @@
             <tbody id="flights"></tbody>
         </table>
     </form>
-    <div id="ticket_widget">
-        <div class="odd"><span id="ticket_name"></div>
-        <div class="even" id="ticket_no"></div>
-        <div class="odd">
-            <span id="ticket_origin"></span> <span id="ticket_dest"></span>
-        </div>
-        <div class="even">
-            <span id="ticket_depart"></span> <span id="ticket_arrive"></span>
-        </div>
-    </div><!-- ticket_widget -->
 </div><!-- airport_widget -->
+
+<table id="ticket_widget">
+    <tr class="odd">
+        <td><span class="ticket_label">AIRLINE</span> ACME AIR</td>
+        <td id="ticket_name"></td>
+    </tr>
+    <tr class="even">
+        <td id="ticket_no"></td>
+        <td id="ticket_status"></td>
+    </tr>
+    <tr class="odd">
+        <td id="ticket_origin"></td><td id="ticket_dest"></td>
+    </tr>
+    <tr class="even">
+        <td id="ticket_depart"></td><td id="ticket_arrive"></td>
+    </tr>
+</table> {#-- ticket_widget #}
 
 <div id="airplane_widget">
     <div id="flying">

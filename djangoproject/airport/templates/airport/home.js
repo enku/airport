@@ -60,6 +60,8 @@ function refresh_ui(data) {
     if (ticket) {
         $('#ticket_name').html('<span class="ticket_label">NAME</span> '
                 + data['player'].toUpperCase());
+        $('#ticket_status').html('<span class="ticket_label">STATUS</span> '
+                + ticket['status'].toUpperCase());
         $('#ticket_no').html('<span class="ticket_label">FLIGHT</span> '
                 + ticket['number']);
         $('#ticket_origin').html('<span class="ticket_label">FROM</span> '
@@ -72,8 +74,8 @@ function refresh_ui(data) {
                 + ticket['arrival_time'].toUpperCase());
         $('#ticket_widget').fadeIn();
     } 
-    else {
-        $('#ticket_widget').fadeOut();
+    else if ($('#ticket_widget').is(':visible')) {
+        $('#ticket_widget').hide('drop', { direction: 'down' }, 500);
     }
         
     // goals
