@@ -41,6 +41,8 @@ function refresh_ui(data) {
                 + data['ticket']['destination']
                 + ' arriving at <span class="time">'
                 + data['ticket']['arrival_time']
+                + '&nbsp;<span class="fsb">NO SMOKING</span>'
+                + '&nbsp;<span class="fsb">FASTEN SEATBELT WHILE SEATED</span>'
                 + '</span>');
 
         $('#airport_widget').hide();
