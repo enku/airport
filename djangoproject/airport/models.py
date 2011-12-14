@@ -274,7 +274,7 @@ class Flight(AirportModel):
             status = 'On time'
 
         if not self.origin.destinations.filter(id=self.destination.id).exists():
-            status = '%s (D)' % status
+            status = '%s*' % status
         return status
 
     def buyable(self, profile, now):
