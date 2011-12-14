@@ -53,6 +53,8 @@ def home(request):
     if game.state == game.NOT_STARTED:
         if profile == game.host:
             game.begin()
+            Message.announce(request.user, '%s has started %s' % (request.user,
+                game))
         else:
             Message.send(profile, 'Waiting for %s to start the game' %
                     game.host.user.username)
