@@ -1,8 +1,6 @@
 {% include "airport/common.css" %}
 table {
-    border-collapse: collapse;
     margin: auto;
-    margin-bottom: 60px;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
 }
 

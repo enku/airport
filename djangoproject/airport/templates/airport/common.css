@@ -6,6 +6,12 @@ body {
 
 a {
     color: #01004B;
+    text-decoration: none;
+    font-size: smaller;
+}
+
+table {
+    border-collapse: collapse;
 }
 
 ::-webkit-scrollbar {

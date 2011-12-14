@@ -10,11 +10,6 @@ tbody {
     visibility: visible;
 }
 
-table {
-    border-collapse: collapse;
-    margin-bottom: 60px;
-}
-
 td {
     border: 1px solid #BFBFBF;
     text-align: center;
@@ -24,15 +19,10 @@ td {
     padding: 7px;
 }
 
-a {
-    color: #01004B;
-    text-decoration: none;
-}
-
 #games_widget a, #create_widget a {
     font-weight: bold;
-    text-decoration: underline;
     color: white;
+    font-size: medium;
     border: 1px solid black;
     padding: 3px 7px;
     background: #C70000;
@@ -75,7 +65,7 @@ a#start_game {
 #logout {
     position: absolute;
     bottom: 5px;
-    left: 5px; */
+    right: 5px;
 }
 
 .stat_name {
@@ -88,10 +78,12 @@ a#start_game {
 
 #my_stats_widget {
     width: 420px;
-    height: 205px;
+    height: 200px;
     position: absolute;
-    top: 400px;
-    left: 5px;
+    top: 50%;
+    left: 50%;
+    margin-top: -100px;
+    margin-left: -210px;
 }
 
 #games_stats {
