@@ -12,6 +12,8 @@ function update_games_list(data) {
                 + '<td>' + game['airports'] + '</td>'
                 + '<td>' +  game['players'] + '</td>'
                 + '<td>' + game['host'] + '</td>'
+                + '<td>' + game['status'] + '</td>'
+                + '<td>' + game['created'] + '</td>'
                 + '</tr>\n');
     }
     $('#games_widget tbody').html(s);

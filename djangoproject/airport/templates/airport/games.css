@@ -1,7 +1,5 @@
 {% include "airport/common.css" %}
 #games_widget {
-    /* width: 600px; */
-    width: 45%;
 }
 
 tbody {

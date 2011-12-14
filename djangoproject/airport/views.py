@@ -200,7 +200,9 @@ def games_info(request):
         'players__count',
         'host__user__username',
         'goals__count',
-        'airports__count')
+        'airports__count',
+        'state',
+        'creation_time')
     glist = []
     for game in games:
         glist.append(dict(
@@ -208,7 +210,9 @@ def games_info(request):
             players = game[1],
             host = escape(game[2]),
             goals = game[3],
-            airports = game[4]))
+            airports = game[4],
+            status = ['New', 'Started', 'Finished'][game[5] + 1],
+            created = naturaltime(game[6])))
 
     current_game = (Game.objects
             .exclude(state=0)
@@ -391,3 +395,35 @@ def create_user(username, password):
 
     return new_user
 
+# TODO: borrowed from Django development version, remove when released
+def naturaltime(value, arg=None):
+    """
+    For date and time values shows how many seconds, minutes or hours ago compared to
+    current timestamp returns representing string. Otherwise, returns a string
+    formatted according to settings.DATE_FORMAT
+    """
+    try:
+        value = datetime.datetime(value.year, value.month, value.day,
+                value.hour, value.minute, value.second)
+    except AttributeError:
+        return value
+    except ValueError:
+        return value
+
+    delta = datetime.datetime.now() - value
+    if delta.days != 0:
+        value = datetime.date(value.year, value.month, value.day)
+        return naturalday(value, arg)
+    elif delta.seconds == 0:
+        return (u'now')
+    elif delta.seconds < 60:
+        return (u"%s seconds ago" % (delta.seconds))
+    elif delta.seconds / 60 < 2:
+        return (r'a minute ago')
+    elif delta.seconds / 60 < 60:
+        return (u"%s minutes ago" % (delta.seconds/60))
+    elif delta.seconds / 60 / 60 < 2:
+        return (u'an hour ago')
+    elif delta.seconds / 60 / 60 < 24:
+        return (u"%s hours ago" % (delta.seconds/60/60))
+    return naturalday(value, arg)
