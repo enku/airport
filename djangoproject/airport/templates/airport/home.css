@@ -89,15 +89,9 @@ tr.header td {
 }
 
 #exit {
-    border: 1px solid black;
-    padding: 3px 0 3px 3px;
-    background: #C70000;
-}
-
-#exit a {
-    display: block;
-    color: white;
-    font-weight: bold;
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
 }
 
 .time {
@@ -119,8 +113,9 @@ tr.header td {
 }
 
 #ticket_widget {
-    min-width: 200px; 
+    width: 320px; 
     height: 110px;
+    overflow: hidden;
     font-size: 12px;
     font-family: "Monospace", fixed;
     font-weight: bold;
@@ -132,7 +127,7 @@ tr.header td {
     border-radius: 8px;
     box-shadow: 2px 1px 1px #888888;
     position: absolute;
-    left: 5px;
+    left: 470px;
     bottom: 5px; 
     display: none;
 }
@@ -208,8 +203,7 @@ tr.header td {
 
 #notification_permission {
     display: none;
-    font-size: 8pt;
-    position: absolute;
-    left: 3px;
-    bottom: 3px;
+    color: #01004B;
+    text-decoration: none;
+    font-size: smaller;
 }

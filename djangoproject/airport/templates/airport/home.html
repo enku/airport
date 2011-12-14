@@ -26,11 +26,6 @@
                 </tr>
             </thead>
             <tbody id="flights"></tbody>
-            <tbody>
-                <tr>
-                    <td id="exit" colspan="6"><a href="{% url games %}">Leave Airport</a></td>
-                </tr>
-            </tbody>
         </table>
     </form>
     <div id="ticket_widget">
@@ -68,9 +63,12 @@
     <div id="stats_box"></div>
 </div>
 
-<div id="notification_permission">
-    <input type="checkbox" name="permit_notify" id="permit_notify" />
-    Allow Desktop Notifications
+<div id="exit">
+    <span id="notification_permission">
+        <input type="checkbox" name="permit_notify" id="permit_notify" />
+        Allow Desktop Notifications |
+    </span>
+    <a href="{% url games %}">Leave Airport</a>
 </div>
 
 {% endblock %}{# content #}
