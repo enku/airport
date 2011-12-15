@@ -134,6 +134,29 @@ class DivertedFlight(MonkeyWrench):
         self.thrown = True
         return
 
+class MechanicalProblem(MonkeyWrench):
+    """This is like diverted flight, but:
+
+    * It diverts back to the originating airport and:
+    * The flight time multiplied by how far it's travelled
+    """
+    def throw(self):
+        flights = self.flights_in_the_air()
+        if not flights:
+            return
+        flight = random.choice(flights)
+        if flight.destination == flight.origin:
+            return
+        flight.destination = flight.origin
+        time_travelled = self.game.time - flight.depart_time
+        flight.flight_time = time_travelled.total_seconds() * 2 / 60
+        flight.save()
+        Message.broadcast('Flight %s is having mechanical problems '
+                'and will return to %s' % (flight.number, flight.origin),
+                self.game)
+        self.thrown = True
+        return
+
 class LateFlight(MonkeyWrench):
     """Make an in-air flight run late"""
     MIN_LATENESS = 10 # Minutes

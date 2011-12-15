@@ -96,6 +96,10 @@ def info(request):
     else:
         in_flight = False
 
+    if ticket and not in_flight and ticket.destination == ticket.origin:
+        # special case when e.g. flight diverted back to origin
+        ticket = None
+
     if not request.session.get('in_flight', False) and in_flight:
         Message.announce(user, '%s has left %s' % (user,
             ticket.origin), game)
