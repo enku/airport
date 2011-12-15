@@ -53,9 +53,10 @@ function refresh_ui(data) {
 
         $('#flights').load('{% url airport.views.flights %}');
 
-
-        $('#airport_widget').show();
         $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
+        if (!$('#airport_widget').is(':visible')) {
+            $('#airport_widget').show('drop', { direction: 'up' }, 500);
+        }
     }
 
     ticket = data['ticket'];
