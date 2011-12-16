@@ -422,7 +422,7 @@ class UserProfile(AirportModel):
         """Return user's current open game or None if there is none"""
         try:
             return self.games.order_by('-id')[0]
-        except Game.DoesNotExist:
+        except IndexError:
             return None
 
     @property
