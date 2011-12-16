@@ -177,7 +177,6 @@ def games_home(request):
     """Main games view"""
     profile = request.user.profile
     open_game = profile.current_game
-    print open_game
 
     if open_game and (open_game.state == open_game.GAME_OVER or profile in
             open_game.winners()):
