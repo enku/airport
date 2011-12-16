@@ -11,6 +11,7 @@ from django.contrib import messages as django_messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturalday
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse
@@ -21,7 +22,6 @@ from django.views.decorators.http import require_http_methods
 
 from airport import VERSION
 from airport.models import (
-        Achiever,
         AirportMaster,
         Flight,
         Game,
@@ -86,7 +86,8 @@ def info(request):
             try:
                 ticket = profile.purchase_flight(flight, now)
             except Flight.AlreadyDeparted:
-                Message.send(profile, 'Flight %s has already left' % flight.number)
+                Message.send(profile,
+                        'Flight %s has already left' % flight.number)
         return redirect(info)
 
     messages = Message.get_messages(request)
@@ -156,20 +157,20 @@ def flights(request):
     now, airport, ticket = game.update(profile)
 
     if ticket and ticket.in_flight(now):
-        flights = ticket.destination.next_flights(game, now)
+        _flights = ticket.destination.next_flights(game, now)
     elif airport:
-        flights = airport.next_flights(game, now)
+        _flights = airport.next_flights(game, now)
     else:
-        flights = []
+        _flights = []
 
     # Annotate the flight objects with .remarks and .buyable
-    for flight in flights:
+    for flight in _flights:
         flight.remarks = flight.get_remarks(now)
         flight.buyable = flight.buyable(profile, now)
 
     return render_to_response(
             'airport/flights.html',
-            {'flights': flights},
+            {'flights': _flights},
             RequestContext(request))
 
 @login_required
