@@ -199,7 +199,8 @@ def games_info(request):
     game = request.user.profile.current_game
 
     # if user is in an open game and it has started, redirect to that game
-    if game and game.state == game.IN_PROGRESS:
+    if (game and game.state == game.IN_PROGRESS
+            and request.user.profile not in game.winners()):
         return json_redirect(reverse(home))
 
     # active games
