@@ -421,7 +421,7 @@ class UserProfile(AirportModel):
     def current_game(self):
         """Return user's current open game or None if there is none"""
         try:
-            return self.games.latest('timestamp')
+            return self.games.order_by('-id')[0]
         except Game.DoesNotExist:
             return None
 

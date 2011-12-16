@@ -1,19 +1,5 @@
 var goldstar = "{{ gold_star }}";
 var inbox = "{{ inbox_icon }}";
-var notify_timeout = 20000 /* milliseconds */
-
-function notify(message) {
-    /* send a desktop notification, if allowed */
-    if (!window.webkitNotifications) {
-        return;
-    }
-    if (window.webkitNotifications.checkPermission() == 0) {
-        var notification = window.webkitNotifications.createNotification(
-            '{{ notification_icon }}', 'Airport', message);
-        notification.show();
-        setTimeout(function() { notification.cancel();}, notify_timeout);
-    }
-}
 
 function refresh_ui(data) {
     var odd_or_even;

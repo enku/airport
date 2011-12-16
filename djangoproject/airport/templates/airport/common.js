@@ -1,6 +1,21 @@
 /*
  * Common functions for the Airport app
 */
+var notify_timeout = 20000 /* milliseconds */
+var notification = null;
+
+function notify(message) {
+    /* send a desktop notification, if allowed */
+    if (!window.webkitNotifications) {
+        return;
+    }
+    if (window.webkitNotifications.checkPermission() == 0) {
+        notification = window.webkitNotifications.createNotification(
+            '{{ notification_icon }}', 'Airport', message);
+        notification.show();
+        setTimeout(function() { notification.cancel();}, notify_timeout);
+    }
+}
 
 (function( $ ) {
     $.fn.memdraggable = function() {

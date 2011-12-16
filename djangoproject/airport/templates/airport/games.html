@@ -28,7 +28,11 @@
 
 <div id="create_widget">
 {% if open_game %}
-    <a href="{% url home %}">Enter Airport <span style="font-size: smaller">({{ open_game }})</span></a>
+{# TODO: This is bad... fix it! #}
+{% if open_game.host.user.username == user %}
+    <a href="{% url home %}">Start {{ open_game }}</a>
+{% else %}<a style="font-size: smaller">Waiting for {{ open_game.host.user.username }} to start {{ open_game }}</a>
+{% endif %}{# open_game #}
 {% else %}
     <form method="post" action="{% url games_create %}">{% csrf_token %}
     <table>

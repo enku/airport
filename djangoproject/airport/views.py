@@ -196,6 +196,12 @@ def games_home(request):
 def games_info(request):
     """Just another json view"""
 
+    game = request.user.profile.current_game
+
+    # if user is in an open game and it has started, redirect to that game
+    if game and game.state == game.IN_PROGRESS:
+        return json_redirect(reverse(home))
+
     # active games
     games = Game.objects.annotate(Count('players', distinct=True))
     games = games.annotate(Count('airports', distinct=True))
@@ -283,7 +289,7 @@ def games_join(request, game_id):
     profile = request.user.profile
 
     game = get_object_or_404(Game, id=game_id)
-    if game.state == 0:
+    if game.state == game.GAME_OVER:
         Message.send(profile, 'Could not join you to %s because it is over'
                 % game)
     elif game.players.filter(id=profile.id).exists():

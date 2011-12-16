@@ -28,13 +28,14 @@ function join_game_link(data) {
 }
 
 function refresh_ui(data) {
-    update_games_list(data);
-    join_game_link(data);
-
-    if (data['redirect']) {
+    if ('redirect' in data) {
+        notify('The game has begun');
         window.location.replace(data['redirect']);
         return;
     }
+
+    update_games_list(data);
+    join_game_link(data);
 
     // messages
     update_messages(data['messages']);
