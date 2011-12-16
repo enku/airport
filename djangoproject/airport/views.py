@@ -7,7 +7,7 @@ import random
 
 from django import get_version
 from django.conf import settings
-from django.contrib import messages
+from django.contrib import messages as django_messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -366,7 +366,7 @@ def register(request):
                 context['error'] = 'User "%s" already exists.' % username
             except UserProfile.DoesNotExist:
                 create_user(username, password)
-                messages.add_message(request, messages.INFO,
+                django_messages.add_message(request, django_messages.INFO,
                     'Account activated. Please sign in.')
                 return redirect(home)
         else:
