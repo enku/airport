@@ -34,7 +34,7 @@ from airport.monkeywrench import MonkeyWrenchFactory
 
 DTHANDLER = lambda obj: (obj.isoformat()
         if isinstance(obj, datetime.datetime) else None)
-MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 20)
+MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 30)
 MWF = MonkeyWrenchFactory()
 
 @login_required
