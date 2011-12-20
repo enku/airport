@@ -14,9 +14,12 @@ EXTERNALS = {
     'register_icon': 'https://help.ess.msu.edu/themes/client_default/063684-green-metallic-orb-icon-people-things-handshake.png',
     'background_image': 'http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg',
     'inflight_image': 'http://av-mech.com/images/flyinganimated_20airplane.gif',
+    'landed_sound': 'http://soundbible.com/mp3/757 Landing-SoundBible.com-1539957439.mp3',
+    'takeoff_sound': 'http://soundbible.com/mp3/757 Landing-SoundBible.com-1539957439.mp3',
     'gold_star': 'http://njwltech.wikispaces.com/file/view/gold_star.png/35350229/gold_star.png',
     'inbox_icon': 'http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif',
-    'inbox_sound': 'http://www.freesound.org/data/previews/53/53268_382028-lq.mp3',
+    'inbox_sound': 'http://soundbible.com/mp3/A-Tone-His_Self-1266414414.mp3',
+    'ticket_sound': 'http://soundbible.com/mp3/Cash Register Cha Ching-SoundBible.com-184076484.mp3',
     'finished_image': 'http://www.moodiereport.com/images2/munich_airport_600px_dec09.jpg',
     'notification_icon': 'http://icons.iconarchive.com/icons/icons-land/points-of-interest/64/Airport-Blue-icon.png'
 }

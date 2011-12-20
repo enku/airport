@@ -17,6 +17,13 @@ function notify(message) {
     }
 }
 
+function play(url) {
+    /* play sound specified by url */
+    var snd = new Audio(url);
+    snd.play();
+    return snd;
+}
+
 (function( $ ) {
     $.fn.memdraggable = function() {
         var id = this.attr('id');

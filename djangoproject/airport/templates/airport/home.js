@@ -1,5 +1,6 @@
 var goldstar = "{{ gold_star }}";
 var last_message = null;
+var last_ticket = null;
 
 function refresh_ui(data) {
     var odd_or_even;
@@ -31,7 +32,10 @@ function refresh_ui(data) {
                 + '&nbsp;<span class="fsb">FASTEN SEATBELT WHILE SEATED</span>'
                 + '</span>');
 
-        $('#airport_widget').hide();
+        if ($('#airport_widget').is(':visible')) {
+            $('#airport_widget').hide();
+            play('{{ takeoff_sound }}');
+        }
         $('#airplane_widget').show();
     }
     else {
@@ -42,6 +46,7 @@ function refresh_ui(data) {
         $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
         if (!$('#airport_widget').is(':visible')) {
             $('#airport_widget').show('drop', { direction: 'up' }, 500);
+            play('{{ landed_sound }}');
         }
     }
 
@@ -62,6 +67,11 @@ function refresh_ui(data) {
         $('#ticket_arrive').html('<span class="ticket_label">ARRIVE</span> '
                 + ticket['arrival_time'].toUpperCase());
         $('#ticket_widget').fadeIn();
+
+        if (ticket['number'] != last_ticket) {
+            play('{{ ticket_sound }}');
+        }
+        last_ticket = ticket['number'];
     } 
     else if ($('#ticket_widget').is(':visible')) {
         $('#ticket_widget').hide('drop', { direction: 'down' }, 500);

@@ -6,9 +6,7 @@
 
 
 <script type="text/javascript">
-    var snd = new Audio('{{ inbox_sound }}');
-    snd.play();
-
+    play('{{ inbox_sound }}');
     $('#message_widget').scrollTo('max', {
         axis: 'y',
         duration: 500,
