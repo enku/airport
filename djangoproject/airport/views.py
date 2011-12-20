@@ -90,7 +90,7 @@ def info(request):
                         'Flight %s has already left' % flight.number)
         return redirect(info)
 
-    messages = Message.get_messages(request)
+    last_message = Message.get_latest(request.user)
 
     if ticket:
         in_flight = ticket.in_flight(now)
@@ -129,7 +129,7 @@ def info(request):
             'time': date(now, 'P'),
             'airport': airport.name if airport else ticket.origin,
             'ticket': None if not ticket else ticket.to_dict(now),
-            'messages': [{'id': i.id, 'text': i.text} for i in messages],
+            'message_id': last_message.id if last_message else None,
             'in_flight': in_flight,
             'goals': goal_list,
             'stats': stats,
@@ -171,6 +171,18 @@ def flights(request):
     return render_to_response(
             'airport/flights.html',
             {'flights': _flights},
+            RequestContext(request))
+
+@login_required
+def messages(request):
+    """View to return user's current messages"""
+    messages = Message.get_messages(request)
+    if not messages:
+        messages = []
+
+    return render_to_response(
+            'airport/messages.html',
+            {'messages': messages},
             RequestContext(request))
 
 @login_required
@@ -242,13 +254,13 @@ def games_info(request):
         current_game = None
         finished_current = False
 
-    messages = Message.get_messages(request)
+    last_message = Message.get_latest(request.user)
 
     data = {
             'games': glist,
             'current_game': current_game,
             'finished_current': finished_current,
-            'messages': [{'id': i.id, 'text': i.text} for i in messages]
+            'message_id': last_message.id if last_message else None
     }
     return HttpResponse(json.dumps(data), mimetype='application/json')
 

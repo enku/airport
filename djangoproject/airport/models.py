@@ -537,7 +537,7 @@ class Message(AirportModel):
 
         logging.info('%s MESSAGE(%s): %s', strftime(), user.user.username, text)
 
-        cls.objects.create(profile=user, text=text)
+        return cls.objects.create(profile=user, text=text)
 
     @classmethod
     def get_messages(cls, request, read=True):
@@ -555,6 +555,25 @@ class Message(AirportModel):
         if read:
             messages_qs.update(read=True)
         return messages
+
+    @classmethod
+    def get_latest(cls, user, read=False):
+        """Get the latest message for a user.  By default, does not mark
+        the message as read"""
+        if isinstance(user, User):
+            user = user.get_profile()
+
+        messages = cls.objects.filter(profile=user).order_by('-creation_time')
+        if messages.exists():
+            message = messages[0]
+        else:
+            message = None
+
+        if read and message:
+            message.read = True
+            message.save()
+
+        return message
 
 class Game(AirportModel):
     """This is a game.  A Game is hosted and has it's own game time and

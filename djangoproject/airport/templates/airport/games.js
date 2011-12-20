@@ -1,4 +1,4 @@
-var inbox = "{{ inbox_icon }}";
+var last_message = null;
 
 function update_games_list(data) {
     /* update the games list widget */
@@ -38,7 +38,10 @@ function refresh_ui(data) {
     join_game_link(data);
 
     // messages
-    update_messages(data['messages']);
+    if (data['message_id'] != last_message) {
+        $('#message_box').load('{% url messages %}');
+    }
+    last_message = data['message_id']
 }
 
 function refresh_cb(data, textStatus, jqXHR) {

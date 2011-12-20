@@ -16,6 +16,7 @@ EXTERNALS = {
     'inflight_image': 'http://av-mech.com/images/flyinganimated_20airplane.gif',
     'gold_star': 'http://njwltech.wikispaces.com/file/view/gold_star.png/35350229/gold_star.png',
     'inbox_icon': 'http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif',
+    'inbox_sound': 'http://www.freesound.org/data/previews/53/53268_382028-lq.mp3',
     'finished_image': 'http://www.moodiereport.com/images2/munich_airport_600px_dec09.jpg',
     'notification_icon': 'http://icons.iconarchive.com/icons/icons-land/points-of-interest/64/Airport-Blue-icon.png'
 }

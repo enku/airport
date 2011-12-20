@@ -1,5 +1,5 @@
 var goldstar = "{{ gold_star }}";
-var inbox = "{{ inbox_icon }}";
+var last_message = null;
 
 function refresh_ui(data) {
     var odd_or_even;
@@ -80,7 +80,10 @@ function refresh_ui(data) {
     }
 
     // messages
-    update_messages(data['messages']);
+    if (data['message_id'] != last_message) {
+        $('#message_box').load('{% url messages %}');
+    }
+    last_message = data['message_id']
 
     // stats
     s = ''

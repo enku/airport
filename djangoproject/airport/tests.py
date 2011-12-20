@@ -1,8 +1,10 @@
 # -*- encoding: utf8 -*-
 import datetime
+import json
 import random
 
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from airport  import models
@@ -404,3 +406,63 @@ class PerGameAirports(TestCase):
                 dest_per_airport = 2)
 
         self.assertEqual(game.airports.count(), 10)
+
+class Messages(TestCase):
+    """Test the messages model"""
+
+    def setUp(self):
+        self.user = create_users(1)[0]
+
+    def test_no_messages(self):
+        """Test that when user is first created there are no messages except the welcome message"""
+        messages = models.Message.objects.filter(profile=self.user.profile)
+        self.assertEqual(messages.count(), 1)
+        self.assertTrue(messages[0].text.startswith('Welcome'))
+
+    def test_get_latest(self):
+        """Test the get_latest() method"""
+        message = models.Message.send(self.user, 'Test 1')
+
+        last_message = models.Message.get_latest(self.user)
+        self.assertEqual(last_message, message)
+
+        message = models.Message.send(self.user, 'Test 2')
+        last_message = models.Message.get_latest(self.user)
+        self.assertEqual(last_message, message)
+
+    def test_in_view(self):
+        """Test in a view"""
+        # we use the games_info view so we dont have to create any games
+        view = reverse('games_info')
+
+        self.client.login(username='user1', password='test')
+
+        # inject a message
+        message = models.Message.send(self.user, 'Test 1')
+        response = json.loads(self.client.get(view).content)
+        self.assertEqual(response['message_id'], message.id)
+
+        # and again
+        response = json.loads(self.client.get(view).content)
+        self.assertEqual(response['message_id'], message.id)
+
+        # insert 2 messages
+        models.Message.send(self.user, 'Test 2')
+        message = models.Message.send(self.user, 'Test 3')
+        response = json.loads(self.client.get(view).content)
+        self.assertEqual(response['message_id'], message.id)
+
+
+    def test_messages_view(self):
+        """Test the messages() view"""
+        view = reverse('messages')
+
+        messages = []
+        for i in range(6):
+            messages.append(models.Message.send(self.user, 'Test %s' % i))
+
+        self.client.login(username='user1', password='test')
+        response = self.client.get(view)
+        for message in messages:
+            self.assertContains(response, 'data-id="%s"' % message.id)
+
