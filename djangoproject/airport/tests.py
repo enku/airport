@@ -268,7 +268,7 @@ class UserProfileTest(TestCase):
     def test_location_and_update(self):
         """Test the Flight.location() and Game.update() methods"""
         now = datetime.datetime(2011, 11, 20, 7, 13)
-        l = self.up.location(now, self.game)
+        l = self.up.location(now, self.game, self.up)
         self.assertEqual(l, (None, None))
 
         airport = random.choice(models.Airport.objects.all())
@@ -278,7 +278,7 @@ class UserProfileTest(TestCase):
         self.up.airport = airport
         self.up.save()
         self.up.purchase_flight(flight, now)
-        l = self.up.location(now, self.game)
+        l = self.up.location(now, self.game, self.up)
         self.assertEqual(self.up.ticket, flight)
         self.assertEqual(l, (airport, flight))
 

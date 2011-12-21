@@ -438,7 +438,7 @@ class UserProfile(AirportModel):
         """Return qs of Purchases"""
         return self.purchase_set.all()
 
-    def location(self, now, game):
+    def location(self, now, game, caller):
         """Update and return user's current location info
 
         info is a tuple of (Airport or None, Flight or None)
@@ -455,8 +455,9 @@ class UserProfile(AirportModel):
                     self.airport = self.ticket.destination
                     self.ticket = None
                     self.save()
-                    Message.announce(self, '%s has arrived at %s' %
-                            (self.user.username, self.airport), game)
+                    if caller == self:
+                        Message.announce(self, '%s has arrived at %s' %
+                                (self.user.username, self.airport), game)
 
                     return (self.airport, None)
 
@@ -792,7 +793,7 @@ class Game(AirportModel):
         achievements = []
         for player in players:
             previous_ticket = player.ticket
-            airport, ticket = player.location(now, self)
+            airport, ticket = player.location(now, self, player)
             if player == profile:
                 profile_airport, profile_ticket = airport, ticket
             for goal in goals:
