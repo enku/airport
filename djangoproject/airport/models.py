@@ -818,10 +818,10 @@ class Game(AirportModel):
         if not winners_before and winners:
             if len(winners) == 1:
                 Message.broadcast('%s has won %s' % (winners[0].user.username,
-                    self), self)
+                    self), self, message_type='WINNER')
             else:
                 Message.broadcast('%s: %s-way tie for 1st place' % (self,
-                    len(winners)), self)
+                    len(winners)), self, message_type='WINNER')
                 for winner in winners:
                     Message.broadcast('%s is a winner!' %
                             winner.user.username, self)

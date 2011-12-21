@@ -26,8 +26,9 @@ EXTERNALS = {
     # messages
     'message_MONKEYWRENCH_sound': 'http://www.freesound.org/data/previews/17/17468_57789-lq.mp3',
     'message_DEFAULT_sound': 'http://soundbible.com/mp3/A-Tone-His_Self-1266414414.mp3',
-    'message_GOAL_sound': 'http://soundbible.com//mp3/Kids Cheering-SoundBible.com-681813822.mp3',
-    'message_GAMEOVER_sound': 'http://www.freesound.org/data/previews/42/42349_81909-lq.mp3'
+    'message_GOAL_sound': 'http://soundbible.com/mp3/Kids Cheering-SoundBible.com-681813822.mp3',
+    'message_GAMEOVER_sound': 'http://www.freesound.org/data/previews/42/42349_81909-lq.mp3',
+    'message_WINNER_sound': 'http://soundbible.com/mp3/Ta Da-SoundBible.com-1884170640.mp3'
 }
 
 def externals(request):
