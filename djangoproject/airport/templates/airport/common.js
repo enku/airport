@@ -19,6 +19,9 @@ function notify(message) {
 
 function play(url) {
     /* play sound specified by url */
+    if (window['Audio'] == undefined) {
+        return null;
+    }
     var snd = new Audio(url);
     snd.play();
     return snd;
