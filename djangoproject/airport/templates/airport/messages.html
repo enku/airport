@@ -1,7 +1,7 @@
 {% load messages %}
 {% for message in messages %}
 <div class="message" data-id="{{ message.id }}">
-    <img src="{{ inbox_icon }}" />&nbsp;{{ message.text }}
+    <img src="{{ message|icon }}" style="width: 18px; height: 12px" />&nbsp;{{ message.text }}
 </div>
 
 {% if forloop.last %}

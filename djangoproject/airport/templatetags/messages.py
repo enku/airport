@@ -14,3 +14,9 @@ def sound(message):
     return ext.get('message_%s_sound' % message.message_type,
         ext['message_DEFAULT_sound'])
 
+@register.filter
+def icon(message):
+    """Return the icon url for a given message"""
+    ext = externals(None)
+    return ext.get('message_%s_icon' % message.message_type,
+            ext['message_DEFAULT_icon'])
