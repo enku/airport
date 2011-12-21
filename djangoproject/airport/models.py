@@ -551,11 +551,11 @@ class Message(AirportModel):
 
         user = request.user
 
-        messages = request.session.get('messages', [])
         messages_qs = cls.objects.filter(profile=user.profile, read=False)
-        messages = (messages + list(messages_qs))[-MAX_SESSION_MESSAGES:]
+        messages_qs = messages_qs.order_by('-creation_time')
+        messages = list(messages_qs[:MAX_SESSION_MESSAGES])
+        messages.reverse()
 
-        request.session['messages'] = messages
         if read:
             messages_qs.update(read=True)
         return messages
