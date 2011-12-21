@@ -551,7 +551,7 @@ class Message(AirportModel):
 
         user = request.user
 
-        messages_qs = cls.objects.filter(profile=user.profile, read=False)
+        messages_qs = cls.objects.filter(profile=user.profile)
         messages_qs = messages_qs.order_by('-creation_time')
         messages = list(messages_qs[:MAX_SESSION_MESSAGES])
         messages.reverse()
