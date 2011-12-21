@@ -15,6 +15,7 @@ from django.template.defaultfilters import date
 MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
 MIN_FLIGHT_TIME = getattr(settings, 'MIN_FLIGHT_TIME', 30)
 MAX_FLIGHT_TIME = getattr(settings, 'MAX_FLIGHT_TIME', 120)
+BOARDING = datetime.timedelta(minutes=15)
 
 class AirportModel(models.Model):
     """Base class for airport models"""
@@ -272,6 +273,9 @@ class Flight(AirportModel):
                 status = 'Arrived'
         else:
             status = 'On time'
+
+        if not self.cancelled and (now + BOARDING) > self.depart_time > now:
+            status = 'Boarding'
 
         if not self.origin.destinations.filter(id=self.destination.id).exists():
             status = '%s*' % status
