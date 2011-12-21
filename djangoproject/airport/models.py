@@ -788,7 +788,9 @@ class Game(AirportModel):
         goals = Goal.objects.filter(game=self).distinct()
 
         # update player & goals
-        for player in self.players.all().distinct():
+        players = self.players.all().distinct()
+        achievements = []
+        for player in players:
             previous_ticket = player.ticket
             airport, ticket = player.location(now, self)
             if player == profile:
@@ -800,12 +802,16 @@ class Game(AirportModel):
                     ach = Achiever.objects.get(profile=player, goal=goal)
                     ach.timestamp = previous_ticket.arrival_time
                     ach.save()
-                    Message.announce(player, '%s has achieved %s'
-                            % (player.user.username, goal), self,
-                            message_type='GOAL')
+                    achievements.append((player, goal))
                     break
                 else:
                     break
+
+        # we do this outside the loop above to ensure that all achievment
+        # messages go *after* arrival messages
+        for player, goal in achievements:
+            Message.announce(player, '%s has achieved %s' %
+                    (player.user.username, goal), self, message_type='GOAL')
 
         winners = self.winners()
         if not winners_before and winners:
