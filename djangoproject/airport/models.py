@@ -494,12 +494,13 @@ class Message(AirportModel):
     text = models.CharField(max_length=255)
     profile = models.ForeignKey(UserProfile, related_name='messages')
     read = models.BooleanField(default=False)
+    message_type = models.CharField(max_length=32, default='DEFAULT')
 
     def __unicode__(self):
         return self.text
 
     @classmethod
-    def broadcast(cls, text, game=None):
+    def broadcast(cls, text, game=None, message_type='DEFAULT'):
         """Send a message to all users in «game» with a UserProfile"""
         logging.info('%s BROADCAST: %s', strftime(), text)
 
@@ -509,10 +510,11 @@ class Message(AirportModel):
             profiles = UserProfile.objects.all()
 
         for profile in profiles:
-            cls.objects.create(profile=profile, text=text)
+            cls.objects.create(profile=profile, text=text,
+                    message_type=message_type)
 
     @classmethod
-    def announce(cls, announcer, text, game=None):
+    def announce(cls, announcer, text, game=None, message_type='DEFAULT'):
         """Sends a message to all users but «announcer»"""
         logging.info('%s ANNOUNCE: %s', strftime(), text)
 
@@ -526,10 +528,11 @@ class Message(AirportModel):
             profiles = UserProfile.objects.all()
 
         for profile in profiles.exclude(id=announcer.id).distinct():
-            cls.objects.create(profile=profile, text=text)
+            cls.objects.create(profile=profile, text=text,
+                    message_type=message_type)
 
     @classmethod
-    def send(cls, user, text):
+    def send(cls, user, text, message_type='DEFAULT'):
         """Send a unicast message to «user» return the Message object"""
         if isinstance(user, User):
             # we want the UserProfile, but allow the caller to pass User as well
@@ -537,7 +540,8 @@ class Message(AirportModel):
 
         logging.info('%s MESSAGE(%s): %s', strftime(), user.user.username, text)
 
-        return cls.objects.create(profile=user, text=text)
+        return cls.objects.create(profile=user, text=text,
+                message_type=message_type)
 
     @classmethod
     def get_messages(cls, request, read=True):
@@ -797,7 +801,8 @@ class Game(AirportModel):
                     ach.timestamp = previous_ticket.arrival_time
                     ach.save()
                     Message.announce(player, '%s has achieved %s'
-                            % (player.user.username, goal), self)
+                            % (player.user.username, goal), self,
+                            message_type='GOAL')
                     break
                 else:
                     break

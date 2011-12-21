@@ -21,7 +21,13 @@ EXTERNALS = {
     'inbox_sound': 'http://soundbible.com/mp3/A-Tone-His_Self-1266414414.mp3',
     'ticket_sound': 'http://soundbible.com/mp3/Cash Register Cha Ching-SoundBible.com-184076484.mp3',
     'finished_image': 'http://www.moodiereport.com/images2/munich_airport_600px_dec09.jpg',
-    'notification_icon': 'http://icons.iconarchive.com/icons/icons-land/points-of-interest/64/Airport-Blue-icon.png'
+    'notification_icon': 'http://icons.iconarchive.com/icons/icons-land/points-of-interest/64/Airport-Blue-icon.png',
+
+    # messages
+    'message_MONKEYWRENCH_sound': 'http://www.freesound.org/data/previews/17/17468_57789-lq.mp3',
+    'message_DEFAULT_sound': 'http://soundbible.com/mp3/A-Tone-His_Self-1266414414.mp3',
+    'message_GOAL_sound': 'http://soundbible.com//mp3/Kids Cheering-SoundBible.com-681813822.mp3',
+    'message_GAMEOVER_sound': 'http://www.freesound.org/data/previews/42/42349_81909-lq.mp3'
 }
 
 def externals(request):

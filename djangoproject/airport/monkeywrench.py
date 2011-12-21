@@ -52,7 +52,7 @@ class CancelledFlight(MonkeyWrench):
             return
         flight = flight[0]
         flight.cancel(now)
-        Message.broadcast('Flight %s from %s to %s is cancelled' %
+        broadcast('Flight %s from %s to %s is cancelled' %
                 (flight.number, flight.origin.city.name,
                     flight.destination.city.name), self.game)
         self.thrown = True
@@ -73,7 +73,7 @@ class DelayedFlight(MonkeyWrench):
         except flight.Finished:
             # damn, just missed it!
             return
-        Message.broadcast(
+        broadcast(
             'Flight %s from %s to %s is delayed %s minutes' %
             (flight.number, flight.origin.city.name,
                 flight.destination, minutes),
@@ -96,7 +96,7 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
                 flight.delay(timedelta, now)
             except flight.Finished:
                 continue
-        Message.broadcast(
+        broadcast(
             'Due to weather, all flights from %s are delayed %s minutes' %
             (airport.code, minutes), self.game)
 
@@ -109,7 +109,7 @@ class AllFlightsFromAirportCancelled(MonkeyWrench):
                 depart_time__gt=now)
         for flight in flights:
             flight.cancel(now)
-        Message.broadcast(
+        broadcast(
             'Due to weather, all flights from %s are cancelled' %
             airport.city.name, self.game)
         self.thrown = True
@@ -127,7 +127,7 @@ class DivertedFlight(MonkeyWrench):
                 .order_by('?')[0])
         flight.destination = diverted_to
         flight.save()
-        Message.broadcast(
+        broadcast(
             'Mayday! Flight %d diverted to %s' % (flight.number,
                 diverted_to),
             self.game)
@@ -151,7 +151,7 @@ class MechanicalProblem(MonkeyWrench):
         time_travelled = self.game.time - flight.depart_time
         flight.flight_time = time_travelled.total_seconds() * 2 / 60
         flight.save()
-        Message.broadcast('Flight %s is having mechanical problems '
+        broadcast('Flight %s is having mechanical problems '
                 'and will return to %s' % (flight.number, flight.origin),
                 self.game)
         self.thrown = True
@@ -178,7 +178,7 @@ class LateFlight(MonkeyWrench):
         flight.delayed = True
         flight.save()
         message = random.choice(self.RANDOM_MESSAGES)
-        Message.broadcast(message.format(
+        broadcast(message.format(
                 flight_number=flight.number,
                 minutes=minutes,
                 destination=flight.destination),
@@ -246,3 +246,8 @@ class MonkeyWrenchFactory(object):
         except TypeError:
             pass
         self.wrenches = [globals()[wrench]]
+
+def broadcast(text, game):
+    """Helper function, sends a Message.broadcast with
+    message_type='MONKEYWRENCH'"""
+    Message.broadcast(text, game=game, message_type='MONKEYWRENCH')

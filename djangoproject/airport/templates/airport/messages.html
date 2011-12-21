@@ -1,15 +1,17 @@
+{% load messages %}
 {% for message in messages %}
 <div class="message" data-id="{{ message.id }}">
     <img src="{{ inbox_icon }}" />&nbsp;{{ message.text }}
 </div>
-{% endfor %}
 
-
+{% if forloop.last %}
 <script type="text/javascript">
-    play('{{ inbox_sound }}');
+    play('{{ message|sound }}');
     $('#message_widget').scrollTo('max', {
         axis: 'y',
         duration: 500,
         margin: true
         });
 </script>
+{% endif %}
+{% endfor %}
