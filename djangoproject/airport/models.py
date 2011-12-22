@@ -804,7 +804,6 @@ class Game(AirportModel):
         profile_ticket = profile_airport = None
         winners_before = self.winners()
         now = now or self.time
-        timestamp = datetime.datetime.now()
         messages = []
 
         if self.state == self.GAME_OVER:
@@ -837,7 +836,7 @@ class Game(AirportModel):
                 else:
                     break
 
-        Message.touch(messages, timestamp)
+        Message.touch(messages, datetime.datetime.now())
 
         winners = self.winners()
         if not winners_before and winners:
