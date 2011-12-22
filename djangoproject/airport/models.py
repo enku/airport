@@ -655,6 +655,8 @@ class Game(AirportModel):
         game.start_airport = start_airport
         game.save()
 
+        # pre-populate the starting airport with flights
+        start_airport.next_flights(game, now)
 
         # add other airports
         for i in range(1, airports):
