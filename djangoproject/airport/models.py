@@ -21,6 +21,18 @@ class AirportModel(models.Model):
     """Base class for airport models"""
     creation_time = models.DateTimeField(auto_now_add=True)
 
+    @classmethod
+    def touch(cls, objects, time=None):
+        """Re-touch object (list of qs) and set creation_time to «time» or
+        current time if «time» is None"""
+        if not objects:
+            return 0
+
+        time = time or datetime.datetime.now()
+
+        ids = [i.id for i in objects]
+        return cls.objects.filter(id__in=ids).update(creation_time=time)
+
     class Meta:
         abstract = True
 
@@ -508,6 +520,7 @@ class Message(AirportModel):
     def broadcast(cls, text, game=None, message_type='DEFAULT'):
         """Send a message to all users in «game» with a UserProfile"""
         logging.info('%s BROADCAST: %s', strftime(), text)
+        messages = []
 
         if game:
             profiles = UserProfile.objects.filter(game=game).distinct()
@@ -515,13 +528,15 @@ class Message(AirportModel):
             profiles = UserProfile.objects.all()
 
         for profile in profiles:
-            cls.objects.create(profile=profile, text=text,
-                    message_type=message_type)
+            messages.append(cls.objects.create(profile=profile, text=text,
+                    message_type=message_type))
+        return messages
 
     @classmethod
     def announce(cls, announcer, text, game=None, message_type='DEFAULT'):
         """Sends a message to all users but «announcer»"""
         logging.info('%s ANNOUNCE: %s', strftime(), text)
+        messages = []
 
         if isinstance(announcer, User):
             # we want the UserProfile, but allow the caller to pass User as well
@@ -533,8 +548,9 @@ class Message(AirportModel):
             profiles = UserProfile.objects.all()
 
         for profile in profiles.exclude(id=announcer.id).distinct():
-            cls.objects.create(profile=profile, text=text,
-                    message_type=message_type)
+            messages.append(cls.objects.create(profile=profile, text=text,
+                    message_type=message_type))
+        return messages
 
     @classmethod
     def send(cls, user, text, message_type='DEFAULT'):
@@ -620,6 +636,7 @@ class Game(AirportModel):
         """Create a new «Game»"""
         master_airports = list(AirportMaster.objects.distinct())
         random.shuffle(master_airports)
+        now = datetime.datetime.now()
 
         game = cls()
         game.host = host
@@ -675,7 +692,11 @@ class Game(AirportModel):
             current_airport = dest
 
         game.add_player(host)
-        Message.broadcast('%s has created %s' %(host.user.username, game))
+
+        messages = Message.broadcast(
+                '%s has created %s' % (host.user.username, game))
+        Message.touch(messages, now)
+
         return game
 
     def begin(self):
@@ -783,6 +804,9 @@ class Game(AirportModel):
         profile_ticket = profile_airport = None
         winners_before = self.winners()
         now = now or self.time
+        timestamp = datetime.datetime.now()
+        messages = []
+
         if self.state == self.GAME_OVER:
             return (self.timestamp, None, None)
 
@@ -794,7 +818,6 @@ class Game(AirportModel):
 
         # update player & goals
         players = self.players.all().distinct()
-        achievements = []
         for player in players:
             previous_ticket = player.ticket
             airport, ticket = player.location(now, self, player)
@@ -807,16 +830,14 @@ class Game(AirportModel):
                     ach = Achiever.objects.get(profile=player, goal=goal)
                     ach.timestamp = previous_ticket.arrival_time
                     ach.save()
-                    achievements.append((player, goal))
+                    messages.extend(Message.announce(player,
+                        '%s has achieved %s' % (player.user.username,
+                            goal), self, message_type='GOAL'))
                     break
                 else:
                     break
 
-        # we do this outside the loop above to ensure that all achievment
-        # messages go *after* arrival messages
-        for player, goal in achievements:
-            Message.announce(player, '%s has achieved %s' %
-                    (player.user.username, goal), self, message_type='GOAL')
+        Message.touch(messages, timestamp)
 
         winners = self.winners()
         if not winners_before and winners:
