@@ -18,6 +18,8 @@ import datetime
 import os
 import random
 
+from django.db.models import Count
+
 from airport.models import Message
 
 class MonkeyWrench(object):
@@ -214,6 +216,27 @@ class Hint(MonkeyWrench):
         Message.send(profile, u'Hint: %s goes to %s ;-)' % (
                 airport_to_goal, current_goal))
         return
+
+class TSA(MonkeyWrench):
+    """Revoke a passenger's ticket just before the flight departs"""
+    def throw(self):
+        now = self.game.time
+        max_depart_time = now + datetime.timedelta(minutes=15)
+        flights = self.game.flights.filter(depart_time__lte=max_depart_time)
+        flights = flights.annotate(num_passengers=Count('passengers'))
+        flights = list(flights.filter(num_passengers__gt=0))
+        if not flights:
+            return
+        flight = random.choice(flights)
+        passenger = random.choice(list(flight.passengers.all()))
+
+        # kick him off!
+        Message.send(passenger,
+            'Someone reported you as suspicious and you have been removed '
+            'from the plane', message_type='MONKEYWRENCH')
+        passenger.ticket = None
+        passenger.save()
+        self.thrown = True
 
 class MonkeyWrenchFactory(object):
     """This factory is responsible for returning a new randomly chosen
