@@ -34,7 +34,7 @@ from airport.monkeywrench import MonkeyWrenchFactory
 
 DTHANDLER = lambda obj: (obj.isoformat()
         if isinstance(obj, datetime.datetime) else None)
-MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 30)
+MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 20)
 MWF = MonkeyWrenchFactory()
 
 @login_required
@@ -74,7 +74,8 @@ def info(request):
         return json_redirect(reverse(games_home))
     now, airport, ticket = game.update(profile)
 
-    if random.randint(1, MW_PROBABILITY) == MW_PROBABILITY:
+    calc_mwp = game.players.count() * MW_PROBABILITY
+    if random.randint(1, calc_mwp) == calc_mwp:
         MWF.create(game).throw()
 
     if request.method == 'POST':
