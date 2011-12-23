@@ -748,8 +748,9 @@ class Game(AirportModel):
         profile.save()
 
         # Send out an announcement
-        Message.broadcast('%s has joined game %s' % (profile.user.username,
-                    self.id), self)
+        Message.broadcast(
+                '%s has joined %s' % (profile.user.username, self),
+                self)
         # put the player at the starting airport and take away their
         # tickets
         profile.ticket = None
@@ -870,16 +871,23 @@ class Game(AirportModel):
 
         # get the last goal
         last_goal = Goal.objects.filter(game=self).order_by('-order')[0]
-        achievers = Achiever.objects.filter(goal=last_goal,
-                timestamp__isnull=False).order_by('timestamp')
-        if not achievers.exists():
+        stats = last_goal.stats()
+        times = [stats[i] for i in stats if stats[i]]
+        if not times:
             return []
-        return [i.profile for i in achievers]
+        times.sort()
+        winning_time = times[0]
+        return [i for i in stats if stats[i] == winning_time]
 
     def goals_achieved_for(self, profile):
         """Return the number of goals achieved for «profile»"""
         return Achiever.objects.filter(game=self, profile=profile,
                 timestamp__isnull=False).count()
+
+    def last_goal(self):
+        """Return the last Goal object for this game"""
+        goals = Goal.objects.filter(game=self).order_by('-order')
+        return goals[0]
 
 class Goal(AirportModel):
     """Goal cities for a game"""
@@ -889,11 +897,11 @@ class Goal(AirportModel):
     achievers = models.ManyToManyField(UserProfile, through='Achiever')
 
     def __unicode__(self):
-        return u'%s: Goal %s/%s for game %s' % (
+        return u'%s: Goal %s/%s for %s' % (
                 self.city.name,
                 self.order,
                 self.game.goals.all().count(),
-                self.game.pk)
+                self.game)
 
     def was_achieved_by(self, player):
         """Return True iff player has achieved goal"""
@@ -902,6 +910,25 @@ class Goal(AirportModel):
                 goal=self,
                 game=self.game,
                 timestamp__isnull=False).exists()
+
+    def stats(self):
+        """Return a dict of:
+        stats[player] = datetime|None
+
+        where «player» are all players for the value is the datetime the
+        player finished the goal or None if player has yet to finish it
+        """
+        data = {}
+
+        achiever_objs = Achiever.objects.filter(
+                goal=self,
+                game=self.game).values('profile_id', 'timestamp')
+
+        for achiever_obj in achiever_objs:
+            profile = UserProfile.objects.get(id=achiever_obj['profile_id'])
+            data[profile] = achiever_obj['timestamp']
+
+        return data
 
     class Meta:
         """metadata"""

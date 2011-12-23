@@ -22,6 +22,7 @@ from django.views.decorators.http import require_http_methods
 
 from airport import VERSION
 from airport.models import (
+        Achiever,
         AirportMaster,
         Flight,
         Game,
@@ -323,35 +324,46 @@ def games_stats(request):
     profile = request.user.profile
     games = profile.games
 
-    context = dict()
-    context['user'] = request.user
-    context['game_count'] = games.count()
-    context['won_count'] = profile.games_won.count()
-    context['goal_count'] = profile.goals.count()
-    context['goals_per_game'] = (
-            1.0 * context['goal_count'] / context['game_count']
-            if context['game_count']
+    cxt = {}
+    cxt['user'] = request.user
+    cxt['game_count'] = games.count()
+    cxt['won_count'] = profile.games_won.count()
+    cxt['goal_count'] = profile.goals.count()
+    cxt['goals_per_game'] = (
+            1.0 * cxt['goal_count'] / cxt['game_count']
+            if cxt['game_count']
             else 0)
-    context['ticket_count'] = profile.tickets.count()
-    context['tix_per_goal'] = (1.0 * context['ticket_count'] /
-        context['goal_count'] if context['goal_count'] else 0)
-    context['flight_hours'] = sum((i.flight.flight_time
+    cxt['ticket_count'] = profile.tickets.count()
+    cxt['tix_per_goal'] = (1.0 * cxt['ticket_count'] /
+        cxt['goal_count'] if cxt['goal_count'] else 0)
+    cxt['flight_hours'] = sum((i.flight.flight_time
         for i in profile.tickets)) / 60.0
-    context['flight_hours_per_game'] = (context['flight_hours'] /
-        context['game_count'] if context['game_count'] else 0)
+    cxt['flight_hours_per_game'] = (cxt['flight_hours'] /
+        cxt['game_count'] if cxt['game_count'] else 0)
 
     # average game time
-    times = games.values('creation_time', 'timestamp')
-    context['total_time'] = sum(((i['timestamp'] - i['creation_time'])
-        .total_seconds() for i in times))
-    context['avg_time'] = (
-            1.0 * context['total_time'] / context['game_count']
-            if context['game_count']
+    cxt['total_time'] = datetime.timedelta(seconds=0)
+    for game in games.all():
+        last_goal = game.last_goal()
+        my_time = Achiever.objects.get(game=game, goal=last_goal,
+                profile=profile).timestamp
+        if not my_time:
+            continue
+        print game.creation_time
+        print my_time
+        print
+        cxt['total_time'] = (cxt['total_time']
+                + (my_time - game.creation_time))
+    cxt['total_time'] = cxt['total_time']
+
+    cxt['avg_time'] = (
+            1.0 * cxt['total_time'].total_seconds() / cxt['game_count']
+            if cxt['game_count']
             else 0)
     # we really want hours though
-    context['total_time'] = context['total_time'] / 3600.0 * Game.TIMEFACTOR
-    context['avg_time'] = context['avg_time'] / 3600.0 * Game.TIMEFACTOR
-    return render_to_response('airport/games_stats.html', context)
+    cxt['avg_time'] = cxt['avg_time'] / 3600.0
+    cxt['total_time'] = timedelta_to_hrs(cxt['total_time'])
+    return render_to_response('airport/games_stats.html', cxt)
 
 def crash(_request):
     """Case the app to crash"""
@@ -422,6 +434,10 @@ def create_user(username, password):
     userprofile.save()
 
     return new_user
+
+def timedelta_to_hrs(td_object):
+    """Return timedelta object as hours"""
+    return td_object.total_seconds() / 3600.0
 
 # TODO: borrowed from Django development version, remove when released
 def naturaltime(value, arg=None):
