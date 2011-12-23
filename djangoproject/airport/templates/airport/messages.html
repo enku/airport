@@ -1,5 +1,5 @@
 {% load messages %}
-{% if messages %}
+
 <ul>{% for message in messages %}
     <li 
         style="list-style-image: url('{{ message|icon }}')"
@@ -17,6 +17,7 @@
         margin: true
         });
 </script>
-{% endif %}
+{% endif %}{# forloop.last #}
+{% empty %}
+</ul>
 {% endfor %}
-(% endif %}{# messages #}
