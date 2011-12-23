@@ -696,7 +696,8 @@ class Game(AirportModel):
         game.add_player(host)
 
         messages = Message.broadcast(
-                '%s has created %s' % (host.user.username, game))
+                '%s has created %s' % (host.user.username, game),
+                message_type='NEWGAME')
         Message.touch(messages, now)
 
         return game
