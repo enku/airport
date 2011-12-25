@@ -223,6 +223,7 @@ class TSA(MonkeyWrench):
         now = self.game.time
         max_depart_time = now + datetime.timedelta(minutes=15)
         flights = self.game.flights.filter(depart_time__lte=max_depart_time)
+        flights = self.game.flights.exclude(depart_time__lte=now)
         flights = flights.annotate(num_passengers=Count('passengers'))
         flights = list(flights.filter(num_passengers__gt=0))
         if not flights:
