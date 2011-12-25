@@ -181,6 +181,21 @@ tr.header td {
     margin-bottom: 3px;
 }
 
+#goals {
+    width: 100%;
+    margin: 0;
+    padding: 0 2px 0 20px;
+    box-shadow: none;
+}
+
+#goals li {
+    list-style-type: none;
+}
+
+#goals li.achieved {
+    list-style-image: url('{{ gold_star }}');
+}
+
 #stats_widget {
     width: 150px;
     /* height: 100px; */
@@ -200,6 +215,11 @@ tr.header td {
     text-align: center;
     font-weight: bold;
     margin-bottom: 3px;
+}
+
+#stats_box {
+    width: 100%;
+    box-shadow: none;
 }
 
 #notification_permission {

@@ -78,16 +78,17 @@ function refresh_ui(data) {
     }
         
     // goals
-    $('#goals').html('');
+    s = '';
     for (var i=0; i<data['goals'].length; i++) {
         goal = data['goals'][i];
         if (goal[1]) {
-            $('#goals').append('<div class="goal_city">' + goal[0] + ' <img src="' + goldstar + '" /></div>\n');
+            s = s + '<li class="goal_city achieved">' + goal[0] + '</li>\n';
         }
         else {
-            $('#goals').append('<div class="goal_city">' + goal[0] + '</div>\n');
+            s = s +'<li class="goal_city">' + goal[0] + '</li>\n';
         }
     }
+    $('#goals').html(s);
 
     // messages
     if (data['message_id'] != last_message) {
@@ -96,14 +97,12 @@ function refresh_ui(data) {
     last_message = data['message_id']
 
     // stats
-    s = ''
+    s = '';
     for (var i=0; i<data['stats'].length; i++) {
-        s = s + '<div>';
-        s = s + data['stats'][i][0] + ' ';
+        s = s + '<tr><td>' + data['stats'][i][0] + '</td><td>';
         for (var j=0; j<data['stats'][i][1]; j++) {
-            s = s + '<img style="text-align: right" src="' + goldstar + '" />';
+            s = s + '<img src="' + goldstar + '" />';
         }
-        s = s + '</div>\n';
     }
     $('#stats_box').html(s);
 }
