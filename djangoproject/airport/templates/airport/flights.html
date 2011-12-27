@@ -4,9 +4,9 @@
     <td>{{ flight.destination }}</td>
     <td class="flightno">{{ flight.number }}</td>
     <td>{{ flight.depart_time|date:"P" }}</td>
-    <td>{% if flight.arrival_time != flight.depart_time %}{{ flight.arrival_time|date:"P" }}{% else %}-{% endif %}</td>
+    <td>{% if flight.arrival_time != flight.depart_time %}{{ flight.arrival_time|date:"P" }}{% else %}⚠{% endif %}</td>
     <td>{{ flight.remarks }}</td>
-    <td class="buy"><input type="submit" value="Buy" name="buy_{{ flight.number }}" {% if not flight.buyable %}disabled="disabled"{% %endif %} /></td>
+    <td class="buy"><input type="submit" value="Buy" name="buy_{{ flight.number }}" {% if not flight.buyable %}disabled="disabled"{% endif %} /></td>
 </tr>
 {% endfor %}
 <script type="text/javascript">
