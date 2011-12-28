@@ -74,7 +74,7 @@ def info(request):
     if not game:
         return json_redirect(reverse(games_home))
     if game.state == game.GAME_OVER or profile in game.winners():
-        return json_redirect(reverse(game_stats, args=[str(game.id)]))
+        return json_redirect(reverse(game_summary, args=[str(game.id)]))
     now, airport, ticket = game.update(profile)
 
     calc_mwp = game.players.count() * MW_PROBABILITY
@@ -368,8 +368,8 @@ def games_stats(request):
     return render_to_response('airport/games_stats.html', cxt)
 
 @login_required
-def game_stats(request, game_id):
-    """Show stats for a particular game, request.user must have actually
+def game_summary(request, game_id):
+    """Show summary for a particular game, request.user must have actually
     played the game to utilize this view"""
     game = get_object_or_404(Game, id=int(game_id))
     profile = request.user.profile
@@ -398,7 +398,7 @@ def game_stats(request, game_id):
     context['game'] = game
     context['goals'] = goals
 
-    return render_to_response('airport/game_stats.html', context,
+    return render_to_response('airport/game_summary.html', context,
             RequestContext(request))
 
 def crash(_request):

@@ -1,13 +1,13 @@
-{# single-game stats page #}
+{# single-game summary page #}
 {% extends "airport/base.html" %}
 {% load humanize %}
 
-{% block title %}Airport - {{ game }} Stats{% endblock %}
+{% block title %}Airport - {{ game }} Summary{% endblock %}
 
 {% block css %}
     {% include "airport/common.css" %}
     {% include "airport/home.css" %}
-    {% include "airport/game_stats.css" %}
+    {% include "airport/game_summary.css" %}
 {% endblock %}
 
 {% block content %}
@@ -52,4 +52,14 @@
 
 {% endblock %}{# content #}
 
+{% block scripts %}
+    {{ block.super }}
 
+    <script type="text/javascript">
+        {% include "airport/common.js" %}
+
+        $(document).ready(function () {
+            $('#flight_schedule').memdraggable();
+          });
+    </script>
+{% endblock %}
