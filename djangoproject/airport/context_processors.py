@@ -16,6 +16,7 @@ EXTERNALS = {
     'inflight_image': 'http://av-mech.com/images/flyinganimated_20airplane.gif',
     'landed_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
     'takeoff_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
+    'bullet': 'http://th918.photobucket.com/albums/ad28/ravyoshi26/Stars/th_gray_star.png',
     'gold_star': 'http://njwltech.wikispaces.com/file/view/gold_star.png/35350229/gold_star.png',
     'ticket_sound': 'http://soundbible.com/mp3/Cash%20Register%20Cha%20Ching-SoundBible.com-184076484.mp3',
     'finished_image': 'http://www.moodiereport.com/images2/munich_airport_600px_dec09.jpg',

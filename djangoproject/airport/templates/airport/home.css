@@ -189,11 +189,17 @@ tr.header td {
 }
 
 #goals li {
-    list-style-type: none;
+    list-style-image: url('{{ bullet }}');
+    font-weight: normal;
 }
 
 #goals li.achieved {
     list-style-image: url('{{ gold_star }}');
+}
+
+#goals li.current {
+    color: #8B0000;
+    font-weight: bold;
 }
 
 #stats_widget {

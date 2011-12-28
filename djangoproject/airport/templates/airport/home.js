@@ -7,6 +7,7 @@ function refresh_ui(data) {
     var ticket;
     var goal;
     var s;
+    var current_goal_flagged = false;
 
     if (data['redirect']) {
         window.location.replace(data['redirect']);
@@ -85,7 +86,13 @@ function refresh_ui(data) {
             s = s + '<li class="goal_city achieved">' + goal[0] + '</li>\n';
         }
         else {
-            s = s +'<li class="goal_city">' + goal[0] + '</li>\n';
+            if (!current_goal_flagged) {
+                s = s +'<li class="goal_city current">' + goal[0] + '</li>\n';
+                current_goal_flagged = true;
+            }
+            else { 
+                s = s +'<li class="goal_city">' + goal[0] + '</li>\n';
+            }
         }
     }
     $('#goals').html(s);
