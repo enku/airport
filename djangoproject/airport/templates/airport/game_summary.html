@@ -13,8 +13,9 @@
 {% block content %}
 <table id="flight_schedule">
     <thead>
-        <tr><td id="username" colspan="6">{{ user.username }}'s Itinerary</td></tr>
+        <tr><td id="username" colspan="7">{{ user.username }}'s Itinerary</td></tr>
         <tr class="schedule header">
+            <td>#</td>
             <td>ORIGIN</td>
             <td>DEST</td>
             <td>FLIGHT</td>
@@ -26,6 +27,7 @@
     <tbody>
     {% for ticket in tickets %}
         <tr class="schedule {% cycle 'odd' 'even' %}" id="flight_{{ ticket.id }}">
+            <td>{{ forloop.counter }}</td>
             <td>{{ ticket.flight.origin }}</td>
             <td>{{ ticket.flight.destination }}</td>
             <td class="flightno">{{ ticket.flight.number }}</td>
@@ -60,6 +62,7 @@
 
         $(document).ready(function () {
             $('#flight_schedule').memdraggable();
+            $('#medal').memdraggable();
           });
     </script>
 {% endblock %}

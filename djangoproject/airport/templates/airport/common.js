@@ -61,7 +61,6 @@ function play(url) {
             }
 
             $(this).css('opacity', $(this).data('opacity'));
-            $(this).css('z-index', 0);
             $.cookie(
                 id + '_pos', 
                 coords.left + ':' + coords.top, { expires: 30 }
@@ -72,7 +71,8 @@ function play(url) {
             var orig_opacity = $(this).css('opacity');
             $(this).data('opacity', orig_opacity);
             $(this).css('opacity', 0.7);
-            $(this).css('z-index', 999);
+            $('.ui-draggable').css('z-index', 0);
+            $(this).css('z-index', 1);
         });
 
         /* load position */

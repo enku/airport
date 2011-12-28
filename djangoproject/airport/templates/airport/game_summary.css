@@ -1,8 +1,13 @@
+#flight_schedule {
+    z-index: 1;
+}
 
 #medal {
+    width: 204px;
     position: absolute;
     right: 20px;
     top: 20px;
+    z-index: 0;
 }
 
 #place {
