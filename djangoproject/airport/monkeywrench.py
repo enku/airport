@@ -194,7 +194,7 @@ class Hint(MonkeyWrench):
     message telling them what (random) airport goes to that goal"""
     def throw(self):
         try:
-            profile = self.game.players.order_by('?')[0]
+            profile = self.game.players.distinct().order_by('?')[0]
         except IndexError:
             return
 

@@ -77,7 +77,7 @@ def info(request):
         return json_redirect(reverse(game_summary, args=[str(game.id)]))
     now, airport, ticket = game.update(profile)
 
-    calc_mwp = game.players.count() * MW_PROBABILITY
+    calc_mwp = game.players.distinct().count() * MW_PROBABILITY
     if random.randint(1, calc_mwp) == calc_mwp:
         MWF.create(game).throw()
 

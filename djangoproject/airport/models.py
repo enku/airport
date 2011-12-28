@@ -701,7 +701,7 @@ class Game(AirportModel):
 
     def begin(self):
         """start the game"""
-        for player in self.players.all():
+        for player in self.players.distinct():
             player.airport = self.start_airport
             player.game = self
             player.save()
@@ -715,7 +715,7 @@ class Game(AirportModel):
         self.state = self.GAME_OVER
         self.timestamp = datetime.datetime.now()
         self.save()
-        for player in self.players.all():
+        for player in self.players.distinct():
             player.game = None
             player.save()
         Message.broadcast('%s has ended!' % self, self)
@@ -726,7 +726,7 @@ class Game(AirportModel):
             print 'game over, cannot add players'
             return
 
-        if profile in self.players.all():
+        if profile in self.players.distinct():
             print 'already in players'
             return
 
@@ -795,7 +795,7 @@ class Game(AirportModel):
 
         for each player of the game"""
         stats = []
-        for player in self.players.all().distinct():
+        for player in self.players.distinct():
             stats.append(
                     [player.user.username, self.goals_achieved_for(player)])
         return stats
@@ -818,7 +818,7 @@ class Game(AirportModel):
         goals = Goal.objects.filter(game=self).distinct()
 
         # update player & goals
-        players = self.players.all().distinct()
+        players = self.players.distinct()
         for player in players:
             previous_ticket = player.ticket
             airport, ticket = player.location(now, self, player)
