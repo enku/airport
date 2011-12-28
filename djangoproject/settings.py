@@ -122,6 +122,7 @@ INSTALLED_APPS = (
     #'django.contrib.sites',
     'django.contrib.messages',
     #'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'django.contrib.admin',
     'airport'
 )

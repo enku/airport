@@ -1,0 +1,55 @@
+{# single-game stats page #}
+{% extends "airport/base.html" %}
+{% load humanize %}
+
+{% block title %}Airport - {{ game }} Stats{% endblock %}
+
+{% block css %}
+    {% include "airport/common.css" %}
+    {% include "airport/home.css" %}
+    {% include "airport/game_stats.css" %}
+{% endblock %}
+
+{% block content %}
+<table id="flight_schedule">
+    <thead>
+        <tr><td id="username" colspan="6">{{ user.username }}'s Itinerary</td></tr>
+        <tr class="schedule header">
+            <td>ORIGIN</td>
+            <td>DEST</td>
+            <td>FLIGHT</td>
+            <td>DEPART</td>
+            <td>ARRIVE</td>
+            <td class="goal"><img src="{{ gold_star }}" /></td>
+        </tr>
+    </thead>
+    <tbody>
+    {% for ticket in tickets %}
+        <tr class="schedule {% cycle 'odd' 'even' %}" id="flight_{{ ticket.id }}">
+            <td>{{ ticket.flight.origin }}</td>
+            <td>{{ ticket.flight.destination }}</td>
+            <td class="flightno">{{ ticket.flight.number }}</td>
+            <td>{{ ticket.flight.depart_time|date:"P" }}</td>
+            <td>{{ ticket.flight.arrival_time|date:"P" }}</td>
+            <td class="goal">{% if ticket.goal %}<img src="{{ gold_star }}" />{% else %}&nbsp;{% endif %}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if placed %}
+<div id="medal">
+    <img src="{{ medal }}" />
+    <div id="place">{{ placed|ordinal }}</div>
+    <div id="game_title">{{ game }}: {{ goals|length }} goal{{ goals|length|pluralize }}</div>
+</div>
+
+<div id="exit">
+    <a href="{% url games %}">Exit</a>
+</div>
+{% endif %}
+
+
+{% endblock %}{# content #}
+
+

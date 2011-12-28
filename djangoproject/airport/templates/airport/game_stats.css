@@ -1,0 +1,30 @@
+
+#medal {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+#place {
+    font-size: 40px;
+    font-weight: bold;
+    color: #CDA501;
+    text-shadow: 1px 1px #E6CE6C, -1px -1px #444;
+    text-align: center;
+    position: relative;
+    top: -225px;
+}
+
+#game_title {
+    font-size: 14px;
+    color: #CDA501;
+    /* text-shadow: 1px 1px #E6CE6C, -1px -1px #444; */
+    text-shadow: 1px 1px #444;
+    position: relative;
+    top: -217px;
+    text-align: center;
+}
+
+.goal {
+    text-align: center;
+}

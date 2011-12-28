@@ -71,8 +71,10 @@ def info(request):
     profile = user.profile
 
     game = profile.current_game
-    if not game or game.state == game.GAME_OVER or profile in game.winners():
+    if not game:
         return json_redirect(reverse(games_home))
+    if game.state == game.GAME_OVER or profile in game.winners():
+        return json_redirect(reverse(game_stats, args=[str(game.id)]))
     now, airport, ticket = game.update(profile)
 
     calc_mwp = game.players.count() * MW_PROBABILITY
@@ -364,6 +366,40 @@ def games_stats(request):
     cxt['avg_time'] = cxt['avg_time'] / 3600.0
     cxt['total_time'] = timedelta_to_hrs(cxt['total_time'])
     return render_to_response('airport/games_stats.html', cxt)
+
+@login_required
+def game_stats(request, game_id):
+    """Show stats for a particular game, request.user must have actually
+    played the game to utilize this view"""
+    game = get_object_or_404(Game, id=int(game_id))
+    profile = request.user.profile
+    if not game.players.filter(id=profile.id).exists():
+        return redirect(games_home)
+
+    goals = list(Goal.objects.filter(game=game).order_by('order'))
+    tickets = Purchase.objects.filter(profile=profile,
+            game=game).order_by('creation_time')
+
+    current_goal = 0
+    for ticket in tickets:
+        ticket.goal = False
+        try:
+            if ticket.flight.destination.city == goals[current_goal].city:
+                ticket.goal = True
+                current_goal = current_goal + 1
+        except IndexError:
+            pass
+
+    placed = game.place(profile)
+
+    context = {}
+    context['tickets'] = tickets
+    context['placed'] = placed
+    context['game'] = game
+    context['goals'] = goals
+
+    return render_to_response('airport/game_stats.html', context,
+            RequestContext(request))
 
 def crash(_request):
     """Case the app to crash"""

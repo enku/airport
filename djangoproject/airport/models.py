@@ -171,14 +171,14 @@ def _get_destinations_for(airport, dest_count):
     #if dest_count < 1:
     #    raise ValueError("Can't have < 1 destinations on an airport")
 
-    qs = Airport.objects.exclude(city=airport.city)
-    qs = qs.filter(game=airport.game)
-    qs = qs.exclude(id=airport.id)
-    qs = qs.annotate(num_dest=models.Count('destinations'))
-    qs = qs.filter(num_dest__lt=dest_count)
+    queryset = Airport.objects.exclude(city=airport.city)
+    queryset = queryset.filter(game=airport.game)
+    queryset = queryset.exclude(id=airport.id)
+    queryset = queryset.annotate(num_dest=models.Count('destinations'))
+    queryset = queryset.filter(num_dest__lt=dest_count)
 
     try:
-        return random.sample(qs, dest_count)
+        return random.sample(queryset, dest_count)
     except ValueError:
         # try again
         return _get_destinations_for(airport, dest_count-1)
@@ -256,7 +256,7 @@ class Flight(AirportModel):
         now = now or datetime.datetime.now()
 
         if self.in_flight(now) or self.has_landed(now):
-            raise flight.AlreadyDeparted()
+            raise self.AlreadyDeparted()
 
         if self.flight_time == 0:
             raise self.Finished()
@@ -385,11 +385,6 @@ def random_time(now, maximum=40):
     flight_time = random.randint(0, maximum)
     return now + datetime.timedelta(minutes=flight_time)
 
-def strftime(dt=None):
-    if dt is None:
-        dt = datetime.datetime.now()
-    return '[%s]' % dt.strftime('%d/%b/%Y %H:%M:%S')
-
 class UserProfile(AirportModel):
     """Profile for players"""
     user = models.ForeignKey(User)
@@ -402,6 +397,7 @@ class UserProfile(AirportModel):
 
     @property
     def games(self):
+        """Games this user has played"""
         return self.game_set.distinct()
 
     @property
@@ -485,7 +481,8 @@ class UserProfile(AirportModel):
         future flight"""
 
         if self.ticket and self.ticket.in_flight(now):
-            raise flight.AlreadyDeparted('Cannot purchase a flight while in flight')
+            raise flight.AlreadyDeparted(
+                    'Cannot purchase a flight while in flight')
 
         if self.airport != flight.origin:
             raise flight.NotAtDepartingAirport(
@@ -519,7 +516,7 @@ class Message(AirportModel):
     @classmethod
     def broadcast(cls, text, game=None, message_type='DEFAULT'):
         """Send a message to all users in «game» with a UserProfile"""
-        logging.info('%s BROADCAST: %s', strftime(), text)
+        logging.info('BROADCAST: %s', text)
         messages = []
 
         if game:
@@ -535,7 +532,7 @@ class Message(AirportModel):
     @classmethod
     def announce(cls, announcer, text, game=None, message_type='DEFAULT'):
         """Sends a message to all users but «announcer»"""
-        logging.info('%s ANNOUNCE: %s', strftime(), text)
+        logging.info('ANNOUNCE: %s', text)
         messages = []
 
         if isinstance(announcer, User):
@@ -559,7 +556,7 @@ class Message(AirportModel):
             # we want the UserProfile, but allow the caller to pass User as well
             user = user.get_profile()
 
-        logging.info('%s MESSAGE(%s): %s', strftime(), user.user.username, text)
+        logging.info('MESSAGE(%s): %s', user.user.username, text)
 
         return cls.objects.create(profile=user, text=text,
                 message_type=message_type)
@@ -799,7 +796,8 @@ class Game(AirportModel):
         for each player of the game"""
         stats = []
         for player in self.players.all().distinct():
-            stats.append([player.user.username, self.goals_achieved_for(player)])
+            stats.append(
+                    [player.user.username, self.goals_achieved_for(player)])
         return stats
 
     @transaction.commit_on_success
@@ -888,6 +886,25 @@ class Game(AirportModel):
         """Return the last Goal object for this game"""
         goals = Goal.objects.filter(game=self).order_by('-order')
         return goals[0]
+
+    def place(self, profile):
+        """Return what place user placed in the game or 0 if user has not
+        yet finished the game"""
+        goals = list(Goal.objects.filter(game=self).order_by('order'))
+
+        final_goal = goals[-1]
+        final_goal_stats = final_goal.stats()
+        my_finish_time = final_goal_stats[profile]
+        placed = 0
+        if my_finish_time:
+            finish_times = [final_goal_stats[i] for i in final_goal_stats if
+                    final_goal_stats[i]]
+            finish_times.sort()
+            for finish_time in finish_times:
+                placed = placed + 1
+                if finish_time == my_finish_time:
+                    break
+        return placed
 
 class Goal(AirportModel):
     """Goal cities for a game"""
