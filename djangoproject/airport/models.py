@@ -148,7 +148,7 @@ class Airport(AirportModel):
         cushion = 20 # minutes
 
         flight_ids = []
-        for destination in self.destinations.all().distinct():
+        for destination in self.destinations.distinct():
             flight = Flight.objects.create(
                     game = game,
                     origin = self,
@@ -158,7 +158,6 @@ class Airport(AirportModel):
                     flight_time = random.randint(MIN_FLIGHT_TIME,
                         MAX_FLIGHT_TIME))
             flight_ids.append(flight.id)
-        transaction.commit()
         return Flight.objects.filter(id__in=flight_ids)
 
 def _get_destinations_for(airport, dest_count):
