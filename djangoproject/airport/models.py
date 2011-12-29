@@ -794,7 +794,7 @@ class Game(AirportModel):
 
         for each player of the game"""
         stats = []
-        for player in self.players.distinct():
+        for player in self.players.distinct().order_by('user__username'):
             stats.append(
                     [player.user.username, self.goals_achieved_for(player)])
         return stats
