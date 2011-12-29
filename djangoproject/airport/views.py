@@ -37,6 +37,7 @@ DTHANDLER = lambda obj: (obj.isoformat()
         if isinstance(obj, datetime.datetime) else None)
 MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 20)
 MWF = MonkeyWrenchFactory()
+GAME_HISTORY_COUNT = 15
 
 @login_required
 def home(request):
@@ -345,7 +346,7 @@ def games_stats(request):
 
     # average game time
     cxt['total_time'] = datetime.timedelta(seconds=0)
-    for game in games.all():
+    for game in games.distinct():
         last_goal = game.last_goal()
         my_time = Achiever.objects.get(game=game, goal=last_goal,
                 profile=profile).timestamp
@@ -365,6 +366,13 @@ def games_stats(request):
     # we really want hours though
     cxt['avg_time'] = cxt['avg_time'] / 3600.0
     cxt['total_time'] = timedelta_to_hrs(cxt['total_time'])
+
+    prior_games = games.distinct()
+    prior_games = prior_games.values_list('id', 'timestamp')
+    prior_games = prior_games.order_by('-id')
+    prior_games = prior_games[:GAME_HISTORY_COUNT]
+    cxt['prior_games'] = prior_games
+
     return render_to_response('airport/games_stats.html', cxt)
 
 @login_required

@@ -82,5 +82,7 @@ a#start_game {
     bottom: 5px; 
 }
 
-#games_stats {
+#games_stats a {
+    color: yellow;
 }
+
