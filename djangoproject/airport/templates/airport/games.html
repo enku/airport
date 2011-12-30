@@ -11,8 +11,7 @@
 {% block content %}
 <table id="games_widget">
     <thead>
-        <tr><td class="titlebar" colspan="7" id="username">{{ user }}</td></tr>
-        <tr><td colspan="7">Active Games</td></tr>
+        <tr><td class="titlebar" colspan="7">Active Games</td></tr>
         <tr>
             <td>Game</td>
             <td>Goals</td>
@@ -39,24 +38,33 @@
         <thead>
             <tr><td class="titlebar" colspan="3">Start a new game</td></tr>
         </thead>
-        <tbody>
-            <tr>
-                <td># Goals</td>
-                <td><input id="goals_range" name="goals" type="range" min="1" max="5"
-                    value="1" step="1" /></td>
-                <td id="goals_count">1</td>
-            </tr>
-            <tr>
-                <td># Airports</td>
-                <td><input id="airports_range" name="airports" type="range" min="10" max="{{ airport_count }}" value="10" /></td>
-                <td id="airports_count">10</td>
-            </tr>
-            <tr>
-                <td colspan="3">
-                    <input type="submit" value="Create" />
-                </td>
-            </tr>
-        </tbody>
+        <tbody><tr><td>
+            <table class="nostyle">
+                <tr>
+                    <td># Goals</td>
+                    <td><input id="goals_range" 
+                        name="goals" 
+                        type="range" 
+                        min="1" 
+                        max="5"
+                        value="1" 
+                        step="1" /></td>
+                    <td id="goals_count">1</td>
+                </tr>
+                <tr>
+                    <td># Airports</td>
+                    <td><input id="airports_range" 
+                        name="airports" 
+                        type="range" 
+                        min="10" 
+                        max="{{ airport_count }}" 
+                        value="10" /></td>
+                    <td id="airports_count">10</td>
+                <tr>
+                    <td colspan="3"><input type="submit" value="Create" /></td>
+                </tr>
+        </table>
+        </td></tr></tbody>
     </table>
     </form>
 {% endif %}{# open_game #}
