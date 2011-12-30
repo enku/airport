@@ -387,7 +387,13 @@ def game_summary(request, game_id):
     """Show summary for a particular game, request.user must have actually
     played the game to utilize this view"""
     game = get_object_or_404(Game, id=int(game_id))
-    profile = request.user.profile
+
+    username = request.GET.get('player', None)
+    if username:
+        profile = get_object_or_404(UserProfile, user__username=username)
+    else:
+        profile = request.user.profile
+
     if not game.players.filter(id=profile.id).exists():
         return redirect(games_home)
 
@@ -408,13 +414,15 @@ def game_summary(request, game_id):
     placed = game.place(profile)
 
     context = {}
+    context['profile'] = profile
     context['tickets'] = tickets
     context['placed'] = placed
     context['game'] = game
     context['goals'] = goals
     context['num_airports'] = game.airports.distinct().count()
-    context['just_finished'] = (request.META['HTTP_REFERER'] ==
+    context['just_finished'] = (request.META.get('HTTP_REFERER') ==
             request.build_absolute_uri(reverse(home)))
+    context['players'] = game.players.exclude(id=profile.id).distinct()
 
     return render_to_response('airport/game_summary.html', context,
             RequestContext(request))

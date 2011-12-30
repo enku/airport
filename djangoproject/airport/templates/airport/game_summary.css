@@ -33,3 +33,16 @@
 .goal {
     text-align: center;
 }
+
+#others {
+    color: #FFFFFF;
+    background: black;
+    text-shadow: #111 1px 1px 1px;
+    text-align: right;
+    padding: 2px 5px;
+}
+
+#others a {
+    color: yellow;
+    font-weight: bold;
+}
