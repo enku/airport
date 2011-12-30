@@ -24,9 +24,9 @@
     font-size: 14px;
     color: #CDA501;
     /* text-shadow: 1px 1px #E6CE6C, -1px -1px #444; */
-    text-shadow: 1px 1px #444;
+    text-shadow: -1px 1px #222;
     position: relative;
-    top: -217px;
+    top: -222px;
     text-align: center;
 }
 

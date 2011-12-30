@@ -411,6 +411,7 @@ def game_summary(request, game_id):
     context['placed'] = placed
     context['game'] = game
     context['goals'] = goals
+    context['num_airports'] = game.airports.distinct().count()
 
     return render_to_response('airport/game_summary.html', context,
             RequestContext(request))
