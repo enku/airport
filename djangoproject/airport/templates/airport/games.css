@@ -122,6 +122,10 @@ a#start_game {
     margin: 0;
 }
 
+.left {
+    text-align: left;
+}
+
 input[type="submit"] {
     font-weight: normal;
 }
