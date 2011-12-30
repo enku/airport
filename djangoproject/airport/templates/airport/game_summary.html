@@ -63,6 +63,7 @@
         $(document).ready(function () {
             $('#flight_schedule').memdraggable();
             $('#medal').memdraggable();
+            {% if just_finished %}play('{{ message_WINNER_sound }}');{% endif %}
           });
     </script>
 {% endblock %}
