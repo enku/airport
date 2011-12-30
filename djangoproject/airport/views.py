@@ -352,9 +352,6 @@ def games_stats(request):
                 profile=profile).timestamp
         if not my_time:
             continue
-        print game.creation_time
-        print my_time
-        print
         cxt['total_time'] = (cxt['total_time']
                 + (my_time - game.creation_time))
     cxt['total_time'] = cxt['total_time']
@@ -367,10 +364,19 @@ def games_stats(request):
     cxt['avg_time'] = cxt['avg_time'] / 3600.0
     cxt['total_time'] = timedelta_to_hrs(cxt['total_time'])
 
-    prior_games = games.distinct()
+    prior_games = games.exclude(state=-1).distinct()
     prior_games = prior_games.values_list('id', 'timestamp')
     prior_games = prior_games.order_by('-id')
     prior_games = prior_games[:GAME_HISTORY_COUNT]
+    prior_games = list(prior_games)
+
+    # we may not yet be finished with the last game, if that's the case
+    # then don't show it
+    if prior_games:
+        last_game = Game.objects.get(id=prior_games[0][0])
+        if last_game.place(profile) == 0:
+            prior_games.pop(0)
+
     cxt['prior_games'] = prior_games
 
     return render_to_response('airport/games_stats.html', cxt)

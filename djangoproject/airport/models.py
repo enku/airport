@@ -889,6 +889,10 @@ class Game(AirportModel):
     def place(self, profile):
         """Return what place user placed in the game or 0 if user has not
         yet finished the game"""
+
+        if self.state == -1:
+            return 0
+
         goals = list(Goal.objects.filter(game=self).order_by('order'))
 
         final_goal = goals[-1]
