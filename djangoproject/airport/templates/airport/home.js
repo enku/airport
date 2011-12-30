@@ -18,7 +18,7 @@ function refresh_ui(data) {
         notify(data['notify']);
     }
 
-    $('#username').html(data['player']);
+    $('#game').html(data['game']);
     $('#clock span').html(data['time']);
 
     if (data['in_flight']) {
