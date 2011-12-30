@@ -189,7 +189,7 @@ tr.header td {
 }
 
 #goals li {
-    list-style-image: url('{{ bullet }}');
+    list-style-type: circle;
     font-weight: normal;
 }
 
