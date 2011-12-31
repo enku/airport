@@ -13,7 +13,7 @@
 {% block content %}
 <table id="flight_schedule">
     <thead>
-        <tr><td id="username" colspan="7">{{ game }} Itinerary for {{ profile.user.username|capfirst }}</td></tr>
+        <tr><td id="username" colspan="8">{{ game }} Itinerary for {{ profile.user.username|capfirst }}</td></tr>
         <tr class="schedule header">
             <td>#</td>
             <td>ORIGIN</td>
@@ -21,6 +21,7 @@
             <td>FLIGHT</td>
             <td>DEPART</td>
             <td>ARRIVE</td>
+            <td>ELAPSED</td>
             <td class="goal"><img src="{{ gold_star }}" /></td>
         </tr>
     </thead>
@@ -33,12 +34,13 @@
             <td class="flightno">{{ ticket.flight.number }}</td>
             <td>{{ ticket.flight.depart_time|date:"P" }}</td>
             <td>{{ ticket.flight.arrival_time|date:"P" }}</td>
+            <td>{{ ticket.flight.elapsed }}</td>
             <td class="goal">{% if ticket.goal %}<img src="{{ gold_star }}" />{% else %}&nbsp;{% endif %}</td>
         </tr>
     {% endfor %}
     {% if game.state = 0 and players %}
         <tr>
-            <td id="others" colspan="7">
+            <td id="others" colspan="8">
                 {% for player in players %} 
                 <a href="{% url game_summary game.id %}?player={{ player.user.username }}">>{{ player.user.username }}</a>
                 {% endfor %}

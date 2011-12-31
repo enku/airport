@@ -314,6 +314,18 @@ class Flight(AirportModel):
             'status': status,
         }
 
+    def elapsed(self):
+        """Return a timedelta of time elapsed (would have elapsed) since
+        from game creation_time to the flight arrival time"""
+        arrived = self.depart_time + datetime.timedelta(
+                minutes=self.flight_time)
+        game_create_time = self.game.creation_time
+        elapsed_time = arrived - game_create_time
+        # chop off microseconds
+        elapsed_time = datetime.timedelta(elapsed_time.days,
+                elapsed_time.seconds)
+        return elapsed_time
+
     @property
     def passengers(self):
         """Return a qs of passengers (UserProfile) on this «Flight»"""
