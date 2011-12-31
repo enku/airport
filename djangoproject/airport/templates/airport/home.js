@@ -1,6 +1,8 @@
 var goldstar = "{{ gold_star }}";
 var last_message = null;
 var last_ticket = null;
+var last_goal = null;
+var new_goal = false;
 
 function refresh_ui(data) {
     var odd_or_even;
@@ -89,6 +91,13 @@ function refresh_ui(data) {
             if (!current_goal_flagged) {
                 s = s +'<li class="goal_city current">' + goal[0] + '</li>\n';
                 current_goal_flagged = true;
+                if (last_goal != goal[0]) {
+                    new_goal = true;
+                    last_goal = goal[0];
+                }
+                else {
+                    new_goal = false;
+                }
             }
             else { 
                 s = s +'<li class="goal_city">' + goal[0] + '</li>\n';
@@ -96,6 +105,9 @@ function refresh_ui(data) {
         }
     }
     $('#goals').html(s);
+    if (new_goal) {
+        $('li.current').effect("pulsate", { times:3 }, 1500);
+    }
 
     // messages
     if (data['message_id'] != last_message) {

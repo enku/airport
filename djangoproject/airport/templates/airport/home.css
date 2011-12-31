@@ -193,6 +193,10 @@ tr.header td {
     font-weight: normal;
 }
 
+li.goal_city {
+    width: 130px;
+}
+
 #goals li.achieved {
     list-style-image: url('{{ gold_star }}');
 }
