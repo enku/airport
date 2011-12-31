@@ -1,7 +1,7 @@
 body {
     font-family: "Droid Sans", sans-serif;
     background-color: DeepSkyBlue;
-    background-image: url('{{ background_image }}'); 
+    background-image: url('{{ background_image }}');
 }
 
 a {

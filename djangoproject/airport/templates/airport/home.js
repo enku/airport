@@ -1,5 +1,4 @@
 var goldstar = "{{ gold_star }}";
-var last_message = null;
 var last_ticket = null;
 var last_goal = null;
 var new_goal = false;
@@ -109,12 +108,6 @@ function refresh_ui(data) {
         $('li.current').effect("pulsate", { times:3 }, 1500);
     }
 
-    // messages
-    if (data['message_id'] != last_message) {
-        $('#message_box').load('{% url messages %}');
-    }
-    last_message = data['message_id']
-
     // stats
     s = '';
     for (var i=0; i<data['stats'].length; i++) {
@@ -182,6 +175,7 @@ function main() {
     $('#frm').submit(buy_ticket);
     $('#permit_notify').click(permit_notifications_cb);
 
+    messages('#message_box');
     $.ajax({
         url: "{% url info %}",
         success: refresh_cb,

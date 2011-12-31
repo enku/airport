@@ -1,4 +1,3 @@
-var last_message = null;
 
 function update_games_list(data) {
     /* update the games list widget */
@@ -36,12 +35,6 @@ function refresh_ui(data) {
 
     update_games_list(data);
     join_game_link(data);
-
-    // messages
-    if (data['message_id'] != last_message) {
-        $('#message_box').load('{% url messages %}');
-    }
-    last_message = data['message_id']
 }
 
 function refresh_cb(data, textStatus, jqXHR) {
@@ -82,6 +75,7 @@ function main() {
     $('#create_widget').memdraggable();
     $('#message_widget').memdraggable();
 
+    messages('#message_box');
     $.ajax({
         url: "{% url games_info %}",
         success: refresh_cb,

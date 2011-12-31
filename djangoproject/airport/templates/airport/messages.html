@@ -1,16 +1,18 @@
 {% load messages %}
 
-<ul>{% for message in messages %}
+<ul>{% for message in messages reversed %}
     <li 
         style="list-style-image: url('{{ message|icon }}')"
-        class="message" 
+        class="message{% if old %} old{% endif %}" 
         data-id="{{ message.id }}"
-    >{{ message.text }}</li>
+    >{{ message.text }}
+    {% if message.play_sound %}<audio src="{{ message|sound}}" autoplay="autoplay" />{% endif %}
+    </li>
 
 {% if forloop.last %}
 </ul>
 <script type="text/javascript">
-    play('{{ message|sound }}');
+    $('#message_box').data('last_message', {{ message.id }});
     $('#message_widget').scrollTo('max', {
         axis: 'y',
         duration: 500,

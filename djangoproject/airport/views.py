@@ -182,13 +182,26 @@ def flights(request):
 @login_required
 def messages(request):
     """View to return user's current messages"""
-    messages = Message.get_messages(request)
+    last_message = int(request.GET.get('last', 0))
+    old = 'old' in request.GET
+    messages = Message.get_messages(request, last_message, old=old)
     if not messages:
-        messages = []
+        return HttpResponse('');
+
+    # hint to the template whether each message needs a sound played
+    if old:
+        for message in messages:
+            message.play_sound = False
+    else:
+        for message in messages:
+            if last_message and message.id > last_message:
+                message.play_sound = True
+                continue
+            message.play_sound = False
 
     return render_to_response(
             'airport/messages.html',
-            {'messages': messages},
+            {'messages': messages, 'old': old},
             RequestContext(request))
 
 @login_required

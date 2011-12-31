@@ -573,20 +573,24 @@ class Message(AirportModel):
                 message_type=message_type)
 
     @classmethod
-    def get_messages(cls, request, read=True):
+    def get_messages(cls, request, last_message=0, read=True, old=False):
         """Get messages for «request.user» (as a list)
             if «read»=True (default), mark the messages as read"""
         # This should really be in a model manager, but i'm too lazy
 
         user = request.user
 
-        messages_qs = cls.objects.filter(profile=user.profile)
-        messages_qs = messages_qs.order_by('-creation_time')
-        messages = list(messages_qs[:MAX_SESSION_MESSAGES])
-        messages.reverse()
-
+        if old:
+            messages_qs = cls.objects.filter(profile=user.profile,
+                id__gt=last_message)
+        else:
+            messages_qs = cls.objects.filter(profile=user.profile,
+                id__gt=last_message, read=False)
+        messages_qs = messages_qs.order_by('-id')
+        messages = list(messages_qs)[:MAX_SESSION_MESSAGES]
         if read:
             messages_qs.update(read=True)
+
         return messages
 
     @classmethod
