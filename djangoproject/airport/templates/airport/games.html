@@ -4,8 +4,9 @@
 {% block title %}{{ block.super }} - Games{% endblock %}
 
 {% block css %}
-    {% include "airport/games.css" %}
+    {% include "airport/common.css" %}
     {% include "airport/messages.css" %}
+    {% include "airport/games.css" %}
 {% endblock %}
 
 {% block content %}
@@ -26,14 +27,7 @@
 </table>
 
 <div id="create_widget">
-{% if open_game %}
-{# TODO: This is bad... fix it! #}
-{% if open_game.host.user.username == user %}
-    <a href="{% url home %}">Start {{ open_game }}</a>
-{% else %}<a style="font-size: smaller">Waiting for {{ open_game.host.user.username }} to start {{ open_game }}</a>
-{% endif %}{# open_game #}
-{% else %}
-    <form method="post" action="{% url games_create %}">{% csrf_token %}
+    <form method="post" id="create_form" action="{% url games_create %}">{% csrf_token %}
     <table>
         <thead>
             <tr><td class="titlebar" colspan="3">Start a new game</td></tr>
@@ -67,7 +61,6 @@
         </td></tr></tbody>
     </table>
     </form>
-{% endif %}{# open_game #}
 </div>{# create_widget #}
 
 <div id="message_widget">
@@ -75,6 +68,9 @@
 </div><!-- message_widget -->
 
 <div id="my_stats_widget"></div>
+
+<div id="lightbox_bg"></div>
+<div id="lightbox_content"></div>
 
 <div id="logout">
     <a href="{% url logout %}">Sign Out</a>

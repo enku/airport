@@ -217,7 +217,9 @@ def games_home(request):
 def games_info(request):
     """Just another json view"""
 
-    game = request.user.profile.current_game
+    profile = request.user.profile
+    game = profile.current_game
+    state = profile.current_state
 
     # if user is in an open game and it has started, redirect to that game
     if (game and game.state == game.IN_PROGRESS
@@ -262,13 +264,11 @@ def games_info(request):
         current_game = None
         finished_current = False
 
-    last_message = Message.get_latest(request.user)
-
     data = {
             'games': glist,
             'current_game': current_game,
-            'finished_current': finished_current,
-            'message_id': last_message.id if last_message else None
+            'current_state': state,
+            'finished_current': finished_current
     }
     return HttpResponse(json.dumps(data), mimetype='application/json')
 
@@ -301,7 +301,7 @@ def games_create(request):
         game = Game.create(profile, num_goals, num_airports)
         game.save()
 
-    return redirect(games_home)
+    return games_info(request)
 
 @login_required
 def games_join(request, game_id):
@@ -322,7 +322,7 @@ def games_join(request, game_id):
     else:
         game.add_player(profile)
 
-    return redirect(reverse(games_home))
+    return games_info(request)
 
 @login_required
 def games_stats(request):

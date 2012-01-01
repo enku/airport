@@ -27,6 +27,34 @@ function play(url) {
     return snd;
 }
 
+function LightBox(bg, content) {
+
+    this.show = function() {
+        if (!this.visible) {
+            this.bg.fadeIn();
+            this.content.css('display', 'inline-block');
+            this.content.center();
+            this.content.fadeIn();
+            this.visible = true;
+        }
+    }
+
+    this.hide = function() {
+        if (this.visible) {
+            this.bg.fadeOut();
+            this.content.fadeOut();
+            this.visible = false;
+        }
+    }
+
+    this.bg = $(bg);
+    this.content = $(content);
+    this.visible = false;
+
+    this.bg.addClass('lightbox');
+    this.content.addClass('lightbox_content')
+}
+
 (function( $ ) {
     $.fn.memdraggable = function() {
         var id = this.attr('id');
@@ -107,3 +135,10 @@ function play(url) {
         }
     };
 })( jQuery );
+
+jQuery.fn.center = function () {
+    this.css("position","absolute");
+    this.css("top", (($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop() + "px");
+    this.css("left", (($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft() + "px");
+    return this;
+}

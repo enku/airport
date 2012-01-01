@@ -1,4 +1,11 @@
+html {
+    height: 100%;
+}
+
 body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
     font-family: "Droid Sans", sans-serif;
     background-color: DeepSkyBlue;
     background-image: url('{{ background_image }}');
@@ -40,3 +47,25 @@ input[type="submit"] {
     -moz-border-radius: 18px;
     vertical-align: top;
 }
+
+.lightbox {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1001;
+    background: #000000;
+    color: #FFFFFF;
+    overflow: clip;
+    -moz-opacity: 0.6;
+    opacity: 0.60;
+    filter: alpha(opacity=60);
+}
+
+.lightbox_content {
+    z-index: 1002;
+    display: none;
+}
+

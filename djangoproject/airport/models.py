@@ -449,6 +449,29 @@ class UserProfile(AirportModel):
             return None
 
     @property
+    def current_state(self):
+        """Return one of:
+            'hosting' when user is hosting an unstarted game
+            'waiting' when user has joined an unstarted game
+            'open' when user hasn't joined a game
+            'playing' when user is in started game
+        """
+        game = self.current_game
+        if game is None:
+            return 'open'
+
+        if game.state == game.NOT_STARTED:
+            if game.host == self:
+                return 'hosting'
+            return 'waiting'
+
+        if game.state == game.IN_PROGRESS:
+            return 'playing'
+
+        # should never reach here, but...
+        return 'open'
+
+    @property
     def goals(self):
         """Return a qs of all goals acquired"""
         return Goal.objects.filter(
