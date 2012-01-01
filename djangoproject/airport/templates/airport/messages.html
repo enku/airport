@@ -3,10 +3,10 @@
 <ul>{% for message in messages reversed %}
     <li 
         style="list-style-image: url('{{ message|icon }}')"
-        class="message{% if old %} old{% endif %}" 
+        class="message{% if not message.new %} old{% endif %}" 
         data-id="{{ message.id }}"
     >{{ message.text }}
-    {% if message.play_sound %}<audio src="{{ message|sound}}" autoplay="autoplay" />{% endif %}
+    {% if message.new %}<audio src="{{ message|sound}}" autoplay="autoplay" />{% endif %}
     </li>
 
 {% if forloop.last %}

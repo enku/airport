@@ -588,6 +588,8 @@ class Message(AirportModel):
                 id__gt=last_message, read=False)
         messages_qs = messages_qs.order_by('-id')
         messages = list(messages_qs)[:MAX_SESSION_MESSAGES]
+        for message in messages:
+            message.new = not message.read
         if read:
             messages_qs.update(read=True)
 

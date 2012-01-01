@@ -18,6 +18,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.template.defaultfilters import date, escape
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 
 from airport import VERSION
@@ -184,25 +185,19 @@ def messages(request):
     """View to return user's current messages"""
     last_message = int(request.GET.get('last', 0))
     old = 'old' in request.GET
+    response = HttpResponse()
+    response['Cache-Control'] = 'no-cache'
     messages = Message.get_messages(request, last_message, old=old)
     if not messages:
-        return HttpResponse('');
+        response.status_code = 304
+        response.content = ''
+        return response
 
-    # hint to the template whether each message needs a sound played
-    if old:
-        for message in messages:
-            message.play_sound = False
-    else:
-        for message in messages:
-            if last_message and message.id > last_message:
-                message.play_sound = True
-                continue
-            message.play_sound = False
-
-    return render_to_response(
-            'airport/messages.html',
-            {'messages': messages, 'old': old},
-            RequestContext(request))
+    response['Content-Type'] = 'text/html'
+    content = render_to_string('airport/messages.html',
+            {'messages': messages, 'old': old})
+    response.content = content
+    return response
 
 @login_required
 def games_home(request):
