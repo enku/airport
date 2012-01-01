@@ -15,8 +15,8 @@ from django.contrib.humanize.templatetags.humanize import naturalday
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.template import RequestContext
+from django.shortcuts import (
+    render, render_to_response, get_object_or_404, redirect)
 from django.template.defaultfilters import date, escape
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
@@ -62,7 +62,11 @@ def home(request):
             Message.send(profile, 'Waiting for %s to start the game' %
                     game.host.user.username)
             return redirect(games_home)
-    return render_to_response('airport/home.html', {}, RequestContext(request))
+    context = {
+        'game': game,
+        'profile': profile
+    }
+    return render(request, 'airport/home.html', context)
 
 @login_required
 def info(request):
@@ -148,17 +152,10 @@ def info(request):
     return HttpResponse(json_str, mimetype='application/json')
 
 @login_required
-def flights(request):
+def flights(request, game_id):
     """render the flights widget for the user"""
-    try:
-        profile = request.user.profile
-    except AttributeError:
-        return HttpResponse('')
-
-    try:
-        game = profile.games.order_by('-timestamp')[0]
-    except IndexError:
-        return HttpResponse('')
+    game = get_object_or_404(Game, id=game_id)
+    profile = request.user.profile
 
     ticket = profile.ticket
     now, airport, ticket = game.update(profile)
@@ -175,10 +172,7 @@ def flights(request):
         flight.remarks = flight.get_remarks(now)
         flight.buyable = flight.buyable(profile, now)
 
-    return render_to_response(
-            'airport/flights.html',
-            {'flights': _flights},
-            RequestContext(request))
+    return render(request, 'airport/flights.html', {'flights': _flights})
 
 @login_required
 def messages(request):
@@ -187,15 +181,15 @@ def messages(request):
     old = 'old' in request.GET
     response = HttpResponse()
     response['Cache-Control'] = 'no-cache'
-    messages = Message.get_messages(request, last_message, old=old)
-    if not messages:
+    _messages = Message.get_messages(request, last_message, old=old)
+    if not _messages:
         response.status_code = 304
         response.content = ''
         return response
 
     response['Content-Type'] = 'text/html'
     content = render_to_string('airport/messages.html',
-            {'messages': messages, 'old': old})
+            {'messages': _messages, 'old': old})
     response.content = content
     return response
 
@@ -211,13 +205,13 @@ def games_home(request):
 
     airport_count = AirportMaster.objects.all().count()
 
-    return render_to_response('airport/games.html', {
+    context = {
         'user': request.user.username,
         'open_game': open_game,
         'airport_count': airport_count
-        },
-        RequestContext(request)
-    )
+    }
+
+    return render(request, 'airport/games.html', context)
 
 @login_required
 def games_info(request):
@@ -320,7 +314,7 @@ def games_join(request, game_id):
     if game.state == game.GAME_OVER:
         Message.send(profile, 'Could not join you to %s because it is over'
                 % game)
-    elif game.players.filter(id=profile.id).exists():
+    elif profile.is_playing(game):
         if profile in game.winners():
             Message.send(profile, 'You have already finished %s' % game)
         else:
@@ -402,7 +396,7 @@ def game_summary(request, game_id):
     else:
         profile = request.user.profile
 
-    if not game.players.filter(id=profile.id).exists():
+    if not profile.is_playing(game):
         return redirect(games_home)
 
     goals = list(Goal.objects.filter(game=game).order_by('order'))
@@ -432,8 +426,7 @@ def game_summary(request, game_id):
             request.build_absolute_uri(reverse(home)))
     context['players'] = game.players.exclude(id=profile.id).distinct()
 
-    return render_to_response('airport/game_summary.html', context,
-            RequestContext(request))
+    return render(request, 'airport/game_summary.html', context)
 
 def crash(_request):
     """Case the app to crash"""
@@ -469,8 +462,7 @@ def register(request):
             context['error'] = form._errors
 
     context['users'] = UserProfile.objects.all()
-    return render_to_response('registration/register.html', context,
-            RequestContext(request))
+    return render(request, 'registration/register.html', context)
 
 def about(request):
     """Classic /about view"""
@@ -484,11 +476,7 @@ def about(request):
             'user_agent': user_agent
     }
 
-    return render_to_response(
-            'airport/about.html',
-            context,
-            RequestContext(request)
-    )
+    return render(request, 'airport/about.html', context)
 
 def create_user(username, password):
     """Create a (regular) user account"""

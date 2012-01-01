@@ -4,7 +4,6 @@ var last_goal = null;
 var new_goal = false;
 
 function refresh_ui(data) {
-    var odd_or_even;
     var ticket;
     var goal;
     var s;
@@ -43,7 +42,7 @@ function refresh_ui(data) {
     else {
         $('#airplane_widget').hide();
 
-        $('#flights').load('{% url airport.views.flights %}');
+        $('#flights').load('{% url airport.views.flights game.id %}');
 
         $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
         if (!$('#airport_widget').is(':visible')) {
@@ -105,7 +104,7 @@ function refresh_ui(data) {
     }
     $('#goals').html(s);
     if (new_goal) {
-        $('li.current').effect("pulsate", { times:3 }, 1500);
+        $('li.current').effect("pulsate", { times:4 }, 700);
     }
 
     // stats

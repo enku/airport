@@ -506,6 +506,10 @@ class UserProfile(AirportModel):
         self.ticket = flight
         self.save()
 
+    def is_playing(self, game):
+        """Return True if user is a player in «game» else False"""
+        return game.players.filter(id=self.id).exists()
+
     def save(self, *args, **kwargs):
         new_user = not self.id
         super(UserProfile, self).save(*args, **kwargs)
