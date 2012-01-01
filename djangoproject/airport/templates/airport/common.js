@@ -133,6 +133,7 @@ function LightBox(bg, content) {
             }
             this.offset({ left: x, top: y});
         }
+    return this;
     };
 })( jQuery );
 
