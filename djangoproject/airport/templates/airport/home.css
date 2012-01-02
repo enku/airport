@@ -6,6 +6,7 @@ table {
 #flight_schedule {
     width: 600px;
     margin: auto;
+    margin-top: 10px;
 }
 
 #airplane_widget {
@@ -91,6 +92,7 @@ tr.header td {
     position: absolute;
     right: 5px;
     bottom: 5px;
+    z-index: 2000;
 }
 
 .time {
@@ -103,7 +105,7 @@ tr.header td {
     width: 100px;
     text-align: center;
     position: absolute;
-    top: 10px;
+    top: 5px;
     right: 13px;
     padding: 0;
     border: 1px solid green;
@@ -236,19 +238,30 @@ li.goal_city {
     position: absolute;
     right: 25px;
     bottom: 30px;
-    width: 200px;
+    width: 162px; 
     height: 200px;
     font-size: 13px;
     background: #ffea97;
     color: #807240;
-    background: -moz-linear-gradient(-45deg, #ffea97 0%, #ffe47a 90%, #ffdd56 100%);
-    background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,#ffea97), color-stop(90%,#ffe47a), color-stop(100%,#ffdd56));
-    background: -webkit-linear-gradient(-45deg, #ffea97 0%,#ffe47a 90%,#ffdd56 100%);
-    background: -o-linear-gradient(-45deg, #ffea97 0%,#ffe47a 90%,#ffdd56 100%);
-    background: -ms-linear-gradient(-45deg, #ffea97 0%,#ffe47a 90%,#ffdd56 100%);
-    background: linear-gradient(-45deg, #ffea97 0%,#ffe47a 90%,#ffdd56 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffea97', endColorstr='#ffdd56',GradientType=1 );
+    background-image: linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+    background-image: -o-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+    background-image: -moz-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+    background-image: -webkit-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+    background-image: -ms-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        right bottom,
+        color-stop(0.02, #FFEA97),
+        color-stop(0.51, #FFE47A),
+        color-stop(0.76, #FFDD56)
+    );
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
+}
+
+#notepad:hover {
+    cursor: url({{ notepad_cursor }}), auto;
 }
 
 #notepad .header {
@@ -257,6 +270,8 @@ li.goal_city {
     font-weight: bold;
     font-size: 16px;
     text-align: center;
+    padding: 2px;
+    margin: 2px;
 }
 
 #notepad ul {
@@ -269,6 +284,7 @@ li.goal_city {
 #notepad li {
     margin: 0;
     border-bottom: 1px solid #807240;
+    font-style: italic;
 }
 
 #notification_permission {

@@ -7,6 +7,7 @@ from django.conf import settings
 EXTERNALS = {
     'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js',
     'jquery_ui': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js',
+    'jquery_ui_css': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css',
     'jquery_scrollto': 'http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js',
     'jquery_cookie': 'https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js',
     'login_icon': 'http://www.ercmp.nic.in/images/login.png',
@@ -21,6 +22,7 @@ EXTERNALS = {
     'finished_image': 'http://www.moodiereport.com/images2/munich_airport_600px_dec09.jpg',
     'notification_icon': 'http://icons.iconarchive.com/icons/icons-land/points-of-interest/64/Airport-Blue-icon.png',
     'medal': 'http://www.clker.com/cliparts/R/A/q/t/b/L/gold-medal-md.png',
+    'notepad_cursor': 'http://sketchup.google.com/crimages/layout-32x32_TB_Line.png',
 
     # message sounds
     'message_MONKEYWRENCH_sound': 'http://www.freesound.org/data/previews/17/17468_57789-lq.mp3',

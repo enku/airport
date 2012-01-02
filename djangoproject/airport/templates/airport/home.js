@@ -170,6 +170,7 @@ function main() {
     $('#ticket_widget').memdraggable();
     $('#message_widget').memdraggable();
     $('#clock').memdraggable();
+    $('#notepad').memdraggable({handle: '.header'}).memresizable();
 
     $('#frm').submit(buy_ticket);
     $('#permit_notify').click(permit_notifications_cb);

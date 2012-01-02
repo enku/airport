@@ -56,13 +56,13 @@ function LightBox(bg, content) {
 }
 
 (function( $ ) {
-    $.fn.memdraggable = function() {
+    $.fn.memdraggable = function(options) {
         var id = this.attr('id');
         var coords = this.offset();
         var split, x, y;
         var window_width, window_height;
 
-        this.draggable();
+        this.draggable(options);
 
         this.bind('dragstop', function() {
             var coords = $(this).offset();
@@ -132,6 +132,47 @@ function LightBox(bg, content) {
                 x = window_width;
             }
             this.offset({ left: x, top: y});
+        }
+    return this;
+    };
+})( jQuery );
+
+(function( $ ) {
+    $.fn.memresizable = function(options) {
+        var id = this.attr('id'),
+            width = this.width(),
+            height = this.height(),
+            split,
+            size;
+
+        this.resizable(options);
+
+        this.bind('resizestop', function() {
+            var width = $(this).width(),
+                height = $(this).height();
+
+            $(this).css('opacity', $(this).data('opacity'));
+            $.cookie(
+                id + '_size', 
+                width + 'x' + height, { expires: 30 }
+            );
+        });
+
+        this.bind('resizestart', function() {
+            var orig_opacity = $(this).css('opacity');
+            $(this).data('opacity', orig_opacity);
+            $(this).css('opacity', 0.7);
+        });
+
+        /* load size  */
+        size = $.cookie(id + '_size');
+        if (size != null) {
+            split = size.split('x', 2);
+            width = split[0];
+            height = split[1];
+
+            this.width(width);
+            this.height(height);
         }
     return this;
     };
