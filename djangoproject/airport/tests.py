@@ -1,6 +1,5 @@
 # -*- encoding: utf8 -*-
 import datetime
-import json
 import random
 
 from django.contrib.auth.models import User
@@ -432,25 +431,25 @@ class Messages(TestCase):
 
     def test_in_view(self):
         """Test in a view"""
-        # we use the games_info view so we dont have to create any games
-        view = reverse('games_info')
+        view = reverse('messages')
 
         self.client.login(username='user1', password='test')
 
         # inject a message
         message = models.Message.send(self.user, 'Test 1')
-        response = json.loads(self.client.get(view).content)
-        self.assertEqual(response['message_id'], message.id)
+        response = self.client.get(view)
+        self.assertContains(response, 'data-id="%s"' % message.id)
 
-        # and again
-        response = json.loads(self.client.get(view).content)
-        self.assertEqual(response['message_id'], message.id)
+        # Messages all read.. subsequent calls should return 304
+        response = self.client.get(view)
+        self.assertEqual(response.status_code, 304)
 
         # insert 2 messages
-        models.Message.send(self.user, 'Test 2')
-        message = models.Message.send(self.user, 'Test 3')
-        response = json.loads(self.client.get(view).content)
-        self.assertEqual(response['message_id'], message.id)
+        message1 = models.Message.send(self.user, 'Test 2')
+        message2 = models.Message.send(self.user, 'Test 3')
+        response = self.client.get(view)
+        self.assertContains(response, 'data-id="%s"' % message1.id)
+        self.assertContains(response, 'data-id="%s"' % message2.id)
 
 
     def test_messages_view(self):
