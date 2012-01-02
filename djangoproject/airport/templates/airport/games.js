@@ -30,7 +30,7 @@ function join_game_link(data) {
 
 function refresh_ui(data) {
     if ('redirect' in data) {
-        notify('The game has begun');
+        airport.notify('The game has begun');
         window.location.replace(data['redirect']);
         return;
     }
@@ -125,8 +125,8 @@ function main() {
 
     $('#create_form').submit(create_form_cb);
 
-    messages('#message_box');
-    lightbox = new LightBox('#lightbox_content');
+    airport.messages('#message_box');
+    lightbox = new airport.LightBox('#lightbox_content');
 
     $.ajax({
         url: "{% url games_info %}",

@@ -1,7 +1,7 @@
-var goldstar = "{{ gold_star }}";
-var last_ticket = null;
-var last_goal = null;
-var new_goal = false;
+var goldstar = "{{ gold_star }}",
+    last_ticket = null,
+    last_goal = null,
+    new_goal = false;
 
 function refresh_ui(data) {
     var ticket;
@@ -15,7 +15,7 @@ function refresh_ui(data) {
     }
 
     if (data['notify']) {
-        notify(data['notify']);
+        airport.notify(data['notify']);
     }
 
     $('#game').html(data['game']);
@@ -35,7 +35,7 @@ function refresh_ui(data) {
 
         if ($('#airport_widget').is(':visible')) {
             $('#airport_widget').hide();
-            play('{{ takeoff_sound }}');
+            airport.play('{{ takeoff_sound }}');
         }
         $('#airplane_widget').show();
     }
@@ -47,7 +47,7 @@ function refresh_ui(data) {
         $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
         if (!$('#airport_widget').is(':visible')) {
             $('#airport_widget').show('drop', { direction: 'up' }, 500);
-            play('{{ landed_sound }}');
+            airport.play('{{ landed_sound }}');
         }
     }
 
@@ -70,7 +70,7 @@ function refresh_ui(data) {
         $('#ticket_widget').fadeIn();
 
         if (ticket['number'] != last_ticket) {
-            play('{{ ticket_sound }}');
+            airport.play('{{ ticket_sound }}');
         }
         last_ticket = ticket['number'];
     } 
@@ -175,7 +175,7 @@ function main() {
     $('#frm').submit(buy_ticket);
     $('#permit_notify').click(permit_notifications_cb);
 
-    messages('#message_box');
+    airport.messages('#message_box');
     $.ajax({
         url: "{% url info %}",
         success: refresh_cb,

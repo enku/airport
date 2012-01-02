@@ -1,32 +1,6 @@
 /*
  * Common functions for the Airport app
 */
-var notify_timeout = 20000 /* milliseconds */
-var notification = null;
-
-function notify(message) {
-    /* send a desktop notification, if allowed */
-    if (!window.webkitNotifications) {
-        return;
-    }
-    if (window.webkitNotifications.checkPermission() == 0) {
-        notification = window.webkitNotifications.createNotification(
-            '{{ notification_icon }}', 'Airport', message);
-        notification.show();
-        setTimeout(function() { notification.cancel();}, notify_timeout);
-    }
-}
-
-function play(url) {
-    /* play sound specified by url */
-    if (window['Audio'] == undefined) {
-        return null;
-    }
-    var snd = new Audio(url);
-    snd.play();
-    return snd;
-}
-
 (function( $ ) {
     $.fn.memdraggable = function(options) {
         var id = this.attr('id');
@@ -157,7 +131,33 @@ jQuery.fn.center = function () {
     return this;
 }
 
-function LightBox(content) {
+/* airport "namespace" */
+var airport = window.airport || {};
+airport.notify = function(message, timeout) {
+    /* send a desktop notification, if allowed */
+    if (!window.webkitNotifications) {
+        return;
+    }
+    timeout = timeout || 20000;
+    if (window.webkitNotifications.checkPermission() == 0) {
+        var notification = window.webkitNotifications.createNotification(
+            '{{ notification_icon }}', 'Airport', message);
+        notification.show();
+        setTimeout(function() { notification.cancel();}, timeout);
+    }
+}
+
+airport.play = function(url) {
+    /* play sound specified by url */
+    if (window['Audio'] == undefined) {
+        return null;
+    }
+    var snd = new Audio(url);
+    snd.play();
+    return snd;
+}
+
+airport.LightBox = function(content) {
     $('body').append('<div id="qqq_lightbox_bg"></div>');
     this.bg = $('#qqq_lightbox_bg');
     this.content = $(content);
@@ -167,7 +167,7 @@ function LightBox(content) {
     this.content.css('z-index', 1002);
 }
 
-LightBox.prototype.show = function() {
+airport.LightBox.prototype.show = function() {
     if (!this.visible) {
         this.bg.fadeIn();
         this.content.css('display', 'inline-block');
@@ -177,7 +177,7 @@ LightBox.prototype.show = function() {
     }
 }
 
-LightBox.prototype.hide = function() {
+airport.LightBox.prototype.hide = function() {
     if (this.visible) {
         this.bg.fadeOut();
         this.content.fadeOut();
