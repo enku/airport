@@ -69,3 +69,6 @@ input[type="submit"] {
     display: none;
 }
 
+.scrollable {
+    overflow-y: scroll;
+}
