@@ -98,9 +98,9 @@ function create_form_cb(event) {
 
     hide_create_widget();
     lightbox.content.data('creating', 'true');
-    lightbox.content.html('<img src="{{ inflight_image }}" /><div>Please wait...</div>');
+    lightbox.content.html('<img src="{{ inflight_image }}" /><div><span class="pulsate">Please wait...</span></div>');
     lightbox.show();
-    lightbox.content.find('div').effect("pulsate", { times:60 }, 800);
+    lightbox.content.find('.pulsate').effect("pulsate", { times:60 }, 800);
 
     var form = $('#create_form'), 
         goals = form.find('input[name="goals"]').val(), 
@@ -128,7 +128,7 @@ function main() {
     /* widgets that are draggable and remember their positions */
     $('#my_stats_widget').memdraggable();
     $('#games_widget').memdraggable();
-    $('#create_widget').memdraggable();
+    $('#create_widget').memdraggable({handle: '.titlebar'});
     $('#message_widget').memdraggable();
 
     $('#create_form').submit(create_form_cb);
