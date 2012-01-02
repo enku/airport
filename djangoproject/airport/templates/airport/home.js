@@ -22,8 +22,7 @@ function refresh_ui(data) {
     $('#clock span').html(data['time']);
 
     if (data['in_flight']) {
-        $('#flight_status').html(data['player']
-                + ' flying Flight '
+        $('#flight_status').html('&nbsp;Flight '
                 + data['ticket']['number']
                 + ' to '
                 + data['ticket']['destination']
