@@ -40,14 +40,16 @@ function refresh_ui(data) {
     
     if (data['current_state'] == 'hosting') {
         hide_create_widget();
+        lightbox.content.data('creating', 'false');
         lightbox.content.html('<a href="{% url home %}"><img src="{{ inflight_image }}"><div>Start Game ' + data['current_game'] + '</div></a>');
         lightbox.show();
     } 
     else if (data['current_state'] == 'waiting') {
         hide_create_widget();
+        lightbox.content.data('creating', 'false');
         lightbox.content.html('<img src="{{ inflight_image }}"><div>Waiting for host to start Game ' + data['current_game'] + '</div>');
         lightbox.show();
-    } else {
+    } else if (lightbox.content.data('creating') != 'true') {
         lightbox.hide();
         show_create_widget();
     }
@@ -95,6 +97,7 @@ function create_form_cb(event) {
     event.preventDefault();
 
     hide_create_widget();
+    lightbox.content.data('creating', 'true');
     lightbox.content.html('<img src="{{ inflight_image }}" /><div>Please wait...</div>');
     lightbox.show();
     lightbox.content.find('div').effect("pulsate", { times:60 }, 800);
