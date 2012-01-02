@@ -94,6 +94,11 @@ function create_game() {
 function create_form_cb(event) {
     event.preventDefault();
 
+    hide_create_widget();
+    lightbox.content.html('<img src="{{ inflight_image }}" /><div>Please wait...</div>');
+    lightbox.show();
+    lightbox.content.find('div').effect("pulsate", { times:60 }, 800);
+
     var form = $('#create_form'), 
         goals = form.find('input[name="goals"]').val(), 
         airports = form.find('input[name="airports"]').val(),
