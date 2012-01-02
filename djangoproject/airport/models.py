@@ -789,9 +789,10 @@ class Game(AirportModel):
         profile.save()
 
         # Send out an announcement
-        Message.broadcast(
-                '%s has joined %s' % (profile.user.username, self),
-                self)
+        if profile != self.host:
+            Message.broadcast(
+                    '%s has joined %s' % (profile.user.username, self),
+                    self)
         # put the player at the starting airport and take away their
         # tickets
         profile.ticket = None
