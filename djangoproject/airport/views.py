@@ -144,8 +144,7 @@ def info(request):
             'goals': goal_list,
             'stats': stats,
             'notify': notify,
-            'player': user.username,
-            'game' : str(game),
+            'player': user.username
         },
         default=DTHANDLER
     )

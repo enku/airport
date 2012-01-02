@@ -18,7 +18,6 @@ function refresh_ui(data) {
         airport.notify(data['notify']);
     }
 
-    $('#game').html(data['game']);
     $('#clock span').html(data['time']);
 
     if (data['in_flight']) {
