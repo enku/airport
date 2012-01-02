@@ -48,7 +48,7 @@ input[type="submit"] {
     vertical-align: top;
 }
 
-.lightbox {
+#qqq_lightbox_bg {
     display: none;
     position: absolute;
     top: 0;
@@ -62,11 +62,6 @@ input[type="submit"] {
     -moz-opacity: 0.6;
     opacity: 0.60;
     filter: alpha(opacity=60);
-}
-
-.lightbox_content {
-    z-index: 1002;
-    display: none;
 }
 
 .scrollable {

@@ -10,7 +10,7 @@ function update_games_list(data) {
         s = s + ('<tr><td><a class="games_join" href="{% url games_join %}' + game['id'] + '">' + game['id'] + '</a></td>' 
                 + '<td>' + game['goals'] + '</td><'
                 + '<td>' + game['airports'] + '</td>'
-                + '<td>' +  game['players'] + '</td>'
+                + '<td>' + game['players'] + '</td>'
                 + '<td>' + game['host'] + '</td>'
                 + '<td>' + game['status'] + '</td>'
                 + '<td>' + game['created'] + '</td>'
@@ -122,12 +122,11 @@ function main() {
     $('#games_widget').memdraggable();
     $('#create_widget').memdraggable();
     $('#message_widget').memdraggable();
-    $('#lightbox_content').draggable();
 
     $('#create_form').submit(create_form_cb);
 
     messages('#message_box');
-    lightbox = new LightBox('#lightbox_bg', '#lightbox_content');
+    lightbox = new LightBox('#lightbox_content');
 
     $.ajax({
         url: "{% url games_info %}",
