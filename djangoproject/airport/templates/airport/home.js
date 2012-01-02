@@ -166,7 +166,7 @@ function main() {
 
     $('#goal_widget').memdraggable();
     $('#stats_widget').memdraggable();
-    $('#flight_schedule').memdraggable();
+    $('#flight_schedule').memdraggable({handle: '#game'});
     $('#ticket_widget').memdraggable();
     $('#message_widget').memdraggable();
     $('#clock').memdraggable();

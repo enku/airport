@@ -242,7 +242,7 @@ li.goal_city {
     height: 200px;
     font-size: 13px;
     background: #ffea97;
-    color: #807240;
+    color: #000000;
     background-image: linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
     background-image: -o-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
     background-image: -moz-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
@@ -272,6 +272,7 @@ li.goal_city {
     text-align: center;
     padding: 2px;
     margin: 2px;
+    cursor: auto;
 }
 
 #notepad ul {
@@ -284,7 +285,7 @@ li.goal_city {
 #notepad li {
     margin: 0;
     border-bottom: 1px solid #807240;
-    font-style: italic;
+    font-family: "Sofia", cursive;
 }
 
 #notification_permission {

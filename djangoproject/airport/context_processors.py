@@ -22,7 +22,7 @@ EXTERNALS = {
     'finished_image': 'http://www.moodiereport.com/images2/munich_airport_600px_dec09.jpg',
     'notification_icon': 'http://icons.iconarchive.com/icons/icons-land/points-of-interest/64/Airport-Blue-icon.png',
     'medal': 'http://www.clker.com/cliparts/R/A/q/t/b/L/gold-medal-md.png',
-    'notepad_cursor': 'http://sketchup.google.com/crimages/layout-32x32_TB_Line.png',
+    'notepad_cursor': 'http://www.cursor.cc/cursor/154/0/cursor.png',
 
     # message sounds
     'message_MONKEYWRENCH_sound': 'http://www.freesound.org/data/previews/17/17468_57789-lq.mp3',
