@@ -1,7 +1,17 @@
 body {
     font-family: "Droid Sans", sans-serif;
     background-color: DeepSkyBlue;
-    background-image: url({{ background_image }}); 
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#background_image {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
 }
 
 a {
@@ -9,7 +19,7 @@ a {
     text-decoration: none;
 }
 
-img, input {
+input {
     display: inline-block;
     vertical-align: 50%;
 }

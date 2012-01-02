@@ -8,7 +8,15 @@ body {
     padding: 0;
     font-family: "Droid Sans", sans-serif;
     background-color: DeepSkyBlue;
-    background-image: url('{{ background_image }}');
+    overflow: hidden;
+}
+
+#background_image {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
 }
 
 a {
