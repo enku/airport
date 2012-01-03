@@ -243,6 +243,7 @@ li.goal_city {
     right: 25px;
     bottom: 30px;
     width: 162px; 
+    overflow: hidden;
     height: 200px;
     font-size: 13px;
     background: #ffea97;

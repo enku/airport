@@ -29,10 +29,6 @@ table {
     border-spacing: 0;
 }
 
-::-webkit-scrollbar {
-    visibility: hidden;
-}
-
 /* form {
     min-width: 800px;
     position: absolute;

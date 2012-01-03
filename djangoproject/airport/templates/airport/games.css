@@ -8,10 +8,6 @@ tbody {
     overflow: scroll;
 }
 
-#games_widget tbody *::-webkit-scrollbar {
-    visibility: visible;
-}
-
 td {
     border-bottom: 2px solid #989898;
     border-top: 2px solid #BABABA;
