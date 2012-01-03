@@ -46,6 +46,7 @@ td {
 }
 
 #lightbox_content {
+    display: none;
     width: 350px;
     height: 270px;
     text-align: center;
