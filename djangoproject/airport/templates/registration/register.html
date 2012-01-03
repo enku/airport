@@ -15,8 +15,9 @@
     </div>
     {% endif %}
 
+    <div id="register_widget">
+    <div id="logo">Register</div>
     <form method="post" action="{% url register %}">{% csrf_token %}
-        <div id="logo">Register</div>
         <div id="icon">
             <img src="{{ register_icon }}"
         style="width: 65px; height: 75px" />
@@ -40,6 +41,7 @@
             </div>
         </span>
     </form>
+    </div>
 
     <div id="meta">
         <a href="{% url home %}">Go Back</a>
