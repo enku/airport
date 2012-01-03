@@ -94,10 +94,6 @@ a#start_game {
     text-decoration: none;
 }
 
-#goals_range {
-    width: 60px;
-}
-
 #lock {
     margin-left: 0.5in;
 }

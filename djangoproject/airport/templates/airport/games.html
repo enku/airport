@@ -10,6 +10,9 @@
 {% endblock %}
 
 {% block content %}
+{# TODO: Remove when Firefox finally implements range inputs #}
+<script src="https://github.com/fryn/html5slider/raw/master/html5slider.js">
+</script>
 <table id="games_widget">
     <thead>
         <tr><td class="titlebar" colspan="7">Active Games</td></tr>
@@ -36,9 +39,9 @@
             <table class="nostyle">
                 <tr>
                     <td class="left">Goals</td>
-                    <td><input id="goals_range" 
+                    <td><input type="range"
+                        id="goals_range" 
                         name="goals" 
-                        type="range" 
                         min="1" 
                         max="5"
                         value="1" 
@@ -47,9 +50,9 @@
                 </tr>
                 <tr>
                     <td class="left">Airports</td>
-                    <td><input id="airports_range" 
+                    <td><input type="range"
+                        id="airports_range" 
                         name="airports" 
-                        type="range" 
                         min="10" 
                         max="{{ airport_count }}" 
                         value="15" /></td>
