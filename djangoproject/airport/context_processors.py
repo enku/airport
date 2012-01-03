@@ -34,7 +34,7 @@ EXTERNALS = {
 
     # message icons
     'message_DEFAULT_icon': 'http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif',
-    'message_MONKEYWRENCH_icon': 'http://www.tcach.org/site/modules/newbb/templates/images/icon/topic_hot_new.gif'
+    'message_MONKEYWRENCH_icon': 'http://www.la-legal.com/modules/newbb/templates/images/icon/topic_hot_new.gif'
 }
 
 def externals(request):
