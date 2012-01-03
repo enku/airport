@@ -72,7 +72,7 @@
         {% include "airport/common.js" %}
 
         $(document).ready(function () {
-            $('#flight_schedule').memdraggable();
+            $('#flight_schedule').memdraggable({handle: '#username'});
             $('#medal').memdraggable();
             {% if just_finished %}airport.play('{{ message_WINNER_sound }}');{% endif %}
           });
