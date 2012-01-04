@@ -11,8 +11,8 @@
 {% endfor %}
 <script type="text/javascript">
     $('input').click(function() {
-            var name = $(this).attr('name');
-            var ticket_no = name.substring(4);
+            var name = $(this).attr('name'),
+                ticket_no = name.substring(4);
             $('#selected').val(ticket_no);
     });
 </script>
