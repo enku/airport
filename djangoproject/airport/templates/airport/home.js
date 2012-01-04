@@ -127,15 +127,18 @@ function refresh_cb(data, textStatus, jqXHR) {
         5000);
 }
 
-function buy_ticket() {
+function buy_ticket(event) {
     /* callback for when a buy ticket button has been clicked */
+    event.preventDefault();
+    var form = $('#frm'),
+        selected = form.find('#selected');
+    $('#flight_' + selected).attr('disabled', true);
     $.ajax({
         type: 'POST',
         success: function(data) { refresh_ui(data);},
-        data: $('#frm').serialize(),
+        data: form.serialize(),
         url: "{% url info %}"
     });
-    return false;
 }
 
 function show_notifications_widget() {

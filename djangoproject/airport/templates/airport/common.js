@@ -184,3 +184,9 @@ airport.LightBox.prototype.hide = function() {
         this.visible = false;
     }
 }
+
+$(document).ready(function() {
+    $('input').click(function() {
+        airport.play('{{ button_click }}');
+    });
+});
