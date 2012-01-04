@@ -59,8 +59,59 @@ function flights_table(flights) {
     });
 }
 
+function update_ticket_widget(ticket, player) {
+    var widget = $('#ticket_widget');
+    
+    if (!ticket) {
+        if (widget.is(':visible')) {
+            widget.hide('drop', { direction: 'down' }, 500);
+        }
+        return;
+    }
+    
+    $('#ticket_name').html('<span class="ticket_label">NAME</span> '
+            + player.toUpperCase());
+    $('#ticket_status').html('<span class="ticket_label">STATUS</span> '
+            + ticket['status'].toUpperCase());
+    $('#ticket_no').html('<span class="ticket_label">FLIGHT</span> '
+            + ticket['number']);
+    $('#ticket_origin').html('<span class="ticket_label">FROM</span> '
+            + ticket['origin'].toUpperCase());
+    $('#ticket_dest').html('<span class="ticket_label">TO</span> '
+            + ticket['destination'].toUpperCase());
+    $('#ticket_depart').html('<span class="ticket_label">DEPART</span> '
+            + ticket['depart_time'].toUpperCase());
+    $('#ticket_arrive').html('<span class="ticket_label">ARRIVE</span> '
+            + ticket['arrival_time'].toUpperCase());
+    widget.fadeIn();
+
+    if (ticket['number'] != last_ticket) {
+        airport.play('{{ ticket_sound }}');
+    }
+    last_ticket = ticket['number'];
+}
+
+/*
+ * Update the stats widget showing all players and how many goals they
+ * have met
+ */
+function update_stats(stats) {
+    var s = '',
+        widget = $('#stats_box');
+    
+    for (var i=0; i<stats.length; i++) {
+        s = s + '<tr><td>' + stats[i][0] + '</td><td>';
+        for (var j=0; j<stats[i][1]; j++) {
+            s = s + '<img src="' + goldstar + '" />';
+        }
+    }
+    widget.html(s);
+    return widget;
+}
+
 function refresh_ui(data) {
     var ticket,
+        player = data['player'],
         goal,
         s,
         current_goal_flagged = false;
@@ -107,33 +158,9 @@ function refresh_ui(data) {
         }
     }
 
-    ticket = data['ticket'];
-    if (ticket) {
-        $('#ticket_name').html('<span class="ticket_label">NAME</span> '
-                + data['player'].toUpperCase());
-        $('#ticket_status').html('<span class="ticket_label">STATUS</span> '
-                + ticket['status'].toUpperCase());
-        $('#ticket_no').html('<span class="ticket_label">FLIGHT</span> '
-                + ticket['number']);
-        $('#ticket_origin').html('<span class="ticket_label">FROM</span> '
-                + ticket['origin'].toUpperCase());
-        $('#ticket_dest').html('<span class="ticket_label">TO</span> '
-                + ticket['destination'].toUpperCase());
-        $('#ticket_depart').html('<span class="ticket_label">DEPART</span> '
-                + ticket['depart_time'].toUpperCase());
-        $('#ticket_arrive').html('<span class="ticket_label">ARRIVE</span> '
-                + ticket['arrival_time'].toUpperCase());
-        $('#ticket_widget').fadeIn();
-
-        if (ticket['number'] != last_ticket) {
-            airport.play('{{ ticket_sound }}');
-        }
-        last_ticket = ticket['number'];
-    } 
-    else if ($('#ticket_widget').is(':visible')) {
-        $('#ticket_widget').hide('drop', { direction: 'down' }, 500);
-    }
-        
+    // ticket widget
+    update_ticket_widget(data['ticket'], player);
+    
     // goals
     s = '';
     for (var i=0; i<data['goals'].length; i++) {
@@ -164,14 +191,7 @@ function refresh_ui(data) {
     }
 
     // stats
-    s = '';
-    for (var i=0; i<data['stats'].length; i++) {
-        s = s + '<tr><td>' + data['stats'][i][0] + '</td><td>';
-        for (var j=0; j<data['stats'][i][1]; j++) {
-            s = s + '<img src="' + goldstar + '" />';
-        }
-    }
-    $('#stats_box').html(s);
+    update_stats(data['stats']);
 }
 
 function refresh_cb(data, textStatus, jqXHR) {
