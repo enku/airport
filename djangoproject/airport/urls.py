@@ -3,7 +3,6 @@ from django.conf.urls.defaults import patterns, url
 urlpatterns = patterns('airport.views',
     url(r'^info$', 'info', name='info'),
     url(r'^$', 'home', name='home'),
-    url(r'^flights/(\d+)/$', 'flights'),
     url(r'^messages/$', 'messages', name='messages'),
     url(r'^games/info$', 'games_info', name='games_info'),
     url(r'^games/stats$', 'games_stats'),

@@ -3,11 +3,67 @@ var goldstar = "{{ gold_star }}",
     last_goal = null,
     new_goal = false;
 
+function flights_table(flights) {
+    var s = '',
+        i,
+        flight,
+        num_flights = flights.length;
+
+    for (i=0; i<num_flights; i++) {
+        flight = flights[i];
+        if (i%2) {
+            odd_or_even = "odd";
+        }
+        else {
+            odd_or_even = "even";
+        }
+        s = s + (
+            '<tr class="schedule ' + odd_or_even + '" id="flight_' + flight['number'] + '">\n'
+            + '<td>' + flight['destination'] + '</td>\n'
+            + '<td class="flightno">' + flight['number'] + '</td>\n'
+            + '<td>' + flight['depart_time'] + '</td>\n'
+            + '<td>' + flight['arrival_time'] + '</td>\n'
+            + '<td>' + flight['status'] + '</td>\n');
+
+        if (flight['buyable']) {
+            s = s + (
+                '<td class="buy"><input type="submit" value="Buy" name="buy_'
+                + flight['number']
+                + '" /></td></tr>\n');
+        }
+        else {
+            s = s + (
+                '<td class="buy"><input disabled="disabled" type="submit" value="Buy" name="buy_'
+                + flight['number']
+                + '" /></td></tr>\n');
+        }
+    };
+
+    /* we prefer at least 10 rows */
+    for (i=i; i<10; i++) {
+        if (i%2) {
+            odd_or_even = "odd";
+        }
+        else {
+            odd_or_even = "even";
+        }
+        s = s + '<tr class="schedule ' + odd_or_even + '"><td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;</tr>\n';
+    }
+
+    $('#flights').html(s);
+
+    $('input').click(function() {
+        var name = $(this).attr('name');
+        var ticket_no = name.substring(4);
+        $('#selected').val(ticket_no);
+    });
+}
+
 function refresh_ui(data) {
-    var ticket;
-    var goal;
-    var s;
-    var current_goal_flagged = false;
+    var ticket,
+        goal,
+        s,
+        current_goal_flagged = false;
 
     if (data['redirect']) {
         window.location.replace(data['redirect']);
@@ -40,9 +96,11 @@ function refresh_ui(data) {
     else {
         $('#airplane_widget').hide();
 
-        $('#flights').load('{% url airport.views.flights game.id %}');
-
         $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
+
+        /* update the flights */
+        flights_table(data['next_flights']);
+
         if (!$('#airport_widget').is(':visible')) {
             $('#airport_widget').show('drop', { direction: 'up' }, 500);
             airport.play('{{ landed_sound }}');
@@ -131,8 +189,9 @@ function buy_ticket(event) {
     /* callback for when a buy ticket button has been clicked */
     event.preventDefault();
     var form = $('#frm'),
-        selected = form.find('#selected');
-    $('#flight_' + selected).attr('disabled', true);
+        selected = form.find('#selected').val();
+    $('input[name="buy_'+selected+'"]').attr('disabled', true);
+    airport.play('{{ button_click }}');
     $.ajax({
         type: 'POST',
         success: function(data) { refresh_ui(data);},

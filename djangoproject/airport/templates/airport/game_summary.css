@@ -1,3 +1,7 @@
+body {
+    overflow: auto;
+}
+
 #flight_schedule {
     width: 650px;
     z-index: 1;

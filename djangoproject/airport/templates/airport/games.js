@@ -96,6 +96,7 @@ function create_game() {
 function create_form_cb(event) {
     event.preventDefault();
 
+    airport.play('{{ button_click }}');
     hide_create_widget();
     lightbox.content.data('creating', 'true');
     lightbox.content.html('<img src="{{ inflight_image }}" /><div><span class="pulsate">Please wait...</span></div>');

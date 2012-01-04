@@ -100,6 +100,13 @@ def info(request):
                         'Flight %s has already left' % flight.number)
         return redirect(info)
 
+    if ticket and ticket.in_flight(now):
+        next_flights = ticket.destination.next_flights(game, now)
+    elif airport:
+        next_flights = airport.next_flights(game, now)
+    else:
+        next_flights = []
+
     last_message = Message.get_latest(request.user)
 
     if ticket:
@@ -126,6 +133,12 @@ def info(request):
 
     request.session['in_flight'] = in_flight
 
+    nf_list = []
+    for next_flight in next_flights:
+        nf_dict = next_flight.to_dict(now)
+        nf_dict['buyable'] = next_flight.buyable(profile, now)
+        nf_list.append(nf_dict)
+
     goal_list = []
     for goal in Goal.objects.filter(game=game):
         achieved = goal.achievers.filter(id=profile.id,
@@ -139,6 +152,7 @@ def info(request):
             'time': date(now, 'P'),
             'airport': airport.name if airport else ticket.origin,
             'ticket': None if not ticket else ticket.to_dict(now),
+            'next_flights': nf_list,
             'message_id': last_message.id if last_message else None,
             'in_flight': in_flight,
             'goals': goal_list,
@@ -149,29 +163,6 @@ def info(request):
         default=DTHANDLER
     )
     return HttpResponse(json_str, mimetype='application/json')
-
-@login_required
-def flights(request, game_id):
-    """render the flights widget for the user"""
-    game = get_object_or_404(Game, id=game_id)
-    profile = request.user.profile
-
-    ticket = profile.ticket
-    now, airport, ticket = game.update(profile)
-
-    if ticket and ticket.in_flight(now):
-        _flights = ticket.destination.next_flights(game, now)
-    elif airport:
-        _flights = airport.next_flights(game, now)
-    else:
-        _flights = []
-
-    # Annotate the flight objects with .remarks and .buyable
-    for flight in _flights:
-        flight.remarks = flight.get_remarks(now)
-        flight.buyable = flight.buyable(profile, now)
-
-    return render(request, 'airport/flights.html', {'flights': _flights})
 
 @login_required
 def messages(request):
