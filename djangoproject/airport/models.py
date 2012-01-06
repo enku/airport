@@ -503,7 +503,8 @@ class UserProfile(AirportModel):
                     self.save()
                     if caller == self:
                         Message.announce(self, '%s has arrived at %s' %
-                                (self.user.username, self.airport), game)
+                                (self.user.username, self.airport), game,
+                                message_type='PLAYERACTION')
 
                     return (self.airport, None)
 
@@ -792,7 +793,7 @@ class Game(AirportModel):
         if profile != self.host:
             Message.broadcast(
                     '%s has joined %s' % (profile.user.username, self),
-                    self)
+                    self, message_type='PLAYERACTION')
         # put the player at the starting airport and take away their
         # tickets
         profile.ticket = None

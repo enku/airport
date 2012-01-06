@@ -35,7 +35,11 @@ EXTERNALS = {
 
     # message icons
     'message_DEFAULT_icon': 'http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif',
-    'message_MONKEYWRENCH_icon': 'http://www.la-legal.com/modules/newbb/templates/images/icon/topic_hot_new.gif'
+    'message_MONKEYWRENCH_icon': 'http://www.la-legal.com/modules/newbb/templates/images/icon/topic_hot_new.gif',
+    'message_PLAYERACTION_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
+    'message_GOAL_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
+    'message_NEWGAME_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
+    'message_WINNER_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
 }
 
 def externals(request):
