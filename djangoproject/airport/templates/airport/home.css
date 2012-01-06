@@ -31,7 +31,6 @@ table {
     color: yellow;
     background-color: rgba(0, 0, 0, 0.65);
     padding: 8px;
-    font-family: "Monospace", fixed;
     font-weight: bold;
 }
 
@@ -48,6 +47,7 @@ table {
 
 .ui-progressbar {
     height: 32px !important;
+    border: 0 !important;
 }
 
 .ui-progressbar-value {
