@@ -44,6 +44,10 @@ table {
     left: 0;
 }
 
+.ui-progressbar {
+    height: 32px !important;
+}
+
 .ui-progressbar-value {
     background: rgba(255, 0, 255, 0.65) !important;
     border: none;
