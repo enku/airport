@@ -100,12 +100,16 @@ def info(request):
                         'Flight %s has already left' % flight.number)
         return redirect(info)
 
+    percentage = 100
+    next_flights = []
     if ticket and ticket.in_flight(now):
         next_flights = ticket.destination.next_flights(game, now)
+        percentage = ((now - ticket.depart_time).total_seconds()
+                / 60.0
+                / ticket.flight_time
+                * 100)
     elif airport:
         next_flights = airport.next_flights(game, now)
-    else:
-        next_flights = []
 
     last_message = Message.get_latest(request.user)
 
@@ -155,6 +159,7 @@ def info(request):
             'next_flights': nf_list,
             'message_id': last_message.id if last_message else None,
             'in_flight': in_flight,
+            'percentage': percentage,
             'goals': goal_list,
             'stats': stats,
             'notify': notify,

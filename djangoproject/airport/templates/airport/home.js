@@ -138,6 +138,9 @@ function refresh_ui(data) {
                 + '&nbsp;<span class="fsb">FASTEN SEATBELT WHILE SEATED</span>'
                 + '</span>');
 
+        /* update progress bar */
+        $( "#progress" ).progressbar("value", data['percentage'] );
+
         if ($('#airport_widget').is(':visible')) {
             $('#airport_widget').hide();
             airport.play('{{ takeoff_sound }}');
@@ -242,6 +245,7 @@ function main() {
     /* document.ready function */
     $('#airplane_widget').hide();
     $('#notification_permission').hide();
+    $('#progress').progressbar({value: 0});
     show_notifications_widget();
 
     $('#goal_widget').memdraggable();
