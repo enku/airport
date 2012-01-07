@@ -125,7 +125,7 @@ input[type="image"] {
 
 #meta {
     font-size: smaller;
-    position: absolute;
+    position: fixed;
     bottom: 5px;
     right: 5px;
 }
