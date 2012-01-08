@@ -417,8 +417,6 @@ def game_summary(request, game_id):
     context['game'] = game
     context['goals'] = goals
     context['num_airports'] = game.airports.distinct().count()
-    context['just_finished'] = (request.META.get('HTTP_REFERER') ==
-            request.build_absolute_uri(reverse(home)))
     context['players'] = game.players.exclude(id=profile.id).distinct()
 
     return render(request, 'airport/game_summary.html', context)

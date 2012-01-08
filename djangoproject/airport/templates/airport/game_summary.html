@@ -6,6 +6,7 @@
 
 {% block css %}
     {% include "airport/common.css" %}
+    {% include "airport/messages.css" %}
     {% include "airport/home.css" %}
     {% include "airport/game_summary.css" %}
 {% endblock %}
@@ -57,6 +58,10 @@
     <div id="game_title">{{ game }}: {{ goals|length }} goal{{ goals|length|pluralize }}<br/>{{ num_airports}} airports</div>
 </div>
 
+<div id="message_widget">
+    <div id="message_box">Messages</div>
+</div><!-- message_widget -->
+
 <div id="exit">
     <a href="{% url games %}">Exit</a>
 </div>
@@ -70,11 +75,13 @@
 
     <script type="text/javascript">
         {% include "airport/common.js" %}
+        {% include "airport/messages.js" %}
 
         $(document).ready(function () {
             $('#flight_schedule').memdraggable({handle: '#username'});
             $('#medal').memdraggable();
-            {% if just_finished %}airport.play('{{ message_WINNER_sound }}');{% endif %}
+            $('#message_widget').memdraggable();
+            airport.messages('#message_box');
           });
     </script>
 {% endblock %}
