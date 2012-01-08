@@ -15,7 +15,7 @@
     $('#message_box').data('last_message', {{ message.id }});
     $('#message_box').scrollTo('max', {
         axis: 'y',
-        duration: 500,
+        duration: {% if old %}0{% else %}500{% endif %},
         margin: true
         });
 </script>
