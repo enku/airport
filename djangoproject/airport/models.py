@@ -866,6 +866,8 @@ class Game(AirportModel):
         # update player & goals
         players = self.players.distinct()
         for player in players:
+            if player.current_game != self:
+                continue
             previous_ticket = player.ticket
             airport, ticket = player.location(now, self, player)
             if player == profile:
