@@ -553,13 +553,17 @@ class Message(AirportModel):
         return self.text
 
     @classmethod
-    def broadcast(cls, text, game=None, message_type='DEFAULT'):
+    def broadcast(cls, text, game=None, message_type='DEFAULT',
+            finishers=False):
         """Send a message to all users in «game» with a UserProfile"""
         logging.info('BROADCAST: %s', text)
         messages = []
 
         if game:
             profiles = UserProfile.objects.filter(game=game).distinct()
+            if not finishers:
+                profiles = profiles.exclude(id__in=[i.id for i in
+                    game.finishers()])
         else:
             profiles = UserProfile.objects.all()
 
@@ -569,7 +573,8 @@ class Message(AirportModel):
         return messages
 
     @classmethod
-    def announce(cls, announcer, text, game=None, message_type='DEFAULT'):
+    def announce(cls, announcer, text, game=None, message_type='DEFAULT',
+            finishers=False):
         """Sends a message to all users but «announcer»"""
         logging.info('ANNOUNCE: %s', text)
         messages = []
@@ -580,6 +585,9 @@ class Message(AirportModel):
 
         if game:
             profiles = UserProfile.objects.filter(game=game).distinct()
+            if not finishers:
+                profiles = profiles.exclude(id__in=[i.id for i in
+                    game.finishers()])
         else:
             profiles = UserProfile.objects.all()
 
@@ -763,7 +771,7 @@ class Game(AirportModel):
         for player in self.players.distinct():
             player.game = None
             player.save()
-        Message.broadcast('%s has ended!' % self, self)
+        Message.broadcast('%s has ended!' % self, self, finishers=True)
 
     def add_player(self, profile):
         """Add player to profile if game hasn't ended"""
@@ -892,13 +900,14 @@ class Game(AirportModel):
         if not winners_before and winners:
             if len(winners) == 1:
                 Message.broadcast('%s has won %s' % (winners[0].user.username,
-                    self), self, message_type='WINNER')
+                    self), self, message_type='WINNER', finishers=True)
             else:
                 Message.broadcast('%s: %s-way tie for 1st place' % (self,
-                    len(winners)), self, message_type='WINNER')
+                    len(winners)), self, message_type='WINNER',
+                    finishers=True)
                 for winner in winners:
                     Message.broadcast('%s is a winner!' %
-                            winner.user.username, self)
+                            winner.user.username, self, finishers=True)
 
         # if all players have achieved all goals, end the game
         if self.is_over():
@@ -924,6 +933,13 @@ class Game(AirportModel):
         times.sort()
         winning_time = times[0]
         return [i for i in stats if stats[i] == winning_time]
+
+    def finishers(self):
+        """Return the set of users who have finished the game"""
+        last_goal = Goal.objects.filter(game=self).order_by('-order')[0]
+        stats = last_goal.stats()
+        finishers = [i for i in stats if stats[i] != None]
+        return self.players.filter(id__in=[i.id for i in finishers])
 
     def goals_achieved_for(self, profile):
         """Return the number of goals achieved for «profile»"""
