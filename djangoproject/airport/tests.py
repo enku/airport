@@ -1,5 +1,6 @@
 # -*- encoding: utf8 -*-
 import datetime
+import json
 import random
 
 from django.contrib.auth.models import User
@@ -451,7 +452,6 @@ class Messages(TestCase):
         self.assertContains(response, 'data-id="%s"' % message1.id)
         self.assertContains(response, 'data-id="%s"' % message2.id)
 
-
     def test_messages_view(self):
         """Test the messages() view"""
         view = reverse('messages')
@@ -464,4 +464,34 @@ class Messages(TestCase):
         response = self.client.get(view)
         for message in messages:
             self.assertContains(response, 'data-id="%s"' % message.id)
+
+    def test_finished(self):
+        """Test that when finished=False, finishers don't get a message,
+        but when finished=True they do"""
+
+        # first, we need a player to finish a game
+        player = self.user
+        game = models.Game.create(player.profile, 1, 3, 1)
+        game.begin()
+        goal = models.Goal.objects.get(game=game)
+        models.Message.broadcast('this is test1', finishers=False)
+        messages = models.Message.get_messages(self, read=False)
+        self.assertEqual(messages[0].text, 'this is test1')
+
+        # finish
+        my_achievement = models.Achiever.objects.get(game=game,
+                profile=player.profile, goal=goal)
+        my_achievement.timestamp = game.time
+        my_achievement.save()
+
+        # send a broadcast with finishers=False
+        models.Message.broadcast('this is test2', game, finishers=False)
+        messages = models.Message.get_messages(self, read=False)
+        self.assertNotEqual(messages[0].text, 'this is test2')
+
+        # send a broadcast with finishers=True
+        models.Message.broadcast('this is test3', game, finishers=True)
+        messages = models.Message.get_messages(self, read=False)
+        self.assertEqual(messages[0].text, 'this is test3')
+
 
