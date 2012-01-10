@@ -199,7 +199,7 @@ class Hint(MonkeyWrench):
             return
 
         try:
-            achievers = profile.achiever_set.filter(
+            achievers = profile.achievement_set.filter(
                     game=self.game,
                     timestamp=None)
             current_goal = achievers[0].goal.city
