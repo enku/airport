@@ -479,7 +479,7 @@ class Messages(TestCase):
         self.assertEqual(messages[0].text, 'this is test1')
 
         # finish
-        my_achievement = models.Achiever.objects.get(game=game,
+        my_achievement = models.Achievement.objects.get(game=game,
                 profile=player.profile, goal=goal)
         my_achievement.timestamp = game.time
         my_achievement.save()

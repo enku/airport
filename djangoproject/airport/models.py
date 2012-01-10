@@ -416,7 +416,7 @@ class UserProfile(AirportModel):
         """Return qs of games finished"""
         excludes = set()
         for game in self.games:
-            nonachievers = (Achiever.objects.filter(game=game, profile=self,
+            nonachievers = (Achievement.objects.filter(game=game, profile=self,
                     timestamp__isnull=True)
                     .distinct()
                     .values_list('goal__id', flat=True))
@@ -430,9 +430,9 @@ class UserProfile(AirportModel):
         winner_ids = set()
         for game in self.games_finished:
             last_goal = Goal.objects.filter(game=game).order_by('-order')[0]
-            winner_time = Achiever.objects.filter(goal=last_goal,
+            winner_time = Achievement.objects.filter(goal=last_goal,
                 timestamp__isnull=False).order_by('timestamp')[0].timestamp
-            winners = Achiever.objects.filter(goal=last_goal,
+            winners = Achievement.objects.filter(goal=last_goal,
                     timestamp=winner_time)
             for winner in winners:
                 if winner.profile == self:
@@ -670,7 +670,7 @@ class Game(AirportModel):
 
     host = models.ForeignKey(UserProfile, related_name='+')
     players = models.ManyToManyField(UserProfile, null=True, blank=True,
-            through='Achiever')
+            through='Achievement')
     state = models.SmallIntegerField(choices=STATE_CHOICES, default=-1)
     goals = models.ManyToManyField(City, through='Goal')
     #airports = models.ManyToManyField(Airport)
@@ -784,9 +784,9 @@ class Game(AirportModel):
             return
 
         # This is a pain in the ass to do, basically we need to create an
-        # Achiever model for each goal
+        # Achievement model for each goal
         for goal in Goal.objects.filter(game=self):
-            Achiever.objects.create(
+            Achievement.objects.create(
                     profile=profile,
                     goal = goal,
                     game = self)
@@ -884,7 +884,7 @@ class Game(AirportModel):
                 if goal.was_achieved_by(player):
                     continue
                 if airport and airport.city == goal.city:
-                    ach = Achiever.objects.get(profile=player, goal=goal)
+                    ach = Achievement.objects.get(profile=player, goal=goal)
                     ach.timestamp = previous_ticket.arrival_time
                     ach.save()
                     messages.extend(Message.announce(player,
@@ -943,7 +943,7 @@ class Game(AirportModel):
 
     def goals_achieved_for(self, profile):
         """Return the number of goals achieved for «profile»"""
-        return Achiever.objects.filter(game=self, profile=profile,
+        return Achievement.objects.filter(game=self, profile=profile,
                 timestamp__isnull=False).count()
 
     def last_goal(self):
@@ -979,7 +979,7 @@ class Goal(AirportModel):
     city = models.ForeignKey(City)
     game = models.ForeignKey(Game)
     order = models.IntegerField()
-    achievers = models.ManyToManyField(UserProfile, through='Achiever')
+    achievers = models.ManyToManyField(UserProfile, through='Achievement')
 
     def __unicode__(self):
         return u'%s: Goal %s/%s for %s' % (
@@ -990,7 +990,7 @@ class Goal(AirportModel):
 
     def was_achieved_by(self, player):
         """Return True iff player has achieved goal"""
-        return Achiever.objects.filter(
+        return Achievement.objects.filter(
                 profile=player,
                 goal=self,
                 game=self.game,
@@ -1005,13 +1005,13 @@ class Goal(AirportModel):
         """
         data = {}
 
-        achiever_objs = Achiever.objects.filter(
+        achievements = Achievement.objects.filter(
                 goal=self,
                 game=self.game).values('profile_id', 'timestamp')
 
-        for achiever_obj in achiever_objs:
-            profile = UserProfile.objects.get(id=achiever_obj['profile_id'])
-            data[profile] = achiever_obj['timestamp']
+        for achievement in achievements:
+            profile = UserProfile.objects.get(id=achievement['profile_id'])
+            data[profile] = achievement['timestamp']
 
         return data
 
@@ -1019,7 +1019,7 @@ class Goal(AirportModel):
         """metadata"""
         ordering = ['game', 'order']
 
-class Achiever(AirportModel):
+class Achievement(AirportModel):
     """Users who have achieved a goal"""
     profile = models.ForeignKey(UserProfile)
     goal = models.ForeignKey(Goal)
@@ -1031,7 +1031,7 @@ class Achiever(AirportModel):
         if self.goal:
             self.game = self.goal.game
 
-        super(Achiever, self).save(*args, **kwargs)
+        super(Achievement, self).save(*args, **kwargs)
 
 class Purchase(AirportModel):
     """Table used to track purchases"""

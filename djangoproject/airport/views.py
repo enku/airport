@@ -23,7 +23,7 @@ from django.views.decorators.http import require_http_methods
 
 from airport import VERSION
 from airport.models import (
-        Achiever,
+        Achievement,
         AirportMaster,
         Flight,
         Game,
@@ -346,7 +346,7 @@ def games_stats(request):
     cxt['total_time'] = datetime.timedelta(seconds=0)
     for game in games.distinct():
         last_goal = game.last_goal()
-        my_time = Achiever.objects.get(game=game, goal=last_goal,
+        my_time = Achievement.objects.get(game=game, goal=last_goal,
                 profile=profile).timestamp
         if not my_time:
             continue
