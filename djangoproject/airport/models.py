@@ -476,7 +476,7 @@ class UserProfile(AirportModel):
         """Return a qs of all goals acquired"""
         return Goal.objects.filter(
             achievers=self,
-            achiever__timestamp__isnull=False,
+            achievement__timestamp__isnull=False,
         )
 
     @property

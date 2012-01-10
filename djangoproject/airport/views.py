@@ -146,7 +146,7 @@ def info(request):
     goal_list = []
     for goal in Goal.objects.filter(game=game):
         achieved = goal.achievers.filter(id=profile.id,
-                achiever__timestamp__isnull=False).exists()
+                achievement__timestamp__isnull=False).exists()
         goal_list.append([goal.city.name, achieved])
 
     stats = game.stats()
