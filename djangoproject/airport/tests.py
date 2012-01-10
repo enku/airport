@@ -494,4 +494,84 @@ class Messages(TestCase):
         messages = models.Message.get_messages(self, read=False)
         self.assertEqual(messages[0].text, 'this is test3')
 
+class HomeView(TestCase):
+    """Test the home view"""
+    view = reverse('home')
 
+    def setUp(self):
+        self.user, self.user2 = create_users(2)
+
+    def test_redirect_not_logged_in(self):
+        """Test that you are redirected to the login page when you are not
+        logget in"""
+        response = self.client.get(self.view)
+        self.assertRedirects(response,
+                reverse('django.contrib.auth.views.login') + '?next=%s' %
+                    self.view)
+
+    def test_no_game_redirect(self):
+        """test that when you are not in a game, you are redirected to the
+        games page"""
+        player = self.user
+        games_view = reverse('games')
+        self.client.login(username=player.username, password='test')
+        response = self.client.get(self.view)
+        self.assertRedirects(response, games_view)
+
+    def test_new_game_no_redirect(self):
+        """Test that there's no redirect when you're in a new game"""
+        player = self.user
+        game = models.Game.create(player.profile, 1, 3, 1)
+        self.client.login(username=player.username, password='test')
+        response = self.client.get(self.view)
+        self.assertEqual(response.status_code, 200)
+
+    def test_finished_game_redirect(self):
+        """Test that when you have finished a game, you are redirected"""
+        player = self.user
+        games_view = reverse('games')
+        game = models.Game.create(player.profile, 1, 3, 1)
+        self.client.login(username=player.username, password='test')
+        self.client.get(self.view)
+        goal = models.Goal.objects.get(game=game)
+        my_achievement = models.Achievement.objects.get(game=game,
+                profile=player.profile, goal=goal)
+        my_achievement.timestamp = game.time
+        my_achievement.save()
+        response = self.client.get(self.view)
+        self.assertRedirects(response, games_view)
+
+    def test_finished_but_not_won(self):
+        """Like above test, but should apply even if the user isn't the
+        winner"""
+        player1 = self.user
+        player2 = self.user2
+        games_view = reverse('games')
+
+        game = models.Game.create(player1.profile, 1, 3, 1)
+        game.add_player(player2.profile)
+        game.begin()
+        goal = models.Goal.objects.get(game=game)
+
+        #finish player 1
+        my_achievement = models.Achievement.objects.get(game=game,
+                profile=player1.profile, goal=goal)
+        my_achievement.timestamp = game.time
+        my_achievement.save()
+        self.client.login(username=player1.username, password='test')
+        response = self.client.get(self.view)
+        self.assertRedirects(response, games_view)
+
+        #player 2 still in the game
+        self.client.login(username=player2.username, password='test')
+        response = self.client.get(self.view)
+        self.assertEqual(response.status_code, 200)
+
+        # finish player 2
+        my_achievement = models.Achievement.objects.get(game=game,
+                profile=player2.profile, goal=goal)
+        my_achievement.timestamp = game.time
+        my_achievement.save()
+        self.client.login(username=player2.username, password='test')
+        response = self.client.get(self.view)
+        self.assertRedirects(response, games_view)

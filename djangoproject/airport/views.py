@@ -51,7 +51,7 @@ def home(request):
     if game.state == game.GAME_OVER:
         Message.send(profile, '%s is over' % game)
         return redirect(games_home)
-    if profile in game.winners():
+    if profile in game.finishers():
         return redirect(games_home)
     if game.state == game.NOT_STARTED:
         if profile == game.host:
