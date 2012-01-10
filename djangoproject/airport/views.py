@@ -79,7 +79,7 @@ def info(request):
     game = profile.current_game
     if not game:
         return json_redirect(reverse(games_home))
-    if game.state == game.GAME_OVER or profile in game.winners():
+    if game.state == game.GAME_OVER or profile in game.finishers():
         return json_redirect(reverse(game_summary, args=[str(game.id)]))
     now, airport, ticket = game.update(profile)
 
