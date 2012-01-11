@@ -10,6 +10,8 @@ urlpatterns = patterns('airport.views',
     url(r'^games/join/(\d+)?$', 'games_join', name='games_join'),
     url(r'^games/summary/(\d+)$', 'game_summary', name='game_summary'),
     url(r'^games/$', 'games_home', name='games'),
+    url(r'^images/cities/$', 'city_image', name='city_image'),
+    url(r'^images/cities/(.*)$', 'city_image'),
     url(r'^crash$', 'crash'),
     url(r'^accounts/register/$', 'register', name='register'),
     url(r'^about$', 'about')

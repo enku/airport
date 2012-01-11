@@ -109,11 +109,37 @@ function update_stats(stats) {
     return widget;
 }
 
+function flip_image(elem, src) {
+    if (elem.attr('src') === src)
+        return;
+    var copy = elem.clone().appendTo('body').css({
+            'z-index': -1000,
+            'position': 'absolute',
+            'top': 0,
+            'left': 0}),
+        orig_zindex = parseInt(elem.css('z-index'));
+    
+    copy.attr('src', elem.attr('src'));
+    copy.css('z-index', orig_zindex);
+    elem.css('z-index', -1000);
+    elem.attr('src', src);
+    copy.fadeOut(1500, function() {
+        elem.css('z-index', orig_zindex);
+        copy.remove();
+    });
+}
+
+function preload_image(url) {
+    var img = new Image(25, 25);
+    img.src = url;
+}
+
 function refresh_ui(data) {
     var ticket,
         player = data['player'],
         goal,
         s,
+        city_image_url,
         current_goal_flagged = false;
 
     if (data['redirect']) {
@@ -123,6 +149,12 @@ function refresh_ui(data) {
 
     if (data['notify']) {
         airport.notify(data['notify']);
+    }
+
+    if (data['city']) {
+        city_image_url = ('{% url city_image %}' 
+                          + encodeURIComponent(data['city']));
+        preload_image(city_image_url);
     }
 
     $('#clock span').html(data['time']);
@@ -146,9 +178,12 @@ function refresh_ui(data) {
             airport.play('{{ takeoff_sound }}');
         }
         $('#airplane_widget').show();
+        flip_image($('#background_image'), '{{ background_image }}');
     }
     else {
         $('#airplane_widget').hide();
+
+        flip_image($('#background_image'), city_image_url);
 
         $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
 

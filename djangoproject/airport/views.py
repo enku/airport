@@ -22,9 +22,11 @@ from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 
 from airport import VERSION
+from airport.context_processors import externals
 from airport.models import (
         Achievement,
         AirportMaster,
+        City,
         Flight,
         Game,
         Goal,
@@ -151,10 +153,18 @@ def info(request):
 
     stats = game.stats()
 
+    # city name
+    city = None
+    if airport:
+        city = airport.city.name
+    elif ticket:
+        city = ticket.destination.city.name
+
     json_str = json.dumps(
         {
             'time': date(now, 'P'),
             'airport': airport.name if airport else ticket.origin,
+            'city': city,
             'ticket': None if not ticket else ticket.to_dict(now),
             'next_flights': nf_list,
             'message_id': last_message.id if last_message else None,
@@ -424,6 +434,18 @@ def game_summary(request, game_id):
 def crash(_request):
     """Case the app to crash"""
     raise Exception('Crash forced!')
+
+def city_image(request, city_name):
+    """Redirect to the url of the image for a city, or the default if it
+    has None"""
+    try:
+        city = City.objects.get(name=city_name)
+    except City.DoesNotExist:
+        return redirect(externals(request)['background_image'])
+
+    if city.image:
+        return redirect(city.image)
+    return redirect(externals(request)['background_image'])
 
 def json_redirect(url):
     """Return a simple json dictionary with a redirect key and url value"""

@@ -575,3 +575,10 @@ class HomeView(TestCase):
         self.client.login(username=player2.username, password='test')
         response = self.client.get(self.view)
         self.assertRedirects(response, games_view)
+
+class Cities(TestCase):
+    """Test the Cities module"""
+    def test_images(self):
+        """Test that all cities have images"""
+        for city in models.City.objects.all():
+            self.assertNotEqual(city.image, None)

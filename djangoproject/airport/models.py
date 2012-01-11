@@ -39,6 +39,7 @@ class AirportModel(models.Model):
 class City(AirportModel):
     """A City"""
     name = models.CharField(max_length=50, unique=True)
+    image = models.CharField(max_length=300, null=True)
 
     def __unicode__(self):
         return self.name
