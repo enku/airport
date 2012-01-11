@@ -128,10 +128,18 @@ tr.header td {
 }
 
 #exit {
+    background: rgba(191, 191, 191, 0.4);
+    box-shadow: 2px 2px 3px 5px rgba(191, 191, 191, 0.4);
+    border-radius: 6px;
     position: fixed;
     right: 5px;
     bottom: 5px;
     z-index: 2000;
+}
+
+#exit a {
+    text-shadow: 1px 1px #ACACAC;
+    font-size: 12px;
 }
 
 .time {
