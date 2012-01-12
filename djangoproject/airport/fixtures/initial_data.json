@@ -1003,7 +1003,7 @@
         "pk": 1, 
         "model": "airport.city", 
         "fields": {
-            "image": "http://www.mosaicwallpapers.com/view-wallpaper/Atlanta-City_1280x1024_3375", 
+            "image": "http://www.ineedstorage.com/images/atl.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Atlanta"
         }
