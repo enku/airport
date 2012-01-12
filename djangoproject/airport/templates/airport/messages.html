@@ -6,7 +6,12 @@
         class="message{% if not message.new %} old{% endif %}" 
         data-id="{{ message.id }}"
     >{{ message.text }}
-    {% if message.new %}<audio src="{{ message|sound}}" autoplay="autoplay" />{% endif %}
+    {% if message.new %}
+    <audio src="{{ message|sound}}" autoplay="autoplay" />
+    <script type="text/javascript">
+        $('li[data-id="{{ message.id }}"]').effect("pulsate", { times:3 }, 700);
+    </script>
+    {% endif %}
     </li>
 
 {% if forloop.last %}

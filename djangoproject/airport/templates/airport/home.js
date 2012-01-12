@@ -1,4 +1,5 @@
 var goldstar = "{{ gold_star }}",
+    background_image = new Image(25, 25),
     last_ticket = null,
     last_goal = null,
     new_goal = false;
@@ -109,7 +110,7 @@ function update_stats(stats) {
     return widget;
 }
 
-function flip_image(elem, src) {
+function flip_background(elem, src) {
     if (elem.attr('src') === src)
         return;
     var copy = elem.clone().appendTo('body').css({
@@ -130,8 +131,8 @@ function flip_image(elem, src) {
 }
 
 function preload_image(url) {
-    var img = new Image(25, 25);
-    img.src = url;
+    if (background_image.src != url)
+        background_image.src = url;
 }
 
 function refresh_ui(data) {
@@ -178,12 +179,12 @@ function refresh_ui(data) {
             airport.play('{{ takeoff_sound }}');
         }
         $('#airplane_widget').show();
-        flip_image($('#background_image'), '{{ background_image }}');
+        flip_background($('#background_image'), '{{ background_image }}');
     }
     else {
         $('#airplane_widget').hide();
 
-        flip_image($('#background_image'), city_image_url);
+        flip_background($('#background_image'), city_image_url);
 
         $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
 
