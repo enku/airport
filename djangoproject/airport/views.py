@@ -141,9 +141,13 @@ def info(request):
     request.session['in_flight'] = in_flight
 
     nf_list = []
+    finished = profile in game.finishers()
     for next_flight in next_flights:
         nf_dict = next_flight.to_dict(now)
-        nf_dict['buyable'] = next_flight.buyable(profile, now)
+        if not finished:
+            nf_dict['buyable'] = next_flight.buyable(profile, now)
+        else:
+            nf_dict['buyable'] = False
         nf_list.append(nf_dict)
 
     goal_list = []
