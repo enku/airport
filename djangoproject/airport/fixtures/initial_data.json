@@ -1660,7 +1660,7 @@
         "pk": 75, 
         "model": "airport.city", 
         "fields": {
-            "image": "http://mi9.com/uploads/landscape/4243/gulf-pier-pensacola-beach-florida_1680x1050_74047.jpg", 
+            "image": "http://images.kw.com/agent_photos/0/4/6/046000//library/F__Real_Estate_Pictures_sunset_pier_6_1272037514205.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Pensacola"
         }
