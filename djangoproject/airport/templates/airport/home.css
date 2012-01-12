@@ -137,7 +137,7 @@ tr.header td {
     z-index: 2000;
 }
 
-#exit a {
+#exit a, #notification_permission {
     text-shadow: 1px 1px #ACACAC;
     font-size: 12px;
 }
