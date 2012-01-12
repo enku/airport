@@ -99,7 +99,8 @@ def info(request):
                 ticket = profile.purchase_flight(flight, now)
             except Flight.AlreadyDeparted:
                 Message.send(profile,
-                        'Flight %s has already left' % flight.number)
+                        'Flight %s has already left' % flight.number,
+                        message_type='ERROR')
         return redirect(info)
 
     percentage = 100

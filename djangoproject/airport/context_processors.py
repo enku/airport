@@ -27,6 +27,7 @@ EXTERNALS = {
 
     # message sounds
     'message_MONKEYWRENCH_sound': 'http://www.freesound.org/data/previews/17/17468_57789-lq.mp3',
+    'message_ERROR_sound': 'http://www.freesound.org/data/previews/17/17468_57789-lq.mp3',
     'message_DEFAULT_sound': 'http://soundbible.com/mp3/A-Tone-His_Self-1266414414.mp3',
     'message_GOAL_sound': 'http://soundbible.com/mp3/Kids%20Cheering-SoundBible.com-681813822.mp3',
     'message_GAMEOVER_sound': 'http://www.freesound.org/data/previews/42/42349_81909-lq.mp3',
@@ -36,6 +37,7 @@ EXTERNALS = {
     # message icons
     'message_DEFAULT_icon': 'http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif',
     'message_MONKEYWRENCH_icon': 'http://www.la-legal.com/modules/newbb/templates/images/icon/topic_hot_new.gif',
+    'message_ERROR_icon': 'http://www.la-legal.com/modules/newbb/templates/images/icon/topic_hot_new.gif',
     'message_PLAYERACTION_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
     'message_GOAL_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
     'message_NEWGAME_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
