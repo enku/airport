@@ -502,11 +502,6 @@ class UserProfile(AirportModel):
                     self.airport = self.ticket.destination
                     self.ticket = None
                     self.save()
-                    if caller == self:
-                        Message.announce(self, '%s has arrived at %s' %
-                                (self.user.username, self.airport), game,
-                                message_type='PLAYERACTION')
-
                     return (self.airport, None)
 
         self.save()
@@ -537,6 +532,16 @@ class UserProfile(AirportModel):
 
     def save(self, *args, **kwargs):
         new_user = not self.id
+
+        if not new_user:
+            # check to see if we have arrived at a new airport
+            orig = UserProfile.objects.get(id=self.id)
+            if (self.ticket is None and self.airport is not None and
+                    orig.ticket is not None):
+                Message.announce(self, '%s has arrived at %s' %
+                        (self.user.username, self.airport),
+                        self.airport.game, message_type='PLAYERACTION')
+
         super(UserProfile, self).save(*args, **kwargs)
         if new_user:
             Message.send(self, 'Welcome to Airport!')
@@ -763,6 +768,7 @@ class Game(AirportModel):
         self.state = self.IN_PROGRESS
         self.timestamp = datetime.datetime.now()
         self.save()
+        Message.announce(self.host, '%s has begun' % self)
 
     def end(self):
         """End the Game"""
@@ -861,7 +867,6 @@ class Game(AirportModel):
         profile_ticket = profile_airport = None
         winners_before = self.winners()
         now = now or self.time
-        messages = []
 
         if self.state == self.GAME_OVER:
             return (self.timestamp, None, None)
@@ -888,14 +893,7 @@ class Game(AirportModel):
                     ach = Achievement.objects.get(profile=player, goal=goal)
                     ach.timestamp = previous_ticket.arrival_time
                     ach.save()
-                    messages.extend(Message.announce(player,
-                        '%s has achieved %s' % (player.user.username,
-                            goal), self, message_type='GOAL'))
                     break
-                else:
-                    break
-
-        Message.touch(messages, datetime.datetime.now())
 
         winners = self.winners()
         if not winners_before and winners:
@@ -1031,6 +1029,14 @@ class Achievement(AirportModel):
         """Overriden save() method"""
         if self.goal:
             self.game = self.goal.game
+
+        if self.id is not None:
+            old_ach = Achievement.objects.get(id=self.id)
+            if old_ach.timestamp is None:
+                # send out a message
+                Message.announce(self.profile, '%s has achieved %s' %
+                        (self.profile.user, self.goal), game=self.game,
+                        message_type='GOAL')
 
         super(Achievement, self).save(*args, **kwargs)
 
