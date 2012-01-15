@@ -151,8 +151,8 @@ class Airport(AirportModel):
                     destination = destination,
                     depart_time = (datetime.timedelta(minutes=cushion) +
                         random_time(now)),
-                    flight_time = random.randint(MIN_FLIGHT_TIME,
-                        MAX_FLIGHT_TIME))
+                    flight_time = Connection.objects.get(game=game,
+                        source=self, destination=destination).flight_time)
             flight_ids.append(flight.id)
         return Flight.objects.filter(id__in=flight_ids)
 
@@ -177,6 +177,17 @@ def _get_destinations_for(airport, dest_count):
     except ValueError:
         # try again
         return _get_destinations_for(airport, dest_count-1)
+
+class Connection(AirportModel):
+    """Collect flight times between airports"""
+    game = models.ForeignKey('Game', related_name='connections')
+    source = models.ForeignKey(Airport, related_name='+')
+    destination = models.ForeignKey(Airport, related_name='+')
+    flight_time = models.IntegerField() # km
+
+    def __unicode__(self):
+        return 'Connection from %s to %s: %s minutes' % (
+            self.source, self.destination, self.flight_time)
 
 class Flight(AirportModel):
     """A flight from one airport to another"""
@@ -715,13 +726,32 @@ class Game(AirportModel):
             airport = Airport.copy_from_master(game, master)
 
         # populate the airports with destinations
-        for airport in game.airports.all():
+        for airport in game.airports.distinct():
             new_destinations = _get_destinations_for(airport,
                     dest_per_airport)
             for destination in new_destinations:
                 if airport.destinations.count() >= dest_per_airport:
                     break
                 airport.destinations.add(destination)
+
+        # create "connections" for each airport destination
+        for source in game.airports.distinct():
+            for destination in source.destinations.all():
+                print source, destination
+                flight_time = random.randint(MIN_FLIGHT_TIME, MAX_FLIGHT_TIME)
+                Connection.objects.get_or_create(
+                    game=game,
+                    source=source,
+                    destination=destination,
+                    defaults={'flight_time': flight_time})
+                # it's symmetrical
+                # I know this is "wasteful", but it's not a huge amount of
+                # data and should make lookups faster
+                Connection.objects.get_or_create(
+                    game=game,
+                    source=destination,
+                    destination=source,
+                    defaults={'flight_time': flight_time})
 
         # add goals
         current_airport = game.start_airport

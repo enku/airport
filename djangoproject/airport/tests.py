@@ -568,3 +568,22 @@ class Cities(TestCase):
         """Test that all cities have images"""
         for city in models.City.objects.all():
             self.assertNotEqual(city.image, None)
+
+class Connections(TestCase):
+    """Test the new "constant-connections" feature"""
+    def setUp(self):
+        self.user = create_users(1)[0]
+        self.game = models.Game.create(self.user.profile, 1, 50, 1)
+
+    def test_constant_connections(self):
+        """Test that the connection time between two airports is always
+        constant (ignoring cancellations/delays and the like"""
+        game = self.game
+
+        for source in game.airports.all():
+            for flight in source.create_flights(game, game.time):
+                destination = flight.destination
+                s2d = flight.flight_time
+                d2s = destination.create_flights(game, game.time).filter(
+                        destination=source)[0].flight_time
+                self.assertEqual(s2d, d2s)
