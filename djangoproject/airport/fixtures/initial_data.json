@@ -1003,846 +1003,1034 @@
         "pk": 1, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "33.75", 
             "image": "http://www.ineedstorage.com/images/atl.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Atlanta"
+            "name": "Atlanta", 
+            "longitude": "-84.38"
         }
     }, 
     {
         "pk": 2, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "41.83", 
             "image": "http://www.wallpaperpimper.com/wallpaper/Places/Chicago/Chicago-Illinois-Landscapes-Cities-1-1280x1024.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Chicago"
+            "name": "Chicago", 
+            "longitude": "-87.62"
         }
     }, 
     {
         "pk": 3, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "34.05", 
             "image": "http://i1-win.softpedia-static.com/screenshots/Coast-of-Los-Angeles-Screensaver_1.png", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Los Angeles"
+            "name": "Los Angeles", 
+            "longitude": "-118.25"
         }
     }, 
     {
         "pk": 5, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "39.75", 
             "image": "http://www.100besteverything.com/best-cities/i-1-1603_denver-wp1.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Denver"
+            "name": "Denver", 
+            "longitude": "-105"
         }
     }, 
     {
         "pk": 6, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "36.17", 
             "image": "http://desktopwallpaper-s.com/wallpapers/63/Paris_-_Las_Vegas.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Las Vegas"
+            "name": "Las Vegas", 
+            "longitude": "-115.2"
         }
     }, 
     {
         "pk": 7, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "40.78", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/4/47/LOC_Brooklyn_Bridge_and_East_River_Edit_3.jpg/1280px-LOC_Brooklyn_Bridge_and_East_River_Edit_3.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "New York City"
+            "name": "New York City", 
+            "longitude": "-73.97"
         }
     }, 
     {
         "pk": 8, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "33.48", 
             "image": "http://www.travelskyline.net/wallpapers/skyline_phoenix_night-1280x1024.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Phoenix"
+            "name": "Phoenix", 
+            "longitude": "-112.07"
         }
     }, 
     {
         "pk": 9, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "29.75", 
             "image": "http://files.all-free-download.com/downloadfiles/wallpapers/1280_1024/houston_wallpaper_united_states_world_wallpaper_1280_1024_1748.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Houston"
+            "name": "Houston", 
+            "longitude": "-95.35"
         }
     }, 
     {
         "pk": 10, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "40.73", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Newark%2C_New_Jersey_at_night.jpg/1280px-Newark%2C_New_Jersey_at_night.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Newark"
+            "name": "Newark", 
+            "longitude": "-74.17"
         }
     }, 
     {
         "pk": 11, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "42.33", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/a/a0/DetroitSkyline.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Detroit"
+            "name": "Detroit", 
+            "longitude": "-83.05"
         }
     }, 
     {
         "pk": 12, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "44.98", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/MinneapolisSkyline.jpg/960px-MinneapolisSkyline.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Minneapolis - St. Paul"
+            "name": "Minneapolis - St. Paul", 
+            "longitude": "-93.23"
         }
     }, 
     {
         "pk": 13, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "28.53", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/8/82/OrlandoNightSkyline.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Orlando"
+            "name": "Orlando", 
+            "longitude": "-81.37"
         }
     }, 
     {
         "pk": 14, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "37.78", 
             "image": "http://www.sanfranciscoplasticsurgeryblog.com/wp-content/uploads/2011/11/SFBayArea.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "San Francisco"
+            "name": "San Francisco", 
+            "longitude": "-122.43"
         }
     }, 
     {
         "pk": 15, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "25.77", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Biscayne_Boulevard_night_20101202.jpg/1280px-Biscayne_Boulevard_night_20101202.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Miami"
+            "name": "Miami", 
+            "longitude": "-80.2"
         }
     }, 
     {
         "pk": 16, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "39.95", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/d/d8/Schuylkill_Expressway_Sept_2007.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Philadelphia"
+            "name": "Philadelphia", 
+            "longitude": "-75.17"
         }
     }, 
     {
         "pk": 17, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "35.23", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Light_rail.jpg/1280px-Light_rail.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Charlotte"
+            "name": "Charlotte", 
+            "longitude": "-80.83"
         }
     }, 
     {
         "pk": 18, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "47.62", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/3/36/SeattleI5Skyline.jpg/1280px-SeattleI5Skyline.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Seattle"
+            "name": "Seattle", 
+            "longitude": "-122.33"
         }
     }, 
     {
         "pk": 19, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "42.35", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/USA_09562_Boston_Luca_Galuzzi_2007.jpg/1280px-USA_09562_Boston_Luca_Galuzzi_2007.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Boston"
+            "name": "Boston", 
+            "longitude": "-71.08"
         }
     }, 
     {
         "pk": 20, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "38.88", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/US_Capitol_from_NW.JPG/1280px-US_Capitol_from_NW.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Washington, DC"
+            "name": "Washington, DC", 
+            "longitude": "-77.03"
         }
     }, 
     {
         "pk": 21, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "39.3", 
             "image": "http://kathika.com/wp-content/uploads/shutterstock_17877412.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Baltimore"
+            "name": "Baltimore", 
+            "longitude": "-76.63"
         }
     }, 
     {
         "pk": 22, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "40.77", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Temple_Square_October_05_%288%29_c.JPG/1280px-Temple_Square_October_05_%288%29_c.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Salt Lake City"
+            "name": "Salt Lake City", 
+            "longitude": "-111.9"
         }
     }, 
     {
         "pk": 23, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "26.13", 
             "image": "http://www.cntraveler.com/hotels/north-america/united-states/w-fort-lauderdale-fort-lauderdale-florida/_jcr_content/par/cn_contentwell/par-main/cn_colctrl/par-col1/cn_features_containe/cn_manual_feature_1/cn_image_1.size.w-fort-lauderdale-fort-lauderdale-florida-110629-2.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Fort Lauderdale"
+            "name": "Fort Lauderdale", 
+            "longitude": "-80.13"
         }
     }, 
     {
         "pk": 24, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "21.3", 
             "image": "http://www.beach-backgrounds.com/sunset-images/sunset-over-ala-moana-beach-park-honolulu-oahu-hawaii-wallpaper-1280x1024.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Honolulu"
+            "name": "Honolulu", 
+            "longitude": "-157.83"
         }
     }, 
     {
         "pk": 25, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "43.03", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Leisure_boating%2C_Milwaukee%2C_Wisconsin.jpg/1280px-Leisure_boating%2C_Milwaukee%2C_Wisconsin.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Milwaukee"
+            "name": "Milwaukee", 
+            "longitude": "-87.92"
         }
     }, 
     {
         "pk": 26, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "27.95", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/7/7b/Tampa_Florida_Lawyers.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Tampa"
+            "name": "Tampa", 
+            "longitude": "-82.45"
         }
     }, 
     {
         "pk": 27, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "32.7", 
             "image": "http://www.coastallajollahomes.com/assets/images/San-Diego-1.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "San Diego"
+            "name": "San Diego", 
+            "longitude": "-117.17"
         }
     }, 
     {
         "pk": 28, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "39.13", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Cincinnati-scripps-center.jpg/1280px-Cincinnati-scripps-center.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Cincinnati"
+            "name": "Cincinnati", 
+            "longitude": "-84.5"
         }
     }, 
     {
         "pk": 29, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "37.8", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Oaklandatnight02192006.JPG/1280px-Oaklandatnight02192006.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Oakland"
+            "name": "Oakland", 
+            "longitude": "-122.27"
         }
     }, 
     {
         "pk": 30, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "38.58", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/0/00/St_Louis_night_expblend_cropped.jpg/1053px-St_Louis_night_expblend_cropped.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "St. Louis"
+            "name": "St. Louis", 
+            "longitude": "-90.2"
         }
     }, 
     {
         "pk": 31, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "45.52", 
             "image": "http://pics4.city-data.com/cpicc/cfiles19195.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Portland, Oregon"
+            "name": "Portland, Oregon", 
+            "longitude": "-122.68"
         }
     }, 
     {
         "pk": 32, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "35.15", 
             "image": "http://1.bp.blogspot.com/_puGP4r2trPA/S-zzvaEttkI/AAAAAAAACJs/tDQzI88J48M/s1600/memphis_bridge_at_sunset1.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Memphis"
+            "name": "Memphis", 
+            "longitude": "-90.05"
         }
     }, 
     {
         "pk": 33, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "39.1", 
             "image": "http://upload.wikimedia.org/wikipedia/en/thumb/0/0a/Plaza_Night.jpg/1280px-Plaza_Night.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Kansas City"
+            "name": "Kansas City", 
+            "longitude": "-94.58"
         }
     }, 
     {
         "pk": 34, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "41.47", 
             "image": "http://upload.wikimedia.org/wikipedia/en/thumb/d/da/P1220330.JPG/1280px-P1220330.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Cleveland"
+            "name": "Cleveland", 
+            "longitude": "-81.62"
         }
     }, 
     {
         "pk": 35, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "37.33", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/SAN_JOSE_CALIFORNIA_PALM_TREE_2010.jpg/1280px-SAN_JOSE_CALIFORNIA_PALM_TREE_2010.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "San Jose, California"
+            "name": "San Jose, California", 
+            "longitude": "-121.88"
         }
     }, 
     {
         "pk": 36, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "38.58", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Tower_Bridge_Sacramento_edit.jpg/1257px-Tower_Bridge_Sacramento_edit.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Sacramento"
+            "name": "Sacramento", 
+            "longitude": "-121.5"
         }
     }, 
     {
         "pk": 37, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "40.45", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Pittsburgh_WEO_Night_1.jpg/1280px-Pittsburgh_WEO_Night_1.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Pittsburgh"
+            "name": "Pittsburgh", 
+            "longitude": "-79.95"
         }
     }, 
     {
         "pk": 38, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "36.17", 
             "image": "http://www.tnexpresstours.com/assets/images/Rolling_on_the_River___GJSB_Heavenly_Perspectives.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Nashville"
+            "name": "Nashville", 
+            "longitude": "-86.78"
         }
     }, 
     {
         "pk": 39, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "33.67", 
             "image": "http://sworlandoblog.com/wp-content/uploads/2007/11/bay-hill-marina1.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Orange County"
+            "name": "Orange County", 
+            "longitude": "-117.87"
         }
     }, 
     {
         "pk": 40, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "35.77", 
             "image": "http://3.bp.blogspot.com/_U4TZcC-4JKs/S8-st5lGSRI/AAAAAAAAACU/sAqhhSPnVrY/s1600/IMG_7073_shimmer_wall.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Raleigh"
+            "name": "Raleigh", 
+            "longitude": "-78.65"
         }
     }, 
     {
         "pk": 41, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "39.77", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/DT_INDY_10-03-2010_JASSSMIT.JPG/1280px-DT_INDY_10-03-2010_JASSSMIT.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Indianapolis"
+            "name": "Indianapolis", 
+            "longitude": "-86.17"
         }
     }, 
     {
         "pk": 42, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "30.27", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Austin_from_Congress_Bridge-at_night.JPG/1280px-Austin_from_Congress_Bridge-at_night.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Austin, Texas"
+            "name": "Austin, Texas", 
+            "longitude": "-97.73"
         }
     }, 
     {
         "pk": 43, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "29.38", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/San_Antonio_Christmas.jpg/1280px-San_Antonio_Christmas.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "San Antonio"
+            "name": "San Antonio", 
+            "longitude": "-98.55"
         }
     }, 
     {
         "pk": 44, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "26.62", 
             "image": "http://static.panoramio.com/photos/large/12084141.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Fort Myers"
+            "name": "Fort Myers", 
+            "longitude": "-81.85"
         }
     }, 
     {
         "pk": 45, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "32.77", 
             "image": "http://crazy-frankenstein.com/free-wallpapers-files/city/dallas-wallpapers/dallas-wallpapers-1280x1024.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Dallas"
+            "name": "Dallas", 
+            "longitude": "-96.77"
         }
     }, 
     {
         "pk": 46, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "26.7", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Town_of_Palm_Beach_-_lake_bikeway.JPG/1280px-Town_of_Palm_Beach_-_lake_bikeway.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Palm Beach"
+            "name": "Palm Beach", 
+            "longitude": "-80.03"
         }
     }, 
     {
         "pk": 47, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "41.93", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Hartford_CT.JPG/1280px-Hartford_CT.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Hartford - Springfield"
+            "name": "Hartford - Springfield", 
+            "longitude": "-72.68"
         }
     }, 
     {
         "pk": 48, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "34.05", 
             "image": "http://www.shutterfuzz.com/wp-content/uploads/2011/08/Ontario-Airport.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Ontario"
+            "name": "Ontario", 
+            "longitude": "-117.62"
         }
     }, 
     {
         "pk": 49, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "40", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/d/db/ColumbusNightSkyline2.jpg/1280px-ColumbusNightSkyline2.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Columbus"
+            "name": "Columbus", 
+            "longitude": "-83.02"
         }
     }, 
     {
         "pk": 50, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "35.08", 
             "image": "http://www.wallpaperslot.com/data/media/11/Balloon%20Fiesta,%20Albuquerque,%20New%20Mexico.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Albuquerque"
+            "name": "Albuquerque", 
+            "longitude": "-106.65"
         }
     }, 
     {
         "pk": 51, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "29.95", 
             "image": "http://upload.wikimedia.org/wikipedia/en/thumb/2/2e/Stlouiscathedralnight.jpg/1280px-Stlouiscathedralnight.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "New Orleans"
+            "name": "New Orleans", 
+            "longitude": "-90.07"
         }
     }, 
     {
         "pk": 52, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "20.87", 
             "image": "http://3.bp.blogspot.com/_G0tmPh1_3uc/TK0xZpkfW6I/AAAAAAAAACs/e48JY6xtji4/s1600/HawaiianAirlines.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Kahului"
+            "name": "Kahului", 
+            "longitude": "-156.47"
         }
     }, 
     {
         "pk": 53, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "30.37", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/RiverPlaceTowerJacksonville-Feb2010-d.JPG/1280px-RiverPlaceTowerJacksonville-Feb2010-d.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Jacksonville"
+            "name": "Jacksonville", 
+            "longitude": "-81.67"
         }
     }, 
     {
         "pk": 54, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "34.17", 
             "image": "http://wallpaper.goodfon.com/image/44596-1280x1024.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Burbank"
+            "name": "Burbank", 
+            "longitude": "-118.32"
         }
     }, 
     {
         "pk": 55, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "41.83", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Providence_RI_skyline2.jpg/1280px-Providence_RI_skyline2.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Providence"
+            "name": "Providence", 
+            "longitude": "-71.4"
         }
     }, 
     {
         "pk": 56, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "42.92", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Sheas.jpg/1280px-Sheas.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Buffalo"
+            "name": "Buffalo", 
+            "longitude": "-78.83"
         }
     }, 
     {
         "pk": 57, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "39.5", 
             "image": "http://upload.wikimedia.org/wikipedia/en/3/33/Renoarch.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Reno"
+            "name": "Reno", 
+            "longitude": "-119.82"
         }
     }, 
     {
         "pk": 58, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "61.22", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Anchorage_on_an_April_evening.jpg/1280px-Anchorage_on_an_April_evening.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Anchorage"
+            "name": "Anchorage", 
+            "longitude": "-149.9"
         }
     }, 
     {
         "pk": 59, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "32.22", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Saguaro_Sunset.jpg/1280px-Saguaro_Sunset.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Tucson"
+            "name": "Tucson", 
+            "longitude": "-110.92"
         }
     }, 
     {
         "pk": 60, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "41.25", 
             "image": "http://blog.timesunion.com/realestate/files/2011/06/OmahaSkyline3.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Omaha"
+            "name": "Omaha", 
+            "longitude": "-95.93"
         }
     }, 
     {
         "pk": 61, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "43", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Mount_Adams_NH_from_Madison.jpg/1280px-Mount_Adams_NH_from_Madison.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Manchester, New Hampshire"
+            "name": "Manchester, New Hampshire", 
+            "longitude": "-71.5"
         }
     }, 
     {
         "pk": 62, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "36.9", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Norfolk%2C_VA.jpg/1278px-Norfolk%2C_VA.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
-            "name": "Norfolk"
+            "name": "Norfolk", 
+            "longitude": "-76.2"
         }
     }, 
     {
         "pk": 63, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "38.25", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Louisvillecityhall.jpg/1280px-Louisvillecityhall.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Louisville"
+            "name": "Louisville", 
+            "longitude": "-85.77"
         }
     }, 
     {
         "pk": 64, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "35.43", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Skyline_of_Oklahoma_City.jpg/1280px-Skyline_of_Oklahoma_City.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Oklahoma City"
+            "name": "Oklahoma City", 
+            "longitude": "-97.47"
         }
     }, 
     {
         "pk": 65, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "31.77", 
             "image": "http://www.texaswildnetwork.com/imagesfolder/misc/wyler.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "El Paso"
+            "name": "El Paso", 
+            "longitude": "-106.48"
         }
     }, 
     {
         "pk": 66, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "43.6", 
             "image": "http://freelance-zone.com/blog/wp-content/uploads/2010/08/Idaho-writers-groups-by-state.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Boise"
+            "name": "Boise", 
+            "longitude": "-116.22"
         }
     }, 
     {
         "pk": 67, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "37.55", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/City_of_Richmond_Business_District.jpg/1280px-City_of_Richmond_Business_District.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Richmond"
+            "name": "Richmond", 
+            "longitude": "-77.48"
         }
     }, 
     {
         "pk": 68, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "47.67", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Spokane_Riverfront_Park_20061014.jpg/1280px-Spokane_Riverfront_Park_20061014.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Spokane"
+            "name": "Spokane", 
+            "longitude": "-117.43"
         }
     }, 
     {
         "pk": 69, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "36.15", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Tulsa_River_Parks_Fountains.jpg/1280px-Tulsa_River_Parks_Fountains.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Tulsa"
+            "name": "Tulsa", 
+            "longitude": "-95.98"
         }
     }, 
     {
         "pk": 70, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "33.5", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/2/25/B%27ham_Botanical_Gardens_050.JPG/1280px-B%27ham_Botanical_Gardens_050.JPG", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Birmingham"
+            "name": "Birmingham", 
+            "longitude": "-86.83"
         }
     }, 
     {
         "pk": 71, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "19.73", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Oceanfront_south_of_Hulihee_Palace.JPG/1280px-Oceanfront_south_of_Hulihee_Palace.JPG", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Kailua Kona"
+            "name": "Kailua Kona", 
+            "longitude": "-156.03"
         }
     }, 
     {
         "pk": 72, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "42.67", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Lincoln_Park_Albany.jpg/1280px-Lincoln_Park_Albany.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Albany"
+            "name": "Albany", 
+            "longitude": "-73.75"
         }
     }, 
     {
         "pk": 73, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "43.17", 
             "image": "http://imedia.io/photos/Rochester_-28New_York-29-14.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Rochester"
+            "name": "Rochester", 
+            "longitude": "-77.6"
         }
     }, 
     {
         "pk": 74, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "13.48", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Trinchera_Beach.JPG/1280px-Trinchera_Beach.JPG", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Agana, Guam"
+            "name": "Agana, Guam", 
+            "longitude": "-144.75"
         }
     }, 
     {
         "pk": 75, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "30.43", 
             "image": "http://images.kw.com/agent_photos/0/4/6/046000//library/F__Real_Estate_Pictures_sunset_pier_6_1272037514205.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Pensacola"
+            "name": "Pensacola", 
+            "longitude": "-87.2"
         }
     }, 
     {
         "pk": 76, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "33.77", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/3/38/POLB.jpg/1280px-POLB.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Long Beach"
+            "name": "Long Beach", 
+            "longitude": "-118.18"
         }
     }, 
     {
         "pk": 77, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "21.97", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Lihue-hawaii-aerial.jpg/1280px-Lihue-hawaii-aerial.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Lihue"
+            "name": "Lihue", 
+            "longitude": "-159.35"
         }
     }, 
     {
         "pk": 78, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "39.75", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/5/52/SacredHeartChurchDayton.jpg/1018px-SacredHeartChurchDayton.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Dayton"
+            "name": "Dayton", 
+            "longitude": "-84.18"
         }
     }, 
     {
         "pk": 79, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "34.73", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Skyline_of_Little_Rock%2C_Arkansas_-_20050319.jpg/1280px-Skyline_of_Little_Rock%2C_Arkansas_-_20050319.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Little Rock"
+            "name": "Little Rock", 
+            "longitude": "-92.33"
         }
     }, 
     {
         "pk": 80, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "40.75", 
             "image": "http://upload.wikimedia.org/wikipedia/en/thumb/b/b9/GreatSouth-B-B.jpg/1280px-GreatSouth-B-B.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Islip"
+            "name": "Islip", 
+            "longitude": "-73.2"
         }
     }, 
     {
         "pk": 81, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "43.03", 
             "image": "http://syracusestateofmind.files.wordpress.com/2011/09/carrier_dome_night_orange_light0119.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Syracuse"
+            "name": "Syracuse", 
+            "longitude": "-76.13"
         }
     }, 
     {
         "pk": 82, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "36.37", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/WalmartHQBentonvilleAR.jpg/1280px-WalmartHQBentonvilleAR.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Bentonville"
+            "name": "Bentonville", 
+            "longitude": "-94.22"
         }
     }, 
     {
         "pk": 83, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "42.97", 
             "image": "http://fc05.deviantart.net/fs70/i/2011/012/3/5/downtown_grand_rapids_by_ii_mccloud_ii-d371lh8.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Grand Rapids"
+            "name": "Grand Rapids", 
+            "longitude": "-85.67"
         }
     }, 
     {
         "pk": 84, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "38.87", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/9/99/Garden_of_the_Gods_03.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Colorado Springs"
+            "name": "Colorado Springs", 
+            "longitude": "-104.78"
         }
     }, 
     {
         "pk": 85, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "32.08", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Eugene_Talmadge_Memorial_Bridge.jpg/1024px-Eugene_Talmadge_Memorial_Bridge.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Savannah"
+            "name": "Savannah", 
+            "longitude": "-81.08"
         }
     }, 
     {
         "pk": 86, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "41.58", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Skywalks_Spanning_7th_Street.jpg/1280px-Skywalks_Spanning_7th_Street.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Des Moines"
+            "name": "Des Moines", 
+            "longitude": "-93.62"
         }
     }, 
     {
         "pk": 87, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "32.78", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/6/64/BroadStreetCharleston.jpg/1280px-BroadStreetCharleston.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Charleston"
+            "name": "Charleston", 
+            "longitude": "-79.93"
         }
     }, 
     {
         "pk": 88, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "37.2", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/ParkCentralSquarefountainbyCVBCS.jpg/1280px-ParkCentralSquarefountainbyCVBCS.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Springfield"
+            "name": "Springfield", 
+            "longitude": "-93.28"
         }
     }, 
     {
         "pk": 89, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "35.95", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Knoxville_TN_skyline.jpg/1280px-Knoxville_TN_skyline.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Knoxville"
+            "name": "Knoxville", 
+            "longitude": "-83.93"
         }
     }, 
     {
         "pk": 90, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "43.07", 
             "image": "http://biofermenergy.com/us/wp-content/uploads/2008/12/madison.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Madison"
+            "name": "Madison", 
+            "longitude": "-89.4"
         }
     }, 
     {
         "pk": 91, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "33.82", 
             "image": "http://palmspringsweddingsminister.com/wp-content/uploads/2010/07/riviera-resort-spa1.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Palm Springs"
+            "name": "Palm Springs", 
+            "longitude": "-116.53"
         }
     }, 
     {
         "pk": 92, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "34.83", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/b/b0/Fallsatgreenvillesc.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Greenville-Spartanburg"
+            "name": "Greenville-Spartanburg", 
+            "longitude": "-82.38"
         }
     }, 
     {
         "pk": 93, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "32.33", 
             "image": "http://media1.hellojackson.com/images/buildings/6282007istock_000000236716medium.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Jackson"
+            "name": "Jackson", 
+            "longitude": "-90.2"
         }
     }, 
     {
         "pk": 94, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "34.73", 
             "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/2/26/USSRC_Rocket_Park.JPG/1280px-USSRC_Rocket_Park.JPG", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Huntsville"
+            "name": "Huntsville", 
+            "longitude": "-86.58"
         }
     }, 
     {
         "pk": 95, 
         "model": "airport.city", 
         "fields": {
+            "latitude": "37.72", 
             "image": "http://media-3.web.britannica.com/eb-media//81/96581-050-28FD8E82.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
-            "name": "Wichita"
+            "name": "Wichita", 
+            "longitude": "-97.28"
         }
     }
 ]

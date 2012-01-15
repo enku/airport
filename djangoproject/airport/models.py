@@ -1,8 +1,10 @@
 # -*- encoding: utf-8 -*-
 """Models for the airport django app"""
+from __future__ import division
 
 import datetime
 import logging
+import math
 import random
 
 from django.conf import settings
@@ -40,9 +42,40 @@ class City(AirportModel):
     """A City"""
     name = models.CharField(max_length=50, unique=True)
     image = models.CharField(max_length=300, null=True)
+    latitude = models.DecimalField(max_digits=5, decimal_places=2,
+            null=True)
+    longitude = models.DecimalField(max_digits=5, decimal_places=2,
+            null=True)
 
     def __unicode__(self):
         return self.name
+
+    def distance_from(self, city):
+        """Return the distance (km) from «self» to «city»"""
+
+        # using haversine
+        lat1, lon1, lat2, lon2 = map(math.radians, [self.latitude,
+                self.longitude, city.latitude, city.longitude])
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = (math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) *
+            math.sin(dlon/2)**2)
+        c = 2 * math.asin(math.sqrt(a))
+        km = 6367 * c
+        return km
+
+    @classmethod
+    def get_flight_time(cls, source, destination, speed):
+        """Return the time, in minutes, it takes to fly from «source» to
+        «destination» at speed «speed»"""
+        if isinstance(source, (Airport, AirportMaster)):
+            source = source.city
+        if isinstance(destination, (Airport, AirportMaster)):
+            destination = destination.city
+        distance = source.distance_from(destination)
+        flight_time = distance / speed
+        return flight_time
+
 
 
     class Meta:
@@ -145,14 +178,17 @@ class Airport(AirportModel):
 
         flight_ids = []
         for destination in self.destinations.distinct():
+            flight_time = City.get_flight_time(self.city,
+                    destination.city, Flight.cruise_speed)
+
+            flight_time = game.scale_flight_time(flight_time)
             flight = Flight.objects.create(
                     game = game,
                     origin = self,
                     destination = destination,
                     depart_time = (datetime.timedelta(minutes=cushion) +
                         random_time(now)),
-                    flight_time = Connection.objects.get(game=game,
-                        source=self, destination=destination).flight_time)
+                    flight_time = flight_time)
             flight_ids.append(flight.id)
         return Flight.objects.filter(id__in=flight_ids)
 
@@ -178,17 +214,6 @@ def _get_destinations_for(airport, dest_count):
         # try again
         return _get_destinations_for(airport, dest_count-1)
 
-class Connection(AirportModel):
-    """Collect flight times between airports"""
-    game = models.ForeignKey('Game', related_name='connections')
-    source = models.ForeignKey(Airport, related_name='+')
-    destination = models.ForeignKey(Airport, related_name='+')
-    flight_time = models.IntegerField() # km
-
-    def __unicode__(self):
-        return 'Connection from %s to %s: %s minutes' % (
-            self.source, self.destination, self.flight_time)
-
 class Flight(AirportModel):
     """A flight from one airport to another"""
     ### Fields ###
@@ -200,6 +225,8 @@ class Flight(AirportModel):
     flight_time = models.IntegerField()
     arrival_time = models.DateTimeField() # caculated field
     state = models.CharField(max_length=20, default='On Time')
+
+    cruise_speed = 14.890 # cruise speed (km/min) of a 747
 
     def in_flight(self, now):
         """Return true if flight is in the air"""
@@ -688,7 +715,8 @@ class Game(AirportModel):
     #airports = models.ManyToManyField(Airport)
     start_airport = models.ForeignKey(Airport, null=True, related_name='+')
     timestamp = models.DateTimeField(auto_now_add=True)
-
+    min_distance = models.IntegerField(null=True)
+    max_distance = models.IntegerField(null=True)
 
     def __unicode__(self):
         return u'Game %s' % self.pk
@@ -717,9 +745,6 @@ class Game(AirportModel):
         game.start_airport = start_airport
         game.save()
 
-        # pre-populate the starting airport with flights
-        start_airport.next_flights(game, now)
-
         # add other airports
         for i in range(1, airports):
             master = master_airports[i]
@@ -734,24 +759,12 @@ class Game(AirportModel):
                     break
                 airport.destinations.add(destination)
 
-        # create "connections" for each airport destination
-        for source in game.airports.distinct():
-            for destination in source.destinations.all():
-                print source, destination
-                flight_time = random.randint(MIN_FLIGHT_TIME, MAX_FLIGHT_TIME)
-                Connection.objects.get_or_create(
-                    game=game,
-                    source=source,
-                    destination=destination,
-                    defaults={'flight_time': flight_time})
-                # it's symmetrical
-                # I know this is "wasteful", but it's not a huge amount of
-                # data and should make lookups faster
-                Connection.objects.get_or_create(
-                    game=game,
-                    source=destination,
-                    destination=source,
-                    defaults={'flight_time': flight_time})
+        # record min/max distances
+        game.min_distance, game.max_distance = game.get_extremes()
+        game.save()
+
+        # pre-populate the starting airport with flights
+        start_airport.next_flights(game, now)
 
         # add goals
         current_airport = game.start_airport
@@ -999,6 +1012,28 @@ class Game(AirportModel):
                 if finish_time == my_finish_time:
                     break
         return placed
+
+    def get_extremes(self):
+        """Return a tuple of min_distance, max_distance between connecting
+        airports"""
+        min_distance = None
+        max_distance = None
+        for airport in self.airports.distinct():
+            for destination in airport.destinations.all():
+                distance = airport.city.distance_from(destination.city)
+                if min_distance is None or distance < min_distance:
+                    min_distance = distance
+                if max_distance is None or distance > max_distance:
+                    max_distance = distance
+        return min_distance, max_distance
+
+    def scale_flight_time(self, flight_time):
+        # keep within extremes of MIN_* and MAX_*. For explanation, see
+        # http://goo.gl/Lex3W
+        min_ = self.min_distance / Flight.cruise_speed
+        max_ = self.max_distance / Flight.cruise_speed
+
+        return (((MAX_FLIGHT_TIME-MIN_FLIGHT_TIME)*(flight_time-min_))/(max_-min_)) + MIN_FLIGHT_TIME
 
 class Goal(AirportModel):
     """Goal cities for a game"""
