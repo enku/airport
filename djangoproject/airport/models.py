@@ -93,7 +93,7 @@ class Airport(AirportModel):
 
     def next_flights(self, game, now, future_only=False, auto_create=True):
         """Return next Flights out from «self», creating new flights if
-        necessary.  Return the list of flights ordered by destination city
+        necessary.  Return a list of flights ordered by destination city
         name
 
         If «future_only» is True, only return future flights.  By default,
@@ -105,23 +105,18 @@ class Airport(AirportModel):
         flights
         """
 
-        # TODO: this is an ugly method.  Refactor!
-
         future_flights = self.flights.filter(game=game, depart_time__gt=now)
 
-        if not future_only:
-            other_flights = game.flights.filter(origin=self)[:10]
-        else:
-            other_flights = Flight.objects.none()
+        if not future_flights.exists() and auto_create:
+            self.create_flights(game, now)
 
-        if future_flights.count() == 0 and auto_create:
-            future_flights = self.create_flights(game, now)
+        flights = game.flights.filter(origin=self)
+        if future_only:
+            flights = flights.filter(depart_time__gt=now)
+        flights = list(flights.order_by('-depart_time')[:10])
 
-        flight_set = set(future_flights).union(set(other_flights[:10 -
-            min(future_flights.count(), 10)]))
-        flight_list = list(flight_set)
-        flight_list.sort(key=lambda flight: flight.destination.city.name)
-        return flight_list
+        flights.sort(key=lambda x: x.destination.city.name)
+        return flights
 
     def clean(self):
         """validation"""
@@ -192,29 +187,13 @@ class Flight(AirportModel):
     destination = models.ForeignKey(Airport, related_name='+')
     depart_time = models.DateTimeField()
     flight_time = models.IntegerField()
-    delayed = models.BooleanField(default=False)
-
-    ## Properties ###
-    @property
-    def arrival_time(self):
-        """Compute and return the arrival time for this flight"""
-        return self.depart_time + datetime.timedelta(minutes=self.flight_time)
-
-    @property
-    def destination_city(self):
-        """Return the City of the destination for this Flight"""
-        return self.destination.city
-
-    @property
-    def origin_city(self):
-        """Return the City of the origin for this Flight"""
-        return self.origin.city
+    arrival_time = models.DateTimeField() # caculated field
+    state = models.CharField(max_length=20, default='On Time')
 
     def in_flight(self, now):
         """Return true if flight is in the air"""
-        if self.flight_time == 0:
+        if self.state == 'Cancelled':
             return False
-
 
         if self.depart_time <= now <= self.arrival_time:
             return True
@@ -224,7 +203,7 @@ class Flight(AirportModel):
     def has_landed(self, now):
         """Return True iff flight has landed"""
 
-        if self.flight_time == 0:
+        if self.state == 'Cancelled':
             return False
 
         return (now >= self.arrival_time)
@@ -232,14 +211,14 @@ class Flight(AirportModel):
     @property
     def cancelled(self):
         """Return True iff a flight is cancelled"""
-        return self.flight_time == 0
+        return self.state == 'Cancelled'
 
     def cancel(self, now):
         """Cancel a flight. In-flight flights (obviously) can't be
         cancelled"""
 
         if not self.in_flight(now):
-            self.flight_time = 0
+            self.state = 'Cancelled'
             self.save()
 
             # if any players have tickets on this flight, they need to be
@@ -251,21 +230,22 @@ class Flight(AirportModel):
         else:
             raise self.AlreadyDeparted('In-progress flight cannot be cancelled')
 
-    def delay(self, timedelta, now):
+    def delay(self, timedelta, now=None):
         """Delay the flight by «timedelta»"""
-        now = now or datetime.datetime.now()
+        if now is None:
+            now = self.game.time
 
         if self.in_flight(now) or self.has_landed(now):
             raise self.AlreadyDeparted()
 
-        if self.flight_time == 0:
+        if self.state == 'Cancelled':
             raise self.Finished()
 
         self.depart_time = self.depart_time + timedelta
-        self.delayed = True
+        self.state = 'Delayed'
         self.save()
 
-    def get_remarks(self, now):
+    def get_remarks(self, now=None):
         """Return textual remark about a ticket
 
         Text can be:
@@ -274,24 +254,45 @@ class Flight(AirportModel):
         "Departed" if the flight is currently in the air
         "Arrived" if the flight has arrived at its destination
         """
-        if self.cancelled:
-            status = 'Cancelled'
-        elif self.delayed:
-            status = 'Delayed'
-        elif self.depart_time < now:
-            if self.in_flight(now):
-                status = 'Departed'
-            else:
-                status = 'Arrived'
-        else:
-            status = 'On time'
-
-        if not self.cancelled and (now + BOARDING) > self.depart_time > now:
-            status = 'Boarding'
+        now = now or self.game.time
+        suffix = ''
 
         if not self.origin.destinations.filter(id=self.destination.id).exists():
-            status = '%s*' % status
-        return status
+            suffix = '*'
+
+        state = self.state
+        if state == 'Cancelled':
+            return 'Cancelled'
+
+        if self.state == 'Delayed':
+            return 'Delayed'
+
+        if self.in_flight(now):
+            if self.state != 'Departed':
+                for passenger in self.passengers.all():
+                    Message.announce(passenger, '%s has departed %s' %
+                            (passenger.user.username, self.origin),
+                            self.game, message_type='PLAYERACTION')
+                self.state = 'Departed'
+                self.save()
+            return 'Departed' + suffix
+
+        if self.arrival_time <= now:
+            # first update 'Arrived' messages
+            if self.state != 'Arrived':
+                for passenger in self.passengers.all():
+                    Message.announce(passenger, '%s has arrived at %s' %
+                            (passenger.user.username, self.destination),
+                            self.game, message_type='PLAYERACTION')
+
+                self.state = 'Arrived'
+                self.save()
+            return 'Arrived' + suffix
+
+        if self.depart_time - BOARDING < now:
+            return 'Boarding'
+
+        return 'On Time'
 
     def buyable(self, profile, now):
         """Return True if a ticket is buyable else return False"""
@@ -337,6 +338,9 @@ class Flight(AirportModel):
         # we need a unique fligth # for this game
         if not self.number:
             self.number = self.random_flight_number()
+
+        self.arrival_time = (self.depart_time
+                + datetime.timedelta(minutes=self.flight_time))
 
         return super(Flight, self).save(*args, **kwargs)
 
@@ -532,15 +536,6 @@ class UserProfile(AirportModel):
 
     def save(self, *args, **kwargs):
         new_user = not self.id
-
-        if not new_user:
-            # check to see if we have arrived at a new airport
-            orig = UserProfile.objects.get(id=self.id)
-            if (self.ticket is None and self.airport is not None and
-                    orig.ticket is not None):
-                Message.announce(self, '%s has arrived at %s' %
-                        (self.user.username, self.airport),
-                        self.airport.game, message_type='PLAYERACTION')
 
         super(UserProfile, self).save(*args, **kwargs)
         if new_user:
@@ -893,6 +888,8 @@ class Game(AirportModel):
                     ach = Achievement.objects.get(profile=player, goal=goal)
                     ach.timestamp = previous_ticket.arrival_time
                     ach.save()
+                    break
+                else:
                     break
 
         winners = self.winners()

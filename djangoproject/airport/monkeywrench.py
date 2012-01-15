@@ -177,7 +177,7 @@ class LateFlight(MonkeyWrench):
         flight = random.choice(flights)
         minutes = random.randint(self.MIN_LATENESS, self.MAX_LATENESS)
         flight.flight_time = flight.flight_time + minutes
-        flight.delayed = True
+        flight.state = 'Delayed'
         flight.save()
         message = random.choice(self.RANDOM_MESSAGES)
         broadcast(message.format(

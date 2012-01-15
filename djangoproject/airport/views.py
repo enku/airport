@@ -123,8 +123,6 @@ def info(request):
         ticket = None
 
     if not request.session.get('in_flight', False) and in_flight:
-        Message.announce(user, '%s has left %s' % (user,
-            ticket.origin), game, message_type='PLAYERACTION')
         Purchase.objects.get_or_create(profile=profile, game=game,
                 flight=ticket)
 
