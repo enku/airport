@@ -39,15 +39,17 @@
             <td class="goal">{% if ticket.goal %}<img src="{{ gold_star }}" />{% else %}&nbsp;{% endif %}</td>
         </tr>
     {% endfor %}
-    {% if game.state = 0 and players %}
         <tr>
-            <td id="others" colspan="8">
+    {% if game.state = 0 and players %}
+            <td id="others" colspan="7">
                 {% for player in players %} 
                 <a href="{% url game_summary game.id %}?player={{ player.user.username }}">>{{ player.user.username }}</a>
                 {% endfor %}
             </td>
-        </tr>
+    {% else %}<td id="others" colspan="7">&nbsp;</td>
     {% endif %}
+            <td id="map_link"><a href="" id="show_map">Map</a></td>
+        </tr>
     </tbody>
 </table>
 
@@ -62,6 +64,12 @@
     <div id="message_box">Messages</div>
 </div><!-- message_widget -->
 
+<div id="map_widget">
+    <div class="handle" id="map_handle">Map</div>
+    <div id="map"></div>
+    <a id="close_map" href=""><div>Close</div></a>
+</div>
+
 <div id="exit">
     <a href="{% url games %}">Exit</a>
 </div>
@@ -72,16 +80,13 @@
 
 {% block scripts %}
     {{ block.super }}
+    
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
 
     <script type="text/javascript">
         {% include "airport/common.js" %}
         {% include "airport/messages.js" %}
+        {% include "airport/game_summary.js" %}
 
-        $(document).ready(function () {
-            $('#flight_schedule').memdraggable({handle: '#username'});
-            $('#medal').memdraggable();
-            $('#message_widget').memdraggable();
-            airport.messages('#message_box');
-          });
     </script>
 {% endblock %}

@@ -78,7 +78,7 @@ td {
     padding: 0;
 }
 
-td#username, td#game {
+td#username, td#game, .handle {
     text-align: center;
     font-weight: bold;
     color: white;

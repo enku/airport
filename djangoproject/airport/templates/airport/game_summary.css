@@ -11,7 +11,7 @@ body {
 #medal {
     width: 204px;
     position: absolute;
-    right: 20px;
+    left: 20px;
     top: 20px;
     z-index: 0;
 }
@@ -40,7 +40,7 @@ body {
     text-align: center;
 }
 
-#others {
+#others, #map_link {
     color: #FFFFFF;
     background: black;
     text-shadow: #111 1px 1px 1px;
@@ -48,7 +48,35 @@ body {
     padding: 2px 5px;
 }
 
-#others a {
+#others a, #map_link a {
     color: yellow;
     font-weight: bold;
 }
+
+#map_widget {
+    width: 650px;
+    height: 475px;
+    color: #FFFFFF;
+    background: #000000;
+}
+
+#map {
+    width: 648px;
+    height: 443px;
+    margin: auto;
+    overflow: hidden;
+}
+
+
+#close_map, #close_map div {
+    background: #C70000;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+#close_map div {
+    padding-right: 5px;
+    border: 1px solid #000000;
+    text-align: right;
+}
+
