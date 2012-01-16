@@ -15,6 +15,7 @@ from django.db import transaction
 from django.template.defaultfilters import date
 
 MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
+SCALE_FLIGHT_TIMES = getattr(settings, 'SCALE_FLIGHT_TIMES', True)
 MIN_FLIGHT_TIME = getattr(settings, 'MIN_FLIGHT_TIME', 30)
 MAX_FLIGHT_TIME = getattr(settings, 'MAX_FLIGHT_TIME', 120)
 BOARDING = datetime.timedelta(minutes=10)
@@ -181,7 +182,8 @@ class Airport(AirportModel):
             flight_time = City.get_flight_time(self.city,
                     destination.city, Flight.cruise_speed)
 
-            flight_time = game.scale_flight_time(flight_time)
+            if SCALE_FLIGHT_TIMES:
+                flight_time = game.scale_flight_time(flight_time)
             flight = Flight.objects.create(
                     game = game,
                     origin = self,
