@@ -40,18 +40,21 @@ function close_map(event) {
 function show_map(event) {
     event.preventDefault();
     lightbox.show();
+    google.maps.event.trigger(map, 'resize');
+    map.setCenter(new google.maps.LatLng(39.833, -98.583));
 }
 
 function main() {
-        map_options = {
+    map_options = {
             center: new google.maps.LatLng(39.833, -98.583),
             zoom: 4,
             disableDefaultUI: true,
             zoomControl: true,
             mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
+    };
+    map = new google.maps.Map(document.getElementById("map"), map_options);
+    draw_polylines(map);
             
-
     $('#flight_schedule').memdraggable({handle: '#username'});
     $('#medal').memdraggable();
     $('#message_widget').memdraggable();
@@ -59,19 +62,11 @@ function main() {
     $('#map_widget').draggable({handle: '#map_handle'});
     lightbox = new airport.LightBox('#map_widget');
 
-    /* i don't know why i have to do this, but if i dont' show the lightbox
-     * first then the map displays clipped :(
-     */
-    lightbox.show();
-    lightbox.hide();
-
     $('#close_map').click(close_map);
     $('#show_map').click(show_map);
 
     airport.messages('#message_box');
 
-    map = new google.maps.Map(document.getElementById("map"), map_options);
-    draw_polylines(map);
 }
 
 $(document).ready(main);

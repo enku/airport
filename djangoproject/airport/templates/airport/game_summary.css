@@ -54,6 +54,7 @@ body {
 }
 
 #map_widget {
+    display: none;
     width: 650px;
     height: 475px;
     color: #FFFFFF;
