@@ -58,8 +58,12 @@ def home(request):
         if profile == game.host:
             game.begin()
         else:
-            Message.send(profile, 'Waiting for %s to start the game' %
-                    game.host.user.username)
+            Message.send(
+                profile,
+                'Waiting for {player} to start the game'.format(
+                    player=game.host.user.username
+                )
+            )
             return redirect(games_home)
     context = {
         'game': game,
@@ -95,9 +99,11 @@ def info(request):
             try:
                 ticket = profile.purchase_flight(flight, now)
             except Flight.AlreadyDeparted:
-                Message.send(profile,
-                        'Flight %s has already left' % flight.number,
-                        message_type='ERROR')
+                Message.send(
+                    profile,
+                    'Flight {num} has already left'.format(num=flight.number),
+                    message_type='ERROR'
+                )
         return redirect(info)
 
     percentage = 100
@@ -129,7 +135,7 @@ def info(request):
     if (request.session.get('in_flight', False)
             and not in_flight
             and not profile in game.winners()):
-        notify = 'You have arrived at %s' % airport
+        notify = 'You have arrived at {airport}'.format(airport=airport)
     else:
         notify = None
 
@@ -291,9 +297,13 @@ def games_create(request):
         num_goals = int(request.POST['goals'])
         num_airports = int(request.POST['airports'])
     except KeyError:
-        text = ('Error creating game.  Incorrect params: '
-                'goals: %s, airports: %s' % (request.POST.get('goals'),
-                    request.POST.get('params')))
+        text = (
+            'Error creating game. Incorrect params: '
+            'goals: {goals}, airports: {airports}'.format(
+                goals=request.POST.get('goals'),
+                airports=request.POST.get('airports')
+            )
+        )
         Message.send(profile, text)
         return redirect(games_home)
 
@@ -317,13 +327,22 @@ def games_join(request, game_id):
 
     game = get_object_or_404(Game, id=game_id)
     if game.state == game.GAME_OVER:
-        Message.send(profile, 'Could not join you to %s because it is over'
-                % game)
+        Message.send(
+            profile,
+            'Could not join you to {game} because it is over'.format(
+                game=game),
+        )
     elif profile.is_playing(game):
         if profile in game.winners():
-            Message.send(profile, 'You have already finished %s' % game)
+            Message.send(
+                profile,
+                'You have already finished {game}'.format(game=game)
+            )
         else:
-            Message.send(profile, 'You have already joined %s' % game)
+            Message.send(
+                profile,
+                'You have already joined {game}'.format(game=game)
+            )
     else:
         game.add_player(profile)
 
@@ -467,7 +486,8 @@ def register(request):
             password = form.cleaned_data['password1']
             try:
                 UserProfile.objects.get(user__username=username)
-                context['error'] = 'User "%s" already exists.' % username
+                context['error'] = 'User {user} already exists.'.format(
+                        user=username)
             except UserProfile.DoesNotExist:
                 create_user(username, password)
                 django_messages.add_message(request, django_messages.INFO,

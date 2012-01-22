@@ -54,9 +54,10 @@ class CancelledFlight(MonkeyWrench):
             return
         flight = flight[0]
         flight.cancel(now)
-        broadcast('Flight %s from %s to %s is cancelled' %
-                (flight.number, flight.origin.city.name,
-                    flight.destination.city.name), self.game)
+        broadcast('Flight {num} from {origin} to {dest} is cancelled'.format(
+                num=flight.number, origin=flight.origin.city.name,
+                dest=flight.destination.city.name),
+            self.game)
         self.thrown = True
         return
 
@@ -75,11 +76,11 @@ class DelayedFlight(MonkeyWrench):
         except flight.Finished:
             # damn, just missed it!
             return
-        broadcast(
-            'Flight %s from %s to %s is delayed %s minutes' %
-            (flight.number, flight.origin.city.name,
-                flight.destination, minutes),
-            self.game)
+        broadcast(('Flight {num} from {origin} to {dest} is delayed {min} '
+                'minutes'.format(num=flight.number,
+                    origin=flight.origin.city.name,
+                    dest=flight.destination, min=minutes)),
+                self.game)
         self.thrown = True
         return
 
@@ -98,9 +99,10 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
                 flight.delay(timedelta, now)
             except flight.Finished:
                 continue
-        broadcast(
-            'Due to weather, all flights from %s are delayed %s minutes' %
-            (airport.code, minutes), self.game)
+        broadcast(('Due to weather, all flights from {airport} are delayed'
+                ' {min} minutes'.format(airport=airport.code,
+                    min=minutes)),
+            self.game)
 
 class AllFlightsFromAirportCancelled(MonkeyWrench):
     """Cancel all future flights from a random airport"""
@@ -111,9 +113,9 @@ class AllFlightsFromAirportCancelled(MonkeyWrench):
                 depart_time__gt=now)
         for flight in flights:
             flight.cancel(now)
-        broadcast(
-            'Due to weather, all flights from %s are cancelled' %
-            airport.city.name, self.game)
+        broadcast(('Due to weather, all flights from {airport} are'
+                ' cancelled'.format(airport=airport)),
+            self.game)
         self.thrown = True
         return
 
@@ -129,10 +131,9 @@ class DivertedFlight(MonkeyWrench):
                 .order_by('?')[0])
         flight.destination = diverted_to
         flight.save()
-        broadcast(
-            'Mayday! Flight %d diverted to %s' % (flight.number,
-                diverted_to),
-            self.game)
+        broadcast('Mayday! Flight {num} diverted to {dest}'.format
+                    (num=flight.number, dest=diverted_to),
+                self.game)
         self.thrown = True
         return
 
@@ -153,8 +154,9 @@ class MechanicalProblem(MonkeyWrench):
         time_travelled = self.game.time - flight.depart_time
         flight.flight_time = time_travelled.total_seconds() * 2 / 60
         flight.save()
-        broadcast('Flight %s is having mechanical problems '
-                'and will return to %s' % (flight.number, flight.origin),
+        broadcast('Flight {num} is having mechanical problems '
+                    'and will return to {airport}'.format(num=flight.number,
+                    airport=flight.origin),
                 self.game)
         self.thrown = True
         return
@@ -213,8 +215,8 @@ class Hint(MonkeyWrench):
         if airport_to_goal.city == current_goal:
             return
 
-        Message.send(profile, u'Hint: %s goes to %s ;-)' % (
-                airport_to_goal, current_goal))
+        Message.send(profile, u'Hint: {airport} goes to {city} ;-)'.format(
+            airport=airport_to_goal, city=current_goal))
         return
 
 class TSA(MonkeyWrench):
