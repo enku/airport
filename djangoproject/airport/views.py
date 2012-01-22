@@ -130,6 +130,15 @@ def info(request):
     else:
         in_flight = False
 
+    if airport and request.session.get('in_flight', False) and not in_flight:
+        Message.announce(
+            profile,
+            '{player} has arrived at {airport}'.format(
+                player=user.username, airport=airport),
+            game,
+            message_type='PLAYERACTION'
+        )
+
     if ticket and not in_flight and ticket.destination == ticket.origin:
         # special case when e.g. flight diverted back to origin
         ticket = None

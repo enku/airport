@@ -322,13 +322,6 @@ class Flight(AirportModel):
         if self.arrival_time <= now:
             # first update 'Arrived' messages
             if self.state != 'Arrived':
-                for passenger in self.passengers.all():
-                    Message.announce(passenger,
-                            '{player} has arrived at {airport}'.format(
-                                player=passenger.user.username,
-                                airport=self.destination,
-                                message_type='PLAYERACTION'))
-
                 self.state = 'Arrived'
                 self.save()
             return 'Arrived' + suffix
