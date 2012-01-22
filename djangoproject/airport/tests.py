@@ -185,17 +185,27 @@ class FlightTest(TestCase):
 
     def test_create_flights(self):
         """test the create flights method"""
-        airports = models.Airport.objects.all()
-        airport = random.choice(airports)
+        airports = models.Airport.objects.filter(game=self.game)
+        airport = random.choice(airports.exclude(
+            id=self.game.start_airport.id))
+        destinations = airport.destinations.all()
 
-        self.assertEqual(models.Flight.objects.all().count(), 0)
+        # we should only have the initial flights that were created at the
+        # start point when the game was created
+        flights = models.Flight.objects.filter(game=self.game)
+        flights = flights.exclude(origin=self.game.start_airport)
+        self.assertEqual(flights.count(), 0)
 
         now = datetime.datetime(2011, 11, 20, 6, 43)
+        outgoing = models.Flight.objects.filter(game=self.game,
+                origin=airport)
+        self.assertEqual(outgoing.count(), 0)
         airport.create_flights(self.game, now)
-        destinations = airport.destinations.all()
-        self.assertNotEqual(models.Flight.objects.all().count(), 0)
+        outgoing = models.Flight.objects.filter(game=self.game,
+                origin=airport)
+        self.assertNotEqual(outgoing.count(), 0)
 
-        for flight in models.Flight.objects.all():
+        for flight in outgoing:
             self.assertEqual(flight.origin, airport)
             self.assertNotEqual(flight.destination, airport)
             self.assertTrue(flight.destination in destinations)
@@ -458,7 +468,7 @@ class Messages(TestCase):
 
         # first, we need a player to finish a game
         player = self.user
-        game = models.Game.create(player.profile, 1, 3, 1)
+        game = models.Game.create(player.profile, 1, 4, 1)
         game.begin()
         goal = models.Goal.objects.get(game=game)
         models.Message.broadcast('this is test1', finishers=False)
@@ -508,7 +518,7 @@ class HomeView(TestCase):
     def test_new_game_no_redirect(self):
         """Test that there's no redirect when you're in a new game"""
         player = self.user
-        game = models.Game.create(player.profile, 1, 3, 1)
+        game = models.Game.create(player.profile, 1, 4, 1)
         self.client.login(username=player.username, password='test')
         response = self.client.get(self.view)
         self.assertEqual(response.status_code, 200)
@@ -517,7 +527,7 @@ class HomeView(TestCase):
         """Test that when you have finished a game, you are redirected"""
         player = self.user
         games_view = reverse('games')
-        game = models.Game.create(player.profile, 1, 3, 1)
+        game = models.Game.create(player.profile, 1, 4, 1)
         self.client.login(username=player.username, password='test')
         self.client.get(self.view)
         goal = models.Goal.objects.get(game=game)
@@ -535,7 +545,7 @@ class HomeView(TestCase):
         player2 = self.user2
         games_view = reverse('games')
 
-        game = models.Game.create(player1.profile, 1, 3, 1)
+        game = models.Game.create(player1.profile, 1, 4, 1)
         game.add_player(player2.profile)
         game.begin()
         goal = models.Goal.objects.get(game=game)
@@ -660,9 +670,7 @@ class GamePause(TestCase):
         difference = now - flight.depart_time
         new_secs = difference.total_seconds() * game.TIMEFACTOR
         game.timestamp = flight.depart_time - datetime.timedelta(seconds=new_secs)
-        print flight.depart_time
         game.save()
-        print game.time
 
         self.assertEqual(game.time, flight.depart_time)
         self.assertTrue(flight.in_flight(game.time))
