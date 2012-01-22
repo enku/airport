@@ -2,6 +2,7 @@
 import datetime
 import json
 import random
+import time
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -587,3 +588,125 @@ class Connections(TestCase):
                 d2s = destination.create_flights(game, game.time).filter(
                         destination=source)[0].flight_time
                 self.assertEqual(s2d, d2s)
+
+class GamePause(TestCase):
+    """Test the pausing/resuming of a game"""
+    def setUp(self):
+        self.users = create_users(2)
+
+    def test_begin_not_paused(self):
+        """Test that when you begin a game it is not paused"""
+        game = models.Game.create(self.users[0].profile, 1, 10)
+        game.begin()
+
+        self.assertNotEqual(game.state, game.PAUSED)
+
+    def test_pause_method(self):
+        """Test the pause method"""
+        game = models.Game.create(self.users[0].profile, 1, 10)
+        game.begin()
+        game.pause()
+
+        self.assertEqual(game.state, game.PAUSED)
+
+    def test_game_time_doesnt_change(self):
+        """Test that the game time doesn't change when paused"""
+        game = models.Game.create(self.users[0].profile, 1, 10)
+        game.begin()
+        game.pause()
+        orig_time = game.time
+        time.sleep(1)
+        new_time = game.time
+        self.assertEqual(orig_time, new_time)
+
+    def test_info_view(self):
+        """Test the info view of a paused game"""
+        game = models.Game.create(self.users[0].profile, 1, 10)
+        game.begin()
+        game.pause()
+
+        self.client.login(username=self.users[0].username, password='test')
+        response = self.client.get(reverse('info'))
+        response = json.loads(response.content)
+        self.assertEqual(response['game_state'], 'Paused')
+
+    def test_ticket_purchase(self):
+        """Ensure you can't purchase tickets on a paused game"""
+        game = models.Game.create(self.users[0].profile, 1, 10)
+        game.begin()
+        game.pause()
+
+        airport = game.start_airport
+        flights = airport.next_flights(game, game.time, future_only=True)
+        flight = flights[0]
+
+        self.assertRaises(game.Paused,
+                self.users[0].profile.purchase_flight, flight, game.time)
+
+
+    def skip_test_in_flight(self):
+        """Test that you are paused in-flight"""
+
+        now = datetime.datetime.now()
+
+        game = models.Game.create(self.users[0].profile, 1, 10)
+        game.begin()
+
+        airport = game.start_airport
+        flights = airport.next_flights(game, game.time, future_only=True)
+        flights.sort(key=lambda x: x.depart_time)
+        flight = flights[0]
+
+        difference = now - flight.depart_time
+        new_secs = difference.total_seconds() * game.TIMEFACTOR
+        game.timestamp = flight.depart_time - datetime.timedelta(seconds=new_secs)
+        print flight.depart_time
+        game.save()
+        print game.time
+
+        self.assertEqual(game.time, flight.depart_time)
+        self.assertTrue(flight.in_flight(game.time))
+
+        game.pause()
+        self.assertTrue(flight.in_flight(game.time))
+
+
+    def test_game_join(self):
+        """Assure that you can still join a game while paused"""
+        game = models.Game.create(self.users[0].profile, 1, 10)
+        game.begin()
+        game.pause()
+
+        game.add_player(self.users[1].profile)
+        self.assertEqual(set(game.players.all()),
+                set([self.users[0].profile, self.users[1].profile])
+        )
+
+    def test_active_game_status(self):
+        """Assert that the game status shows the game as paused"""
+        game = models.Game.create(self.users[0].profile, 1, 10)
+        game.begin()
+        game.pause()
+
+        user2 = self.users[1]
+        self.client.login(username=user2.username, password='test')
+        response = self.client.get(reverse('games_info'))
+        response = json.loads(response.content)
+        response_game = filter(lambda x: x['id'] == game.id,
+            response['games'])[0]
+
+        self.assertEqual(response_game['status'], 'Paused')
+
+    def test_resume(self):
+        """Assert that resume works and the time doesn't fast-forward"""
+        game = models.Game.create(self.users[0].profile, 1, 10)
+        game.begin()
+        game.pause()
+
+        orig_time = game.time
+        time.sleep(3)
+        game.resume()
+        new_time = game.time
+        time_difference_secs = (new_time - orig_time).total_seconds()
+        self.assertTrue(time_difference_secs < game.TIMEFACTOR)
+

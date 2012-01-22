@@ -353,3 +353,21 @@ li.goal_city {
     padding: 1px 3px;
     vertical-align: middle;
 }
+
+#hostoptions {
+    color: yellow;
+    background: black;
+    overflow: hidden;
+    text-align: left;
+    position: relative;
+    top: -20px;
+}
+
+#hostoptions td {
+    padding: 0 5px;
+}
+
+#pause {
+    color: #FFFFFF;
+    font-weight: bold;
+}

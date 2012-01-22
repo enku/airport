@@ -559,6 +559,10 @@ class UserProfile(AirportModel):
         """Purchase a flight.  User must be at the origin airport and must be a
         future flight"""
 
+        if flight.game.state == flight.game.PAUSED:
+            raise flight.game.Paused('Cannot purchase tickets while '
+                'game is paused')
+
         if self.ticket and self.ticket.in_flight(now):
             raise flight.AlreadyDeparted(
                     'Cannot purchase a flight while in flight')
@@ -705,11 +709,12 @@ class Game(AirportModel):
     goals.
 
     The Game is the God of Airport"""
-    NOT_STARTED, GAME_OVER, IN_PROGRESS = -1, 0, 1
+    NOT_STARTED, GAME_OVER, IN_PROGRESS, PAUSED = -1, 0, 1, 2
     STATE_CHOICES = (
             (-1, NOT_STARTED),
             ( 0, GAME_OVER),
-            ( 1, IN_PROGRESS))
+            ( 1, IN_PROGRESS),
+            ( 2, PAUSED))
 
     TIMEFACTOR = 60
 
@@ -721,6 +726,8 @@ class Game(AirportModel):
     #airports = models.ManyToManyField(Airport)
     start_airport = models.ForeignKey(Airport, null=True, related_name='+')
     timestamp = models.DateTimeField(auto_now_add=True)
+    pausestamp = models.DateTimeField(null=True)
+    pause_time = models.IntegerField(default=0)
     min_distance = models.IntegerField(null=True)
     max_distance = models.IntegerField(null=True)
 
@@ -864,9 +871,19 @@ class Game(AirportModel):
     @property
     def time(self):
         """Return current game time"""
-        now = datetime.datetime.now()
+        if self.state == self.PAUSED:
+            now = self.pausestamp
+        else:
+            now = datetime.datetime.now()
 
-        if self.state != self.IN_PROGRESS:
+        now = now - datetime.timedelta(seconds=self.pause_time)
+
+        if hasattr(self, 'gettime'):
+            # this can monkey-patched on the instance for debugging/testing
+            return self.gettime()
+
+        # dunno if this is even needed anymore
+        if self.state not in (self.PAUSED, self.IN_PROGRESS):
             return now
 
         difference = now - self.timestamp
@@ -883,6 +900,24 @@ class Game(AirportModel):
         # make sure host is a player
         if not self.players.filter(id=self.host.id).exists():
             self.add_player(self.host)
+
+    def pause(self):
+        """Pause the game"""
+        if self.state == self.IN_PROGRESS:
+            now = datetime.datetime.now()
+            self.state = self.PAUSED
+            self.pausestamp = now
+            self.save()
+
+    def resume(self):
+        """Resume a paused game"""
+        if self.state == self.PAUSED:
+            self.pause_time = (
+                self.pause_time
+                + (datetime.datetime.now() - self.pausestamp).total_seconds())
+            self.state = self.IN_PROGRESS
+            self.pausestamp = None
+            self.save()
 
     def is_over(self):
         """Return true iff game is over
@@ -1052,6 +1087,20 @@ class Game(AirportModel):
         max_ = self.max_distance / Flight.cruise_speed
 
         return (((MAX_FLIGHT_TIME-MIN_FLIGHT_TIME)*(flight_time-min_))/(max_-min_)) + MIN_FLIGHT_TIME
+
+    class BaseException(Exception):
+        """Base class for Game exceptions"""
+        pass
+
+    class Paused(Exception):
+        """Exception to be passed when an action cannot be performed
+        because the game is paused"""
+        pass
+
+    class NotStarted(Exception):
+        """Raised when an action is requested from a game that has not yet
+        started"""
+        pass
 
 class Goal(AirportModel):
     """Goal cities for a game"""

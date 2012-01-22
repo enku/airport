@@ -2,6 +2,7 @@ var goldstar = "{{ gold_star }}",
     background_image = new Image(25, 25),
     last_ticket = null,
     last_goal = null,
+    lightbox,
     new_goal = false;
 
 function flights_table(flights) {
@@ -231,6 +232,20 @@ function refresh_ui(data) {
 
     // stats
     update_stats(data['stats']);
+
+    if (data['game_state'] == 'Paused') {
+        lightbox.content.html('<div>Game Paused</div><img src="{{ pause_icon }}" />');
+        if ('{{ game.host.user.username }}' == '{{ user.username }}') {
+            lightbox.content.append('<a href="#" id="resume"><div>Resume</div></a>');
+            $('#resume').click(pause_game);
+        }
+        if (!lightbox.content.is(':visible')) lightbox.show();
+    }
+    else if (lightbox.content.is(':visible')) {
+        lightbox.hide();
+    }
+
+
 }
 
 function refresh_cb(data, textStatus, jqXHR) {
@@ -277,6 +292,22 @@ function permit_notifications_cb() {
     }
 }
 
+function pause_game(event) {
+    event.preventDefault();
+    if ($('#lightbox_content').is(':visible')) {
+        lightbox.hide();
+    }
+    else {
+        lightbox.content.html('<div>Game Paused</div><img src="{{ pause_icon }}" />');
+        lightbox.content.append('<a href="" id="resume"><div>Resume</div></a>');
+        lightbox.show();
+    }
+    $.ajax({
+        type: 'POST',
+        url: "{% url pause_game game.id %}"
+    });
+}
+
 function main() {
     /* document.ready function */
     $('#airplane_widget').hide();
@@ -293,9 +324,11 @@ function main() {
     $('#notepad').memdraggable({handle: '.header'}).memresizable();
 
     $('#frm').submit(buy_ticket);
+    $('#pause').click(pause_game);
     $('#permit_notify').click(permit_notifications_cb);
 
     airport.messages('#message_box');
+    lightbox = new airport.LightBox('#lightbox_content');
     $.ajax({
         url: "{% url info %}",
         success: refresh_cb,

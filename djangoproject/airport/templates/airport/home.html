@@ -26,6 +26,11 @@
                 </tr>
             </thead>
             <tbody id="flights"></tbody>
+            {% if user.profile == game.host %}
+            <tfoot id="hostoptions"><tr>
+                <td colspan="6"><a id="pause" href="">Pause</a></td>
+            </tr></tfoot>
+            {% endif %}
         </table>
     </form>
 </div><!-- airport_widget -->
@@ -77,6 +82,8 @@
     <div id="stats_header">Players</div>
     <table id="stats_box"></table>
 </div>
+
+<div id="lightbox_content"></div>
 
 <div id="exit">
     <span id="notification_permission">

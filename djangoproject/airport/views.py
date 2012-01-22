@@ -78,6 +78,12 @@ def info(request):
     dictionary"""
     user = request.user
     profile = user.profile
+    states = [
+        'New',
+        'Finished',
+        'Started',
+        'Paused'
+    ]
 
     game = profile.current_game
     if not game:
@@ -87,7 +93,7 @@ def info(request):
     now, airport, ticket = game.update(profile)
 
     calc_mwp = game.players.distinct().count() * MW_PROBABILITY
-    if random.randint(1, calc_mwp) == calc_mwp:
+    if game.state == game.IN_PROGRESS and random.randint(1, calc_mwp) == calc_mwp:
         MWF.create(game).throw()
 
     if request.method == 'POST':
@@ -169,6 +175,7 @@ def info(request):
     json_str = json.dumps(
         {
             'time': date(now, 'P'),
+            'game_state': states[game.state + 1],
             'airport': airport.name if airport else ticket.origin,
             'city': city,
             'ticket': None if not ticket else ticket.to_dict(now),
@@ -184,6 +191,19 @@ def info(request):
         default=DTHANDLER
     )
     return HttpResponse(json_str, mimetype='application/json')
+
+@require_http_methods(['POST'])
+@login_required
+def pause_game(request, game_id):
+    """Pause/Resume game"""
+    game = get_object_or_404(Game, id=game_id)
+
+    if game.host == request.user.profile:
+        if game.state == game.PAUSED:
+            game.resume()
+        elif game.state == game.IN_PROGRESS:
+            game.pause()
+    return HttpResponse(status=204)
 
 @login_required
 def messages(request):
@@ -231,6 +251,12 @@ def games_info(request):
     profile = request.user.profile
     game = profile.current_game
     state = profile.current_state
+    states = [
+        'New',
+        'Finished',
+        'Started',
+        'Paused'
+    ]
 
     # if user is in an open game and it has started, redirect to that game
     if (game and game.state == game.IN_PROGRESS
@@ -259,7 +285,7 @@ def games_info(request):
             host = escape(game[2]),
             goals = game[3],
             airports = game[4],
-            status = ['New', 'Finished', 'Started'][game[5] + 1],
+            status = states[game[5] + 1],
             created = naturaltime(game[6])))
 
     current_game = (Game.objects
