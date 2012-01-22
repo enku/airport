@@ -993,6 +993,7 @@ class Game(AirportModel):
                         '{player} is a winner!'.format(
                             player=winner.user.username),
                         self,
+                        message_type='WINNER',
                         finishers=True)
 
         # if all players have achieved all goals, end the game
