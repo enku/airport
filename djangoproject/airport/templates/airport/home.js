@@ -156,7 +156,7 @@ function refresh_ui(data) {
 
     if (data['city']) {
         city_image_url = ('{% url city_image %}' 
-                          + encodeURIComponent(data['city']));
+                          + encodeURIComponent(data['city']) + '/');
         preload_image(city_image_url);
     }
 
@@ -313,7 +313,7 @@ function pause_game(event) {
     }
     $.ajax({
         type: 'POST',
-        url: "{% url pause_game game.id %}",
+        url: "{% url pause_game %}?id=" + "{{ game.id }}",
         success: callback
     });
 }
@@ -322,7 +322,7 @@ function quit_game(event) {
     event.preventDefault();
     $.ajax({
         type: 'POST',
-        url: "{% url rage_quit game.id %}",
+        url: "{% url rage_quit %}?id={{game.id}}",
         success: function() { window.location.replace('{% url games %}');}
     });
 }

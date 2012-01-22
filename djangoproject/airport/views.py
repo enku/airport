@@ -89,7 +89,7 @@ def info(request):
     if not game:
         return json_redirect(reverse(games_home))
     if game.state == game.GAME_OVER or profile in game.finishers():
-        return json_redirect(reverse(game_summary, args=[str(game.id)]))
+        return json_redirect('%s?id=%s' % (reverse(game_summary), game.id))
     now, airport, ticket = game.update(profile)
 
     calc_mwp = game.players.distinct().count() * MW_PROBABILITY
@@ -203,8 +203,9 @@ def info(request):
 
 @require_http_methods(['POST'])
 @login_required
-def pause_game(request, game_id):
+def pause_game(request):
     """Pause/Resume game"""
+    game_id = request.GET.get('id', None)
     game = get_object_or_404(Game, id=game_id)
 
     if game.host == request.user.profile:
@@ -216,8 +217,9 @@ def pause_game(request, game_id):
 
 @require_http_methods(['POST'])
 @login_required
-def rage_quit(request, game_id):
+def rage_quit(request):
     """Bail out of the game because you are a big wuss"""
+    game_id = request.GET.get('id', None)
     game = get_object_or_404(Game, id=game_id)
     game.remove_player(request.user.profile)
     Message.send(request.user.profile, 'You have quit %s. Wuss!' % game)
@@ -364,12 +366,13 @@ def games_create(request):
     return games_info(request)
 
 @login_required
-def games_join(request, game_id):
+def games_join(request):
     """Join a game.  Game must exist and have not ended (you can join a
     game that is in progress
     """
     profile = request.user.profile
 
+    game_id = request.GET.get('id', None)
     game = get_object_or_404(Game, id=game_id)
     if game.state == game.GAME_OVER:
         Message.send(
@@ -454,9 +457,10 @@ def games_stats(request):
     return render_to_response('airport/games_stats.html', cxt)
 
 @login_required
-def game_summary(request, game_id):
+def game_summary(request):
     """Show summary for a particular game, request.user must have actually
     played the game to utilize this view"""
+    game_id = request.GET.get('id', None)
     game = get_object_or_404(Game, id=int(game_id))
 
     username = request.GET.get('player', None)

@@ -7,7 +7,7 @@ function update_games_list(data) {
 
     for (var i=0; i<data['games'].length; i++) {
         game = data['games'][i];
-        s = s + ('<tr><td><a class="games_join" href="{% url games_join %}' + game['id'] + '">' + game['id'] + '</a></td>' 
+        s = s + ('<tr><td><a class="games_join" href="{% url games_join %}?id=' + game['id'] + '">' + game['id'] + '</a></td>' 
                 + '<td>' + game['goals'] + '</td><'
                 + '<td>' + game['airports'] + '</td>'
                 + '<td>' + game['players'] + '</td>'

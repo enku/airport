@@ -19,6 +19,6 @@
         <td class="stat_name">Hours / Game</td><td class="numeric">{{ avg_time|floatformat }}</td></tr>
 
         <tr><td>History</td>
-        <td colspan="3">{% for game in prior_games reversed %} <a href="{% url game_summary game.0 %}" title="{{ game.1 }}">{{ game.0 }}</a>{% endfor %}</td></tr>
+        <td colspan="3">{% for game in prior_games reversed %} <a href="{% url game_summary %}?id={{game.0}}" title="{{ game.1 }}">{{ game.0 }}</a>{% endfor %}</td></tr>
     </tbody>
 </table>
