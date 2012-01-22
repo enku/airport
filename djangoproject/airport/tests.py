@@ -80,6 +80,7 @@ class AirportTest(TestCase):
 
     def test_distinct_airports(self):
         """Ensure games doesn't have duplicate airports"""
+        self.game.end()
         for i in range(10):
             game = models.Game.objects.create_game(
                     host=self.user.profile,
@@ -88,6 +89,7 @@ class AirportTest(TestCase):
             )
             codes = game.airports.values_list('code', flat=True)
             self.assertEqual(len(set(codes)), len(codes))
+            game.delete()
 
 class FlightTest(TestCase):
     """Test the Flight Model"""

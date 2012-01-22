@@ -26,11 +26,12 @@
                 </tr>
             </thead>
             <tbody id="flights"></tbody>
-            {% if user.profile == game.host %}
-            <tfoot id="hostoptions"><tr>
-                <td colspan="6"><a id="pause" href="">Pause</a></td>
-            </tr></tfoot>
-            {% endif %}
+            <tfoot id="cpanel"><tr><td colspan="6">
+                        <a id="ragequit" href="">✗ rage quit</a> 
+                        {% if user.profile == game.host %}
+                        • <a id="pause" href="">pause</a>
+                        {% endif %}
+            </td></tr></tfoot>
         </table>
     </form>
 </div><!-- airport_widget -->

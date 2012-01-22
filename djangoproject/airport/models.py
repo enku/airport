@@ -841,6 +841,17 @@ class Game(AirportModel):
             print 'already in players'
             return
 
+        # This should never happen at the UI level, but we check anyway
+        # Make sure a user currently in an active game can't be added to
+        # this one.  If they're hosting this game, remove it
+        current_game = profile.current_game
+        if current_game and current_game != self:
+            if current_game.state != Game.GAME_OVER:
+                if not self.players.exists() and self.host == profile:
+                    self.delete()
+                raise self.AlreadyInGame('%s is already in an active game'
+                        % profile.user)
+
         # This is a pain in the ass to do, basically we need to create an
         # Achievement model for each goal
         for goal in Goal.objects.filter(game=self):
@@ -866,6 +877,22 @@ class Game(AirportModel):
         profile.ticket = None
         profile.airport = self.start_airport
         profile.save()
+
+    def remove_player(self, user):
+        """Remove a user from the game... «user» can be a User or
+        UserProfile model.
+
+        This method does not check that the user is actually in the game.
+        If the user is not a game player, then it fails silently"""
+        if isinstance(user, User):
+            user = user.profile
+        achievements = Achievement.objects.filter(profile=user, game=self)
+        # bye!
+        achievements.delete()
+
+        # if there are no more players, we need to end the game
+        if not self.players.exists():
+            self.end()
 
     @property
     def time(self):
@@ -1094,14 +1121,19 @@ class Game(AirportModel):
         """Base class for Game exceptions"""
         pass
 
-    class Paused(Exception):
+    class Paused(BaseException):
         """Exception to be passed when an action cannot be performed
         because the game is paused"""
         pass
 
-    class NotStarted(Exception):
+    class NotStarted(BaseException):
         """Raised when an action is requested from a game that has not yet
         started"""
+        pass
+
+    class AlreadyInGame(BaseException):
+        """Raised if a user tries to join a game but has not finished an
+        active game"""
         pass
 
 class Goal(AirportModel):

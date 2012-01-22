@@ -214,6 +214,15 @@ def pause_game(request, game_id):
             game.pause()
     return HttpResponse(status=204)
 
+@require_http_methods(['POST'])
+@login_required
+def rage_quit(request, game_id):
+    """Bail out of the game because you are a big wuss"""
+    game = get_object_or_404(Game, id=game_id)
+    game.remove_player(request.user.profile)
+    Message.send(request.user.profile, 'You have quit %s. Wuss!' % game)
+    return HttpResponse(status=204)
+
 @login_required
 def messages(request):
     """View to return user's current messages"""

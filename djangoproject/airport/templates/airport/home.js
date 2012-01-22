@@ -336,6 +336,15 @@ function pause_game(event) {
     });
 }
 
+function quit_game(event) {
+    event.preventDefault();
+    $.ajax({
+        type: 'POST',
+        url: "{% url rage_quit game.id %}",
+        success: function() { window.location.replace('{% url games %}');}
+    });
+}
+
 function main() {
     /* document.ready function */
     $('#airplane_widget').hide();
@@ -353,6 +362,7 @@ function main() {
 
     $('#frm').submit(buy_ticket);
     $('#pause').click(pause_game);
+    $('#ragequit').click(quit_game);
     $('#permit_notify').click(permit_notifications_cb);
 
     airport.messages('#message_box');

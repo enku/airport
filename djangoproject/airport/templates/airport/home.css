@@ -354,20 +354,17 @@ li.goal_city {
     vertical-align: middle;
 }
 
-#hostoptions {
+#cpanel {
     color: yellow;
     background: black;
-    overflow: hidden;
     text-align: left;
-    position: relative;
-    top: -20px;
 }
 
-#hostoptions td {
-    padding: 0 5px;
+#cpanel td {
+    padding: 0 5px 2px 5px;
 }
 
-#pause {
+#cpanel a {
     color: #FFFFFF;
     font-weight: bold;
 }
