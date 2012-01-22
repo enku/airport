@@ -2,6 +2,7 @@ var goldstar = "{{ gold_star }}",
     background_image = new Image(25, 25),
     last_ticket = null,
     last_goal = null,
+    timeout = null,
     lightbox,
     new_goal = false;
 
@@ -250,7 +251,7 @@ function refresh_ui(data) {
 
 function refresh_cb(data, textStatus, jqXHR) {
     refresh_ui(data);
-    setTimeout(function() {
+    timeout = setTimeout(function() {
         $.ajax({
             url: "{% url info %}", 
             success: refresh_cb, 
@@ -294,17 +295,44 @@ function permit_notifications_cb() {
 
 function pause_game(event) {
     event.preventDefault();
+    var resume_cb = function() {
+        console.log('resume cb');
+        if (!timeout) {
+            $.ajax({ url: "{% url info %}", success: refresh_cb,
+                dataType: "json" }
+            );
+        }
+    };
+
+    var pause_cb = function() {
+        console.log('pause cb');
+        if (timeout) {
+            console.log('clearing timeout');
+            clearTimeout(timeout);
+            timeout = null;
+        }
+    };
+
+    var callback;
+
     if ($('#lightbox_content').is(':visible')) {
+        // paused... resume
+        callback = resume_cb;
         lightbox.hide();
     }
     else {
-        lightbox.content.html('<div>Game Paused</div><img src="{{ pause_icon }}" />');
+        // in progress.. pause
+        callback = pause_cb;
+        lightbox.content.html(
+            '<div>Game Paused</div><img src="{{ pause_icon }}" />');
         lightbox.content.append('<a href="" id="resume"><div>Resume</div></a>');
         lightbox.show();
+        $('#resume').click(pause_game);
     }
     $.ajax({
         type: 'POST',
-        url: "{% url pause_game game.id %}"
+        url: "{% url pause_game game.id %}",
+        success: callback
     });
 }
 

@@ -371,3 +371,7 @@ li.goal_city {
     color: #FFFFFF;
     font-weight: bold;
 }
+
+#lightbox_content {
+    height: 285px;
+}
