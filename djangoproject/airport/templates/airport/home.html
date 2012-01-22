@@ -84,7 +84,12 @@
     <table id="stats_box"></table>
 </div>
 
-<div id="lightbox_content"></div>
+<div id="lightbox_content">
+    {% if game.host.user.username  == user.username %}<a href="" id="resume">{% endif %}
+    <div>Game Paused</div>
+    <img src="{{pause_icon}}" />
+    {% if game.host.user.username  == user.username %}<div>Resume</div></a>{% endif %}
+</div>
 
 <div id="exit">
     <span id="notification_permission">

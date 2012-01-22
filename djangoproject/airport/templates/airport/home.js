@@ -234,19 +234,8 @@ function refresh_ui(data) {
     // stats
     update_stats(data['stats']);
 
-    if (data['game_state'] == 'Paused') {
-        lightbox.content.html('<div>Game Paused</div><img src="{{ pause_icon }}" />');
-        if ('{{ game.host.user.username }}' == '{{ user.username }}') {
-            lightbox.content.append('<a href="#" id="resume"><div>Resume</div></a>');
-            $('#resume').click(pause_game);
-        }
-        if (!lightbox.content.is(':visible')) lightbox.show();
-    }
-    else if (lightbox.content.is(':visible')) {
-        lightbox.hide();
-    }
-
-
+    if (data['game_state'] == 'Paused') lightbox.show();
+    else lightbox.hide();
 }
 
 function refresh_cb(data, textStatus, jqXHR) {
@@ -296,7 +285,6 @@ function permit_notifications_cb() {
 function pause_game(event) {
     event.preventDefault();
     var resume_cb = function() {
-        console.log('resume cb');
         if (!timeout) {
             $.ajax({ url: "{% url info %}", success: refresh_cb,
                 dataType: "json" }
@@ -305,9 +293,7 @@ function pause_game(event) {
     };
 
     var pause_cb = function() {
-        console.log('pause cb');
         if (timeout) {
-            console.log('clearing timeout');
             clearTimeout(timeout);
             timeout = null;
         }
@@ -323,11 +309,7 @@ function pause_game(event) {
     else {
         // in progress.. pause
         callback = pause_cb;
-        lightbox.content.html(
-            '<div>Game Paused</div><img src="{{ pause_icon }}" />');
-        lightbox.content.append('<a href="" id="resume"><div>Resume</div></a>');
         lightbox.show();
-        $('#resume').click(pause_game);
     }
     $.ajax({
         type: 'POST',
@@ -362,6 +344,7 @@ function main() {
 
     $('#frm').submit(buy_ticket);
     $('#pause').click(pause_game);
+    $('#resume').click(pause_game);
     $('#ragequit').click(quit_game);
     $('#permit_notify').click(permit_notifications_cb);
 
