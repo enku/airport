@@ -115,13 +115,13 @@ def info(request):
     percentage = 100
     next_flights = []
     if ticket and ticket.in_flight(now):
-        next_flights = ticket.destination.next_flights(game, now)
+        next_flights = ticket.destination.next_flights(now)
         percentage = ((now - ticket.depart_time).total_seconds()
                 / 60.0
                 / ticket.flight_time
                 * 100)
     elif airport:
-        next_flights = airport.next_flights(game, now)
+        next_flights = airport.next_flights(now)
 
     last_message = Message.get_latest(request.user)
 
@@ -348,7 +348,8 @@ def games_create(request):
         Message.send(profile, ('Cannot create a game since you are '
             'already playing an open game.'))
     else:
-        game = Game.create(profile, num_goals, num_airports)
+        game = Game.objects.create_game(host=profile, goals=num_goals,
+                airports=num_airports)
         game.save()
 
     return games_info(request)

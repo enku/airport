@@ -125,7 +125,7 @@ class Airport(AirportModel):
         return airport
 
 
-    def next_flights(self, game, now, future_only=False, auto_create=True):
+    def next_flights(self, now, future_only=False, auto_create=True):
         """Return next Flights out from «self», creating new flights if
         necessary.  Return a list of flights ordered by destination city
         name
@@ -138,11 +138,11 @@ class Airport(AirportModel):
         If «auto_create» is True (default), automagically create fututure
         flights
         """
-
+        game = self.game
         future_flights = self.flights.filter(game=game, depart_time__gt=now)
 
         if not future_flights.exists() and auto_create:
-            self.create_flights(game, now)
+            self.create_flights(now)
 
         flights = game.flights.filter(origin=self)
         if future_only:
@@ -159,11 +159,11 @@ class Airport(AirportModel):
             raise ValidationError(
                 u'Airport cannot have itself as a destination.')
 
-    def next_flight_to(self, game, city, now):
+    def next_flight_to(self, city, now):
         """Return the next flight to «city» or None"""
         if isinstance(city, Airport):
             city = city.city
-        next_flights = self.next_flights(game, now, future_only=True,
+        next_flights = self.next_flights(now, future_only=True,
                 auto_create=False)
         next_flights = [i for i in next_flights if i.depart_time >= now and
                 i.destination.city == city]
@@ -173,8 +173,9 @@ class Airport(AirportModel):
             return next_flights[0]
         return None
 
-    def create_flights(self, game, now):
+    def create_flights(self, now):
         """Create some flights starting from «now»"""
+        game = self.game
         cushion = 20 # minutes
 
         flight_ids = []
@@ -216,9 +217,21 @@ def _get_destinations_for(airport, dest_count):
         # try again
         return _get_destinations_for(airport, dest_count-1)
 
+class FlightManager(models.Manager):
+    """we manage flights"""
+
+    def random_flight_number(self, game):
+        """return a random number, not already a flight number for «game»"""
+        while True:
+            number = random.randint(100, 9999)
+            flight = self.filter(game=game, number=number)
+            if flight.exists():
+                continue
+            return number
+
 class Flight(AirportModel):
-    """A flight from one airport to another"""
-    ### Fields ###
+    """a flight from one airport to another"""
+    ### fields ###
     game = models.ForeignKey('Game', null=False, related_name='flights')
     number = models.IntegerField(editable=False)
     origin = models.ForeignKey(Airport, related_name='flights')
@@ -227,6 +240,7 @@ class Flight(AirportModel):
     flight_time = models.IntegerField()
     arrival_time = models.DateTimeField() # caculated field
     state = models.CharField(max_length=20, default='On Time')
+    objects = FlightManager()
 
     cruise_speed = 14.890 # cruise speed (km/min) of a 747
 
@@ -374,21 +388,12 @@ class Flight(AirportModel):
         """Overriden .save() method for Flights"""
         # we need a unique fligth # for this game
         if not self.number:
-            self.number = self.random_flight_number()
+            self.number = Flight.objects.random_flight_number(self.game)
 
         self.arrival_time = (self.depart_time
                 + datetime.timedelta(minutes=self.flight_time))
 
         return super(Flight, self).save(*args, **kwargs)
-
-    def random_flight_number(self):
-        """Return a random number, not already a flight number"""
-        while True:
-            number = random.randint(100, 9999)
-            flight = self.game.flights.filter(number=number)
-            if flight.exists():
-                continue
-            return number
 
     def clean(self, *_args, **_kwargs):
         """Validate the model"""
@@ -526,7 +531,7 @@ class UserProfile(AirportModel):
         """Return qs of Purchases"""
         return self.purchase_set.all()
 
-    def location(self, now, game, caller):
+    def location(self, now):
         """Update and return user's current location info
 
         info is a tuple of (Airport or None, Flight or None)
@@ -692,6 +697,81 @@ class Message(AirportModel):
 
         return message
 
+class GameManager(models.Manager):
+    """We manage Games"""
+    def create_game(self, host, goals, airports, density=5):
+        """Create a new «Game»"""
+        master_airports = list(AirportMaster.objects.distinct())
+        random.shuffle(master_airports)
+        now = datetime.datetime.now()
+
+        game = Game()
+        game.host = host
+        game.state = Game.NOT_STARTED
+        game.save()
+
+        # start airport
+        master = master_airports[0]
+        start_airport = Airport()
+        start_airport.name = master.name
+        start_airport.code = master.code
+        start_airport.city = master.city
+        start_airport.game = game
+        start_airport.save()
+
+        game.start_airport = start_airport
+        game.save()
+
+        # add other airports
+        for i in range(1, airports):
+            master = master_airports[i]
+            airport = Airport.copy_from_master(game, master)
+
+        # populate the airports with destinations
+        for airport in game.airports.distinct():
+            new_destinations = _get_destinations_for(airport, density)
+            for destination in new_destinations:
+                if airport.destinations.count() >= density:
+                    break
+                airport.destinations.add(destination)
+
+        # record min/max distances
+        game.min_distance, game.max_distance = game.get_extremes()
+        game.save()
+
+        # pre-populate the starting airport with flights
+        start_airport.next_flights(now)
+
+        # add goals
+        current_airport = game.start_airport
+        goal_airports = []
+        for i in range(1, goals + 1):
+            direct_flights = current_airport.destinations.distinct()
+            dest = Airport.objects.filter(game=game)
+            dest = dest.exclude(id=current_airport.id)
+            dest = dest.exclude(id__in=[j.id for j in goal_airports])
+            dest = dest.exclude(id__in=[j.id for j in direct_flights])
+            dest = dest.order_by('?')
+            dest = dest[0]
+
+            goal = Goal()
+            goal.city = dest.city
+            goal.game = game
+            goal.order = i
+            goal.save()
+            goal_airports.append(dest)
+
+            current_airport = dest
+
+        game.add_player(host)
+
+        messages = Message.broadcast(
+                '%s has created %s' % (host.user.username, game),
+                message_type='NEWGAME')
+        Message.touch(messages, now)
+
+        return game
+
 class Game(AirportModel):
     """This is a game.  A Game is hosted and has it's own game time and
     players and stuff like that.  A Game is either not started, in progress or
@@ -723,84 +803,10 @@ class Game(AirportModel):
     pause_time = models.IntegerField(default=0)
     min_distance = models.IntegerField(null=True)
     max_distance = models.IntegerField(null=True)
+    objects = GameManager()
 
     def __unicode__(self):
         return u'Game {}'.format(self.pk)
-
-    @classmethod
-    def create(cls, host, goals, airports, dest_per_airport=5):
-        """Create a new «Game»"""
-        master_airports = list(AirportMaster.objects.distinct())
-        random.shuffle(master_airports)
-        now = datetime.datetime.now()
-
-        game = cls()
-        game.host = host
-        game.state = cls.NOT_STARTED
-        game.save()
-
-        # start airport
-        master = master_airports[0]
-        start_airport = Airport()
-        start_airport.name = master.name
-        start_airport.code = master.code
-        start_airport.city = master.city
-        start_airport.game = game
-        start_airport.save()
-
-        game.start_airport = start_airport
-        game.save()
-
-        # add other airports
-        for i in range(1, airports):
-            master = master_airports[i]
-            airport = Airport.copy_from_master(game, master)
-
-        # populate the airports with destinations
-        for airport in game.airports.distinct():
-            new_destinations = _get_destinations_for(airport,
-                    dest_per_airport)
-            for destination in new_destinations:
-                if airport.destinations.count() >= dest_per_airport:
-                    break
-                airport.destinations.add(destination)
-
-        # record min/max distances
-        game.min_distance, game.max_distance = game.get_extremes()
-        game.save()
-
-        # pre-populate the starting airport with flights
-        start_airport.next_flights(game, now)
-
-        # add goals
-        current_airport = game.start_airport
-        goal_airports = []
-        for i in range(1, goals + 1):
-            direct_flights = current_airport.destinations.distinct()
-            dest = Airport.objects.filter(game=game)
-            dest = dest.exclude(id=current_airport.id)
-            dest = dest.exclude(id__in=[j.id for j in goal_airports])
-            dest = dest.exclude(id__in=[j.id for j in direct_flights])
-            dest = dest.order_by('?')
-            dest = dest[0]
-
-            goal = Goal()
-            goal.city = dest.city
-            goal.game = game
-            goal.order = i
-            goal.save()
-            goal_airports.append(dest)
-
-            current_airport = dest
-
-        game.add_player(host)
-
-        messages = Message.broadcast(
-                '{user} has created {game}'.format(user=host.user.username,
-                    game=game), message_type='NEWGAME')
-        Message.touch(messages, now)
-
-        return game
 
     def begin(self):
         """start the game"""
@@ -957,7 +963,7 @@ class Game(AirportModel):
             if player.current_game != self:
                 continue
             previous_ticket = player.ticket
-            airport, ticket = player.location(now, self, player)
+            airport, ticket = player.location(now)
             if player == profile:
                 profile_airport, profile_ticket = airport, ticket
             for goal in goals:
@@ -1080,7 +1086,9 @@ class Game(AirportModel):
         min_ = self.min_distance / Flight.cruise_speed
         max_ = self.max_distance / Flight.cruise_speed
 
-        return (((MAX_FLIGHT_TIME-MIN_FLIGHT_TIME)*(flight_time-min_))/(max_-min_)) + MIN_FLIGHT_TIME
+        return (
+            ((MAX_FLIGHT_TIME - MIN_FLIGHT_TIME) * (flight_time - min_))
+            / (max_-min_)) + MIN_FLIGHT_TIME
 
     class BaseException(Exception):
         """Base class for Game exceptions"""
