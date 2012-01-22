@@ -183,22 +183,18 @@ tr.header td {
     border-spacing: 0;
 }
 
-.ticket_label {
+#ticket_widget tr td {
+    padding: 0 10px 0 1ex;
+    margin: 1px 0;
+}
+
+#ticket_widget td.ticket_label {
     font-family: "Monospace", fixed;
     font-size: 8px;
     font-weight: normal;
-    vertical-align: super;
-    position: relative;
-    left: 10px;
-    top: -5px;
+    padding: 2px 0 0 2px;
     color: #666;
     background: transparent;
-}
-
-#ticket_widget tr td {
-    padding-top: 8px;
-    padding-right: 10px;
-    margin: 1px 0;
 }
 
 #ticket_widget tr.odd  td {

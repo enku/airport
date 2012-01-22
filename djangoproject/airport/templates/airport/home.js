@@ -72,20 +72,13 @@ function update_ticket_widget(ticket, player) {
         return;
     }
     
-    $('#ticket_name').html('<span class="ticket_label">NAME</span> '
-            + player.toUpperCase());
-    $('#ticket_status').html('<span class="ticket_label">STATUS</span> '
-            + ticket['status'].toUpperCase());
-    $('#ticket_no').html('<span class="ticket_label">FLIGHT</span> '
-            + ticket['number']);
-    $('#ticket_origin').html('<span class="ticket_label">FROM</span> '
-            + ticket['origin'].toUpperCase());
-    $('#ticket_dest').html('<span class="ticket_label">TO</span> '
-            + ticket['destination'].toUpperCase());
-    $('#ticket_depart').html('<span class="ticket_label">DEPART</span> '
-            + ticket['depart_time'].toUpperCase());
-    $('#ticket_arrive').html('<span class="ticket_label">ARRIVE</span> '
-            + ticket['arrival_time'].toUpperCase());
+    $('#ticket_name').html(player.toUpperCase());
+    $('#ticket_status').html(ticket['status'].toUpperCase());
+    $('#ticket_no').html(ticket['number']);
+    $('#ticket_origin').html(ticket['origin'].toUpperCase());
+    $('#ticket_dest').html(ticket['destination'].toUpperCase());
+    $('#ticket_depart').html(ticket['depart_time'].toUpperCase());
+    $('#ticket_arrive').html(ticket['arrival_time'].toUpperCase());
     widget.fadeIn();
 
     if (ticket['number'] != last_ticket) {
