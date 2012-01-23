@@ -1477,7 +1477,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "32.77", 
-            "image": "http://crazy-frankenstein.com/free-wallpapers-files/city/dallas-wallpapers/dallas-wallpapers-1280x1024.jpg", 
+            "image": "http://www.hantx.org/wp-content/uploads/2010/08/dallas1.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Dallas", 
             "longitude": "-96.77"
