@@ -20,7 +20,7 @@ import random
 
 from django.db.models import Count
 
-from airport.models import Message
+from airport.models import City, Flight, Message
 
 class MonkeyWrench(object):
     """A monkey wrench ☺"""
@@ -130,9 +130,11 @@ class DivertedFlight(MonkeyWrench):
                 .exclude(id=flight.destination.id)
                 .order_by('?')[0])
         flight.destination = diverted_to
+        flight.flight_time = City.get_flight_time(flight.origin,
+                flight.destination, Flight.cruise_speed)
         flight.save()
-        broadcast('Mayday! Flight {num} diverted to {dest}'.format
-                    (num=flight.number, dest=diverted_to),
+        broadcast('Mayday! Flight {num} diverted to {dest}'.format(
+                    num=flight.number, dest=diverted_to),
                 self.game)
         self.thrown = True
         return
