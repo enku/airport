@@ -103,6 +103,7 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
                 ' {min} minutes'.format(airport=airport.code,
                     min=minutes)),
             self.game)
+        self.thrown = True
 
 class AllFlightsFromAirportCancelled(MonkeyWrench):
     """Cancel all future flights from a random airport"""
@@ -219,6 +220,7 @@ class Hint(MonkeyWrench):
 
         Message.send(profile, u'Hint: {airport} goes to {city} ;-)'.format(
             airport=airport_to_goal, city=current_goal))
+        self.thrown = True
         return
 
 class TSA(MonkeyWrench):
