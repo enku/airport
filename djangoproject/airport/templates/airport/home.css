@@ -9,6 +9,10 @@ table {
     margin-top: 10px;
 }
 
+#flight_schedule td {
+    text-shadow: rgba(0, 0, 0, 0.65) 1px 1px;
+}
+
 #airplane_widget {
     display: none;
 }
@@ -363,6 +367,11 @@ li.goal_city {
 #cpanel a {
     color: yellow;
     font-weight: bold;
+}
+
+#clt {
+    font-size: smaller;
+    text-align: right;
 }
 
 #lightbox_content {

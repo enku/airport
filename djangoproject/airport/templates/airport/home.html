@@ -26,12 +26,19 @@
                 </tr>
             </thead>
             <tbody id="flights"></tbody>
-            <tfoot id="cpanel"><tr><td colspan="6">
+            <tfoot id="cpanel">
+                <tr>
+                    <td colspan="3">
                         <a id="ragequit" href="">✗ quit</a> 
                         {% if user.profile == game.host %}
                         • <a id="pause" href="">Ⅱ pause</a>
                         {% endif %}
-            </td></tr></tfoot>
+                    </td>
+                    <td id="clt" colspan="3">
+                        Current Local Time: <span class="time"></span>
+                    </td>
+                </tr>
+        </tfoot>
         </table>
     </form>
 </div><!-- airport_widget -->

@@ -153,7 +153,7 @@ function refresh_ui(data) {
         preload_image(city_image_url);
     }
 
-    $('#clock span').html(data['time']);
+    $('.time').html(data['time']);
 
     if (data['in_flight']) {
         $('#flight_status').html('&nbsp;Flight '
