@@ -20,6 +20,7 @@ MIN_FLIGHT_TIME = getattr(settings, 'MIN_FLIGHT_TIME', 30)
 MAX_FLIGHT_TIME = getattr(settings, 'MAX_FLIGHT_TIME', 120)
 BOARDING = datetime.timedelta(minutes=10)
 
+
 class AirportModel(models.Model):
     """Base class for airport models"""
     creation_time = models.DateTimeField(auto_now_add=True)
@@ -38,6 +39,7 @@ class AirportModel(models.Model):
 
     class Meta:
         abstract = True
+
 
 class City(AirportModel):
     """A City"""
@@ -59,8 +61,8 @@ class City(AirportModel):
                 self.longitude, city.latitude, city.longitude])
         dlat = lat2 - lat1
         dlon = lon2 - lon1
-        a = (math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) *
-            math.sin(dlon/2)**2)
+        a = (math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) *
+            math.sin(dlon / 2)**2)
         c = 2 * math.asin(math.sqrt(a))
         km = 6367 * c
         return km
@@ -77,11 +79,10 @@ class City(AirportModel):
         flight_time = distance / speed
         return flight_time
 
-
-
     class Meta:
         """metadata"""
         verbose_name_plural = 'cities'
+
 
 class AirportMaster(AirportModel):
     """An Airport"""
@@ -92,6 +93,7 @@ class AirportMaster(AirportModel):
     def __unicode__(self):
         return u'Master Ariprot: {name}'.format(name=self.name)
     __str__ = __unicode__
+
 
 class Airport(AirportModel):
     """Airports associated with a particular game"""
@@ -110,7 +112,6 @@ class Airport(AirportModel):
         return self.city.name
     __str__ = __unicode__
 
-
     @classmethod
     def copy_from_master(cls, game, master):
         """Copy airport from the AirportMaster into «game> and populate it
@@ -123,7 +124,6 @@ class Airport(AirportModel):
         airport.save()
 
         return airport
-
 
     def next_flights(self, now, future_only=False, auto_create=True):
         """Return next Flights out from «self», creating new flights if
@@ -176,7 +176,7 @@ class Airport(AirportModel):
     def create_flights(self, now):
         """Create some flights starting from «now»"""
         game = self.game
-        cushion = 20 # minutes
+        cushion = 20  # minutes
 
         flight_ids = []
         for destination in self.destinations.distinct():
@@ -186,14 +186,15 @@ class Airport(AirportModel):
             if SCALE_FLIGHT_TIMES:
                 flight_time = game.scale_flight_time(flight_time)
             flight = Flight.objects.create(
-                    game = game,
-                    origin = self,
-                    destination = destination,
-                    depart_time = (datetime.timedelta(minutes=cushion) +
+                    game=game,
+                    origin=self,
+                    destination=destination,
+                    depart_time=(datetime.timedelta(minutes=cushion) +
                         random_time(now)),
-                    flight_time = flight_time)
+                    flight_time=flight_time)
             flight_ids.append(flight.id)
         return Flight.objects.filter(id__in=flight_ids)
+
 
 def _get_destinations_for(airport, dest_count):
     """Get the destinations for airport. rules are:
@@ -215,7 +216,8 @@ def _get_destinations_for(airport, dest_count):
         return random.sample(queryset, dest_count)
     except ValueError:
         # try again
-        return _get_destinations_for(airport, dest_count-1)
+        return _get_destinations_for(airport, dest_count - 1)
+
 
 class FlightManager(models.Manager):
     """we manage flights"""
@@ -229,6 +231,7 @@ class FlightManager(models.Manager):
                 continue
             return number
 
+
 class Flight(AirportModel):
     """a flight from one airport to another"""
     ### fields ###
@@ -238,11 +241,11 @@ class Flight(AirportModel):
     destination = models.ForeignKey(Airport, related_name='+')
     depart_time = models.DateTimeField()
     flight_time = models.IntegerField()
-    arrival_time = models.DateTimeField() # caculated field
+    arrival_time = models.DateTimeField()  # caculated field
     state = models.CharField(max_length=20, default='On Time')
     objects = FlightManager()
 
-    cruise_speed = 14.890 # cruise speed (km/min) of a 747
+    cruise_speed = 14.890  # cruise speed (km/min) of a 747
 
     def in_flight(self, now):
         """Return true if flight is in the air"""
@@ -315,11 +318,9 @@ class Flight(AirportModel):
             suffix = '*'
 
         state = self.state
-        if state == 'Cancelled':
-            return 'Cancelled'
 
-        if self.state == 'Delayed':
-            return 'Delayed'
+        if state in ('Cancelled', 'Delayed'):
+            return state
 
         if self.in_flight(now):
             if self.state != 'Departed':
@@ -436,12 +437,14 @@ class Flight(AirportModel):
         """metadata"""
         ordering = ['depart_time']
 
+
 def random_time(now, maximum=40):
     """Helper function, return a random time in the future (from «now»)
     with a maximium of «maximum» minutes in the future"""
 
     flight_time = random.randint(0, maximum)
     return now + datetime.timedelta(minutes=flight_time)
+
 
 class UserProfile(AirportModel):
     """Profile for players"""
@@ -468,7 +471,7 @@ class UserProfile(AirportModel):
                     .distinct()
                     .values_list('goal__id', flat=True))
             excludes.update(nonachievers)
-        return self.games.exclude( goal__id__in=excludes).distinct()
+        return self.games.exclude(goal__id__in=excludes).distinct()
 
     @property
     def games_won(self):
@@ -589,6 +592,7 @@ class UserProfile(AirportModel):
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
+
 class Message(AirportModel):
     """Messages for users"""
     text = models.CharField(max_length=255)
@@ -697,6 +701,7 @@ class Message(AirportModel):
 
         return message
 
+
 class GameManager(models.Manager):
     """We manage Games"""
     def create_game(self, host, goals, airports, density=5):
@@ -775,6 +780,7 @@ class GameManager(models.Manager):
 
         return game
 
+
 class Game(AirportModel):
     """This is a game.  A Game is hosted and has it's own game time and
     players and stuff like that.  A Game is either not started, in progress or
@@ -788,9 +794,9 @@ class Game(AirportModel):
     NOT_STARTED, GAME_OVER, IN_PROGRESS, PAUSED = -1, 0, 1, 2
     STATE_CHOICES = (
             (-1, NOT_STARTED),
-            ( 0, GAME_OVER),
-            ( 1, IN_PROGRESS),
-            ( 2, PAUSED))
+            (0, GAME_OVER),
+            (1, IN_PROGRESS),
+            (2, PAUSED))
 
     TIMEFACTOR = 60
 
@@ -860,8 +866,8 @@ class Game(AirportModel):
         for goal in Goal.objects.filter(game=self):
             Achievement.objects.create(
                     profile=profile,
-                    goal = goal,
-                    game = self)
+                    goal=goal,
+                    game=self)
 
         # put the player at the starting airport and take away their
         # tickets
@@ -1118,7 +1124,7 @@ class Game(AirportModel):
 
         return (
             ((MAX_FLIGHT_TIME - MIN_FLIGHT_TIME) * (flight_time - min_))
-            / (max_-min_)) + MIN_FLIGHT_TIME
+            / (max_ - min_)) + MIN_FLIGHT_TIME
 
     class BaseException(Exception):
         """Base class for Game exceptions"""
@@ -1138,6 +1144,7 @@ class Game(AirportModel):
         """Raised if a user tries to join a game but has not finished an
         active game"""
         pass
+
 
 class Goal(AirportModel):
     """Goal cities for a game"""
@@ -1184,6 +1191,7 @@ class Goal(AirportModel):
         """metadata"""
         ordering = ['game', 'order']
 
+
 class Achievement(AirportModel):
     """Users who have achieved a goal"""
     profile = models.ForeignKey(UserProfile)
@@ -1208,6 +1216,7 @@ class Achievement(AirportModel):
                     message_type='GOAL')
 
         super(Achievement, self).save(*args, **kwargs)
+
 
 class Purchase(AirportModel):
     """Table used to track purchases"""

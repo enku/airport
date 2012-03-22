@@ -42,6 +42,7 @@ MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 20)
 MWF = MonkeyWrenchFactory()
 GAME_HISTORY_COUNT = 15
 
+
 @login_required
 def home(request):
     """Main view"""
@@ -70,6 +71,7 @@ def home(request):
         'profile': profile
     }
     return render(request, 'airport/home.html', context)
+
 
 @login_required
 def info(request):
@@ -201,6 +203,7 @@ def info(request):
     )
     return HttpResponse(json_str, mimetype='application/json')
 
+
 @require_http_methods(['POST'])
 @login_required
 def pause_game(request):
@@ -215,6 +218,7 @@ def pause_game(request):
             game.pause()
     return HttpResponse(status=204)
 
+
 @require_http_methods(['POST'])
 @login_required
 def rage_quit(request):
@@ -224,6 +228,7 @@ def rage_quit(request):
     game.remove_player(request.user.profile)
     Message.send(request.user.profile, 'You have quit %s. Wuss!' % game)
     return HttpResponse(status=204)
+
 
 @login_required
 def messages(request):
@@ -244,6 +249,7 @@ def messages(request):
     response.content = content
     return response
 
+
 @login_required
 def games_home(request):
     """Main games view"""
@@ -263,6 +269,7 @@ def games_home(request):
     }
 
     return render(request, 'airport/games.html', context)
+
 
 @login_required
 def games_info(request):
@@ -300,13 +307,13 @@ def games_info(request):
     glist = []
     for game in games:
         glist.append(dict(
-            id = game[0],
-            players = game[1],
-            host = escape(game[2]),
-            goals = game[3],
-            airports = game[4],
-            status = states[game[5] + 1],
-            created = naturaltime(game[6])))
+            id=game[0],
+            players=game[1],
+            host=escape(game[2]),
+            goals=game[3],
+            airports=game[4],
+            status=states[game[5] + 1],
+            created=naturaltime(game[6])))
 
     current_game = (Game.objects
             .exclude(state=0)
@@ -328,6 +335,7 @@ def games_info(request):
             'finished_current': finished_current
     }
     return HttpResponse(json.dumps(data), mimetype='application/json')
+
 
 @require_http_methods(['POST'])
 @login_required
@@ -365,6 +373,7 @@ def games_create(request):
 
     return games_info(request)
 
+
 @login_required
 def games_join(request):
     """Join a game.  Game must exist and have not ended (you can join a
@@ -395,6 +404,7 @@ def games_join(request):
         game.add_player(profile)
 
     return games_info(request)
+
 
 @login_required
 def games_stats(request):
@@ -456,6 +466,7 @@ def games_stats(request):
 
     return render_to_response('airport/games_stats.html', cxt)
 
+
 @login_required
 def game_summary(request):
     """Show summary for a particular game, request.user must have actually
@@ -499,9 +510,11 @@ def game_summary(request):
 
     return render(request, 'airport/game_summary.html', context)
 
+
 def crash(_request):
     """Case the app to crash"""
     raise Exception('Crash forced!')
+
 
 def city_image(request, city_name):
     """Redirect to the url of the image for a city, or the default if it
@@ -515,12 +528,14 @@ def city_image(request, city_name):
         return redirect(city.image)
     return redirect(externals(request)['background_image'])
 
+
 def json_redirect(url):
     """Return a simple json dictionary with a redirect key and url value"""
     return HttpResponse(
         json.dumps({'redirect': url}),
         mimetype='application/json'
     )
+
 
 def register(request):
     """The view that handles the actual registration form"""
@@ -548,6 +563,7 @@ def register(request):
     context['users'] = UserProfile.objects.all()
     return render(request, 'registration/register.html', context)
 
+
 def about(request):
     """Classic /about view"""
     repo_url = getattr(settings, 'AIRPORT_REPO_URL', None)
@@ -561,6 +577,7 @@ def about(request):
     }
 
     return render(request, 'airport/about.html', context)
+
 
 def create_user(username, password):
     """Create a (regular) user account"""
@@ -577,9 +594,11 @@ def create_user(username, password):
 
     return new_user
 
+
 def timedelta_to_hrs(td_object):
     """Return timedelta object as hours"""
     return td_object.total_seconds() / 3600.0
+
 
 # TODO: borrowed from Django development version, remove when released
 def naturaltime(value, arg=None):
@@ -607,9 +626,9 @@ def naturaltime(value, arg=None):
     elif delta.seconds / 60 < 2:
         return (r'a minute ago')
     elif delta.seconds / 60 < 60:
-        return (u"%s minutes ago" % (delta.seconds/60))
+        return (u"%s minutes ago" % (delta.seconds / 60))
     elif delta.seconds / 60 / 60 < 2:
         return (u'an hour ago')
     elif delta.seconds / 60 / 60 < 24:
-        return (u"%s hours ago" % (delta.seconds/60/60))
+        return (u"%s hours ago" % (delta.seconds / 60 / 60))
     return naturalday(value, arg)

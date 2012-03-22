@@ -22,6 +22,7 @@ from django.db.models import Count
 
 from airport.models import City, Flight, Message
 
+
 class MonkeyWrench(object):
     """A monkey wrench ☺"""
 
@@ -45,6 +46,7 @@ class MonkeyWrench(object):
 
         return in_flight
 
+
 class CancelledFlight(MonkeyWrench):
     """Randomly Cancel a flight"""
     def throw(self):
@@ -60,6 +62,7 @@ class CancelledFlight(MonkeyWrench):
             self.game)
         self.thrown = True
         return
+
 
 class DelayedFlight(MonkeyWrench):
     """Delay a flight that hasn't departed yet"""
@@ -84,6 +87,7 @@ class DelayedFlight(MonkeyWrench):
         self.thrown = True
         return
 
+
 class AllFlightsFromAirportDelayed(MonkeyWrench):
     """Take a random airport and delay all outgoing flights by a random
     number of minutes"""
@@ -105,6 +109,7 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
             self.game)
         self.thrown = True
 
+
 class AllFlightsFromAirportCancelled(MonkeyWrench):
     """Cancel all future flights from a random airport"""
     def throw(self):
@@ -119,6 +124,7 @@ class AllFlightsFromAirportCancelled(MonkeyWrench):
             self.game)
         self.thrown = True
         return
+
 
 class DivertedFlight(MonkeyWrench):
     """Divert a flight to another airport"""
@@ -139,6 +145,7 @@ class DivertedFlight(MonkeyWrench):
                 self.game)
         self.thrown = True
         return
+
 
 class MechanicalProblem(MonkeyWrench):
     """This is like diverted flight, but:
@@ -164,9 +171,10 @@ class MechanicalProblem(MonkeyWrench):
         self.thrown = True
         return
 
+
 class LateFlight(MonkeyWrench):
     """Make an in-air flight run late"""
-    MIN_LATENESS = 10 # Minutes
+    MIN_LATENESS = 10  # Minutes
     MAX_LATENESS = 36
     RANDOM_MESSAGES = (
         'Flight {flight_number} is running {minutes} minutes late',
@@ -192,6 +200,7 @@ class LateFlight(MonkeyWrench):
             self.game)
         self.thrown = True
         return
+
 
 class Hint(MonkeyWrench):
     """This isn't a monkey wrench at all, it actually is helpful.  It
@@ -223,6 +232,7 @@ class Hint(MonkeyWrench):
         self.thrown = True
         return
 
+
 class TSA(MonkeyWrench):
     """Revoke a passenger's ticket just before the flight departs"""
     def throw(self):
@@ -244,6 +254,7 @@ class TSA(MonkeyWrench):
         passenger.ticket = None
         passenger.save()
         self.thrown = True
+
 
 class MonkeyWrenchFactory(object):
     """This factory is responsible for returning a new randomly chosen
@@ -276,6 +287,7 @@ class MonkeyWrenchFactory(object):
         except TypeError:
             pass
         self.wrenches = [globals()[wrench]]
+
 
 def broadcast(text, game):
     """Helper function, sends a Message.broadcast with
