@@ -10,22 +10,6 @@ from django.test import TestCase
 
 from airport  import models
 
-def create_users(num_users):
-    """create «num_users»  users and UserProfiles, return a tuple of the
-    users created"""
-    users = []
-    for i in range(1, num_users + 1):
-        user = User.objects.create_user(
-            username = 'user%s' % i,
-            email = 'user%s@test.com' % i,
-            password = 'test'
-        )
-        up = models.UserProfile()
-        up.user = user
-        up.save()
-        users.append(user)
-    return tuple(users)
-
 class AirportTest(TestCase):
     """Test Airport Model"""
 
@@ -33,19 +17,36 @@ class AirportTest(TestCase):
         "setup"
 
         # create user and game
-        self.user = User.objects.create(
-              username='test',
-        )
-        models.UserProfile.objects.create(user=self.user)
+        self.user = self._create_users(1)[0]
 
         # create a game
-        self.game = models.Game.objects.create_game(
-                host=self.user.profile,
-                goals=1,
-                airports=10)
+        self.game = self._create_game(host=self.user)
+
+    def _create_users(self, num_users):
+        """create «num_users»  users and UserProfiles, return a tuple of the
+        users created"""
+        users = []
+        for i in range(1, num_users + 1):
+            user = User.objects.create_user(
+                username = 'user%s' % i,
+                email = 'user%s@test.com' % i,
+                password = 'test'
+            )
+            up = models.UserProfile()
+            up.user = user
+            up.save()
+            users.append(user)
+        return tuple(users)
+
+    def _create_game(self, host, goals=1, airports=10):
+        return models.Game.objects.create_game(
+            host=host,
+            goals=goals,
+            airports=airports)
 
 
-    def test_next_flights(self):
+class NextFlights(AirportTest):
+    def runTest(self):
         """Test that we can see next flights"""
         airport = self.game.airports.order_by('?')[0]
         now = datetime.datetime(2011, 11, 17, 11, 0)
@@ -78,7 +79,8 @@ class AirportTest(TestCase):
                 auto_create=False)
         self.assertEqual(len(next_flights), 0)
 
-    def test_distinct_airports(self):
+class DistinctAirports(AirportTest):
+    def runTest(self):
         """Ensure games doesn't have duplicate airports"""
         self.game.end()
         for i in range(10):
@@ -91,23 +93,8 @@ class AirportTest(TestCase):
             self.assertEqual(len(set(codes)), len(codes))
             game.delete()
 
-class FlightTest(TestCase):
-    """Test the Flight Model"""
-
-    def setUp(self):
-        "setup"
-
-        # create user and game
-        self.user = User.objects.create(
-              username='test',
-        )
-        models.UserProfile.objects.create(user=self.user)
-
-        # create a game
-        self.game = models.Game.objects.create_game(host=self.user.profile,
-                goals=1, airports=10)
-
-    def test_in_flight(self):
+class FlightTest(AirportTest):
+    def runTest(self):
         """Test the in_flight() and cancel() methods"""
         airports = models.Airport.objects.filter(game=self.game)
         airport = random.choice(airports)
@@ -142,7 +129,8 @@ class FlightTest(TestCase):
         now = datetime.datetime(2011, 11, 18, 5, 0)
         self.assertFalse(flight.in_flight(now))
 
-    def test_next_flight_to(self):
+class NextFlightTo(AirportTest):
+    def runTest(self):
         """Test the next_flight_to() method"""
         now = datetime.datetime(2011, 11, 17, 11, 0)
         airport = self.game.airports.order_by('?')[0]
@@ -191,7 +179,8 @@ class FlightTest(TestCase):
         flight1.delay(datetime.timedelta(minutes=450), now)
         self.assertEqual(airport.next_flight_to(city, now), flight2)
 
-    def test_create_flights(self):
+class CreateFlights(AirportTest):
+    def runTest(self):
         """test the create flights method"""
         airports = models.Airport.objects.filter(game=self.game)
         airport = random.choice(airports.exclude(
@@ -220,21 +209,27 @@ class FlightTest(TestCase):
             self.assertTrue(flight.depart_time > now)
             self.assertNotEqual(flight.flight_time, 0)
 
-    def test_to_dict(self):
-        """Test the to_dict() method"""
+class ToDict(AirportTest):
+    def setUp(self):
+        super(ToDict, self).setUp()
         airports = models.Airport.objects.filter(game=self.game)
         airport = random.choice(airports)
         destination = random.choice(airport.destinations.all())
-        now = datetime.datetime(2011, 11, 18, 4, 0)
         depart_time = datetime.datetime(2011, 11, 18, 4, 50)
         flight_time = 60
 
-        flight = models.Flight.objects.create(
+        self.flight = models.Flight.objects.create(
                 game = self.game,
                 origin = airport,
                 destination = destination,
                 depart_time = depart_time,
                 flight_time = flight_time)
+
+    def runTest(self):
+        """Test the to_dict() method"""
+        flight = self.flight
+
+        now = datetime.datetime(2011, 11, 18, 4, 0)
 
         d = flight.to_dict(now)
         self.assertEqual(type(d), dict)
@@ -256,40 +251,29 @@ class FlightTest(TestCase):
         d = flight.to_dict(now)
         self.assertEqual(d['status'], 'Cancelled')
 
-class UserProfileTest(TestCase):
+class UserProfileTest(AirportTest):
     """Test the UserProfile model"""
-
-    def setUp(self):
-        """setup for UserProfileTest"""
-        # create a user
-        self.user = User.objects.create_user(username='test',
-            email='test@test.com', password='test')
-        self.up = models.UserProfile.objects.create(user=self.user)
-
-        # create a game
-        self.game = models.Game.objects.create_game(host=self.user.profile,
-                goals=3, airports=25)
-        self.game.begin()
-
     def test_location_and_update(self):
         """Test the Flight.location() and Game.update() methods"""
-        now = datetime.datetime(2011, 11, 20, 7, 13)
-        l = self.up.location(now)
-        self.assertEqual(l, (None, None))
+        self.game.begin()
+        now = self.game.time
+        l = self.user.profile.location(now)
+        self.assertEqual(l, (self.game.start_airport, None))
 
-        airport = random.choice(models.Airport.objects.all())
+        airport = self.game.start_airport
         airport.create_flights(now)
         flight = random.choice(airport.flights.all())
 
-        self.up.airport = airport
-        self.up.save()
-        self.up.purchase_flight(flight, now)
-        l = self.up.location(now)
-        self.assertEqual(self.up.ticket, flight)
+        self.user.profile.airport = airport
+        self.user.profile.save()
+        self.game.update(self.user.profile, now)
+        self.user.profile.purchase_flight(flight, self.game.time)
+        l = self.user.profile.location(now)
+        self.assertEqual(self.user.profile.ticket, flight)
         self.assertEqual(l, (airport, flight))
 
         # Take off!, assert we are in flight
-        x = self.game.update(self.up,
+        x = self.game.update(self.user.profile,
                 flight.depart_time) # timestamp, airport, ticket
         self.assertEqual(x[1], None)
         self.assertEqual(x[2], flight)
@@ -297,20 +281,22 @@ class UserProfileTest(TestCase):
         # when flight is delayed we are still in the air
         original_arrival = flight.arrival_time
         flight.delay(datetime.timedelta(minutes=20), now)
-        x = self.game.update(self.up, original_arrival)
+        x = self.game.update(self.user.profile, original_arrival)
         self.assertEqual(x[1], None)
         self.assertEqual(x[2], flight)
 
         # now land
         now = flight.arrival_time + datetime.timedelta(minutes=1)
-        x = self.game.update(self.up, now)
+        x = self.game.update(self.user.profile, now)
         self.assertEqual(x[1], flight.destination)
         self.assertEqual(x[2], None)
 
-    def test_purchase_flight(self):
+class PurchaseFlight(AirportTest):
+    def runTest(self):
         """Test the purchase_flight() method"""
+        profile = self.user.get_profile()
         now = datetime.datetime(2011, 11, 20, 7, 13)
-        x = self.game.update(self.up, now)
+        x = self.game.update(profile, now)
         self.assertEqual(x[1], self.game.start_airport)
         self.assertEqual(x[2], None)
 
@@ -320,22 +306,22 @@ class UserProfileTest(TestCase):
 
         # assert we can't buy the ticket (flight) if we're not at the airport
         self.assertRaises(models.Flight.NotAtDepartingAirport,
-                self.up.purchase_flight, flight, now)
+                profile.purchase_flight, flight, now)
 
-        self.up.airport = airport
-        self.up.save()
+        profile.airport = airport
+        profile.save()
 
         # attempt to buy a flight while in flight
-        self.up.purchase_flight(flight, now)
+        profile.purchase_flight(flight, now)
         now = flight.depart_time
         flight2 = random.choice(airport.flights.exclude(id=flight.id))
         self.assertRaises(models.Flight.AlreadyDeparted,
-                self.up.purchase_flight, flight2, now)
+                profile.purchase_flight, flight2, now)
 
         # ok let's land
         now = flight.arrival_time + datetime.timedelta(minutes=1)
-        now, airport, flight = self.game.update(self.up, now)
-        self.up.airport = airport
+        now, airport, flight = self.game.update(profile, now)
+        profile.airport = airport
 
         # make sure we have flights
         airport.create_flights(now)
@@ -349,12 +335,12 @@ class UserProfileTest(TestCase):
 
         # try to buy it
         self.assertRaises(models.Flight.AlreadyDeparted,
-                self.up.purchase_flight, flight3, now)
+                profile.purchase_flight, flight3, now)
 
-class CurrentGameTest(TestCase):
+class CurrentGameTest(AirportTest):
     """Test the current_game() method in UserProfile"""
     def setUp(self):
-        self.users = create_users(2)
+        self.users = self._create_users(2)
 
     def test_no_games_created(self):
         """Test that when there are no games created, current_game is
@@ -402,9 +388,10 @@ class CurrentGameTest(TestCase):
         self.assertEqual(user.profile.current_game, game)
         self.assertEqual(game.state, game.GAME_OVER)
 
-class PerGameAirports(TestCase):
+
+class PerGameAirports(AirportTest):
     def setUp(self):
-        self.user = create_users(1)[0]
+        self.user = self._create_users(1)[0]
 
     def test_game_has_subset_of_airports(self):
         game = models.Game.objects.create_game(
@@ -415,11 +402,11 @@ class PerGameAirports(TestCase):
 
         self.assertEqual(game.airports.count(), 10)
 
-class Messages(TestCase):
+class Messages(AirportTest):
     """Test the messages model"""
 
     def setUp(self):
-        self.user = create_users(1)[0]
+        self.user = self._create_users(1)[0]
 
     def test_no_messages(self):
         """Test that when user is first created there are no messages except the welcome message"""
@@ -503,14 +490,16 @@ class Messages(TestCase):
         messages = models.Message.get_messages(self, read=False)
         self.assertEqual(messages[0].text, 'this is test3')
 
-class HomeView(TestCase):
+class HomeViewTest(AirportTest):
     """Test the home view"""
     view = reverse('home')
 
     def setUp(self):
-        self.user, self.user2 = create_users(2)
+        self.user, self.user2 = self._create_users(2)
 
-    def test_redirect_not_logged_in(self):
+
+class HomeViewNotLoggedIn(HomeViewTest):
+    def runTest(self):
         """Test that you are redirected to the login page when you are not
         logget in"""
         response = self.client.get(self.view)
@@ -518,7 +507,8 @@ class HomeView(TestCase):
                 reverse('django.contrib.auth.views.login') + '?next=%s' %
                     self.view)
 
-    def test_no_game_redirect(self):
+class HomeViewNoGameRedirect(HomeViewTest):
+    def runTest(self):
         """test that when you are not in a game, you are redirected to the
         games page"""
         player = self.user
@@ -527,7 +517,8 @@ class HomeView(TestCase):
         response = self.client.get(self.view)
         self.assertRedirects(response, games_view)
 
-    def test_new_game_no_redirect(self):
+class HomeViewNewGame(HomeViewTest):
+    def runTest(self):
         """Test that there's no redirect when you're in a new game"""
         player = self.user
         game = models.Game.objects.create_game(host=player.profile, goals=1,
@@ -536,7 +527,8 @@ class HomeView(TestCase):
         response = self.client.get(self.view)
         self.assertEqual(response.status_code, 200)
 
-    def test_finished_game_redirect(self):
+class HomeViewFinishedGame(HomeViewTest):
+    def runTest(self):
         """Test that when you have finished a game, you are redirected"""
         player = self.user
         games_view = reverse('games')
@@ -552,7 +544,8 @@ class HomeView(TestCase):
         response = self.client.get(self.view)
         self.assertRedirects(response, games_view)
 
-    def test_finished_but_not_won(self):
+class FinishedNotWon(HomeViewTest):
+    def runTest(self):
         """Like above test, but should apply even if the user isn't the
         winner"""
         player1 = self.user
@@ -588,37 +581,30 @@ class HomeView(TestCase):
         response = self.client.get(self.view)
         self.assertRedirects(response, games_view)
 
-class Cities(TestCase):
+class Cities(AirportTest):
     """Test the Cities module"""
-    def _test_images(self):
+    def runTest(self):
         """Test that all cities have images"""
         for city in models.City.objects.all():
             self.assertNotEqual(city.image, None)
 
-class Connections(TestCase):
-    """Test the new "constant-connections" feature"""
-    def setUp(self):
-        self.user = create_users(1)[0]
-        self.game = models.Game.objects.create_game(host=self.user.profile,
-                goals=1, airports=50, density=1)
-
-    def test_constant_connections(self):
+class ConstantConnections(AirportTest):
+    def runTest(self):
         """Test that the connection time between two airports is always
         constant (ignoring cancellations/delays and the like"""
-        game = self.game
 
-        for source in game.airports.all():
-            for flight in source.create_flights(game.time):
+        for source in self.game.airports.all():
+            for flight in source.create_flights(self.game.time):
                 destination = flight.destination
                 s2d = flight.flight_time
-                d2s = destination.create_flights(game.time).filter(
+                d2s = destination.create_flights(self.game.time).filter(
                         destination=source)[0].flight_time
                 self.assertEqual(s2d, d2s)
 
-class GamePause(TestCase):
+class GamePause(AirportTest):
     """Test the pausing/resuming of a game"""
     def setUp(self):
-        self.users = create_users(2)
+        self.users = self._create_users(2)
 
     def test_begin_not_paused(self):
         """Test that when you begin a game it is not paused"""

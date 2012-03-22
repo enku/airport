@@ -706,6 +706,9 @@ class GameManager(models.Manager):
         now = datetime.datetime.now()
 
         game = Game()
+
+        if isinstance(host, User):
+            host = host.profile
         game.host = host
         game.state = Game.NOT_STARTED
         game.save()
