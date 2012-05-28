@@ -11,7 +11,7 @@ from django.contrib import messages as django_messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib.humanize.templatetags.humanize import naturalday
+from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse
@@ -598,37 +598,3 @@ def create_user(username, password):
 def timedelta_to_hrs(td_object):
     """Return timedelta object as hours"""
     return td_object.total_seconds() / 3600.0
-
-
-# TODO: borrowed from Django development version, remove when released
-def naturaltime(value, arg=None):
-    """
-    For date and time values shows how many seconds, minutes or hours ago compared to
-    current timestamp returns representing string. Otherwise, returns a string
-    formatted according to settings.DATE_FORMAT
-    """
-    try:
-        value = datetime.datetime(value.year, value.month, value.day,
-                value.hour, value.minute, value.second)
-    except AttributeError:
-        return value
-    except ValueError:
-        return value
-
-    delta = datetime.datetime.now() - value
-    if delta.days != 0:
-        value = datetime.date(value.year, value.month, value.day)
-        return naturalday(value, arg)
-    elif delta.seconds == 0:
-        return (u'now')
-    elif delta.seconds < 60:
-        return (u"%s seconds ago" % (delta.seconds))
-    elif delta.seconds / 60 < 2:
-        return (r'a minute ago')
-    elif delta.seconds / 60 < 60:
-        return (u"%s minutes ago" % (delta.seconds / 60))
-    elif delta.seconds / 60 / 60 < 2:
-        return (u'an hour ago')
-    elif delta.seconds / 60 / 60 < 24:
-        return (u"%s hours ago" % (delta.seconds / 60 / 60))
-    return naturalday(value, arg)
