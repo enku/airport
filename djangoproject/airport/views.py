@@ -1,6 +1,8 @@
 """
 Django views for the airport app
 """
+from __future__ import unicode_literals
+
 import datetime
 import json
 import random
@@ -11,7 +13,7 @@ from django.contrib import messages as django_messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse
@@ -24,20 +26,20 @@ from django.views.decorators.http import require_http_methods
 from airport import VERSION
 from airport.context_processors import externals
 from airport.models import (
-        Achievement,
-        AirportMaster,
-        City,
-        Flight,
-        Game,
-        Goal,
-        Message,
-        Purchase,
-        UserProfile)
+    Achievement,
+    AirportMaster,
+    City,
+    Flight,
+    Game,
+    Goal,
+    Message,
+    Purchase,
+    UserProfile)
 
 from airport.monkeywrench import MonkeyWrenchFactory
 
 DTHANDLER = lambda obj: (obj.isoformat()
-        if isinstance(obj, datetime.datetime) else None)
+                         if isinstance(obj, datetime.datetime) else None)
 MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 20)
 MWF = MonkeyWrenchFactory()
 GAME_HISTORY_COUNT = 15
@@ -119,9 +121,9 @@ def info(request):
     if ticket and ticket.in_flight(now):
         next_flights = ticket.destination.next_flights(now)
         percentage = ((now - ticket.depart_time).total_seconds()
-                / 60.0
-                / ticket.flight_time
-                * 100)
+                      / 60.0
+                      / ticket.flight_time
+                      * 100)
     elif airport:
         next_flights = airport.next_flights(now)
 
@@ -147,7 +149,7 @@ def info(request):
 
     if not request.session.get('in_flight', False) and in_flight:
         Purchase.objects.get_or_create(profile=profile, game=game,
-                flight=ticket)
+                                       flight=ticket)
 
     if (request.session.get('in_flight', False)
             and not in_flight
@@ -171,7 +173,7 @@ def info(request):
     goal_list = []
     for goal in Goal.objects.filter(game=game):
         achieved = goal.achievers.filter(id=profile.id,
-                achievement__timestamp__isnull=False).exists()
+                                         achievement__timestamp__isnull=False).exists()
         goal_list.append([goal.city.name, achieved])
 
     stats = game.stats()
@@ -245,7 +247,7 @@ def messages(request):
 
     response['Content-Type'] = 'text/html'
     content = render_to_string('airport/messages.html',
-            {'messages': _messages, 'old': old})
+                               {'messages': _messages, 'old': old})
     response.content = content
     return response
 
@@ -257,7 +259,7 @@ def games_home(request):
     open_game = profile.current_game
 
     if open_game and (open_game.state == open_game.GAME_OVER or profile in
-            open_game.winners()):
+                      open_game.winners()):
         open_game = None
 
     airport_count = AirportMaster.objects.all().count()
@@ -316,10 +318,10 @@ def games_info(request):
             created=naturaltime(game[6])))
 
     current_game = (Game.objects
-            .exclude(state=0)
-            .filter(players=request.user.profile)
-            .distinct()
-            .order_by('-timestamp'))
+                    .exclude(state=0)
+                    .filter(players=request.user.profile)
+                    .distinct()
+                    .order_by('-timestamp'))
 
     if current_game.exists():
         finished_current = request.user.profile in current_game[0].winners()
@@ -329,10 +331,10 @@ def games_info(request):
         finished_current = False
 
     data = {
-            'games': glist,
-            'current_game': current_game,
-            'current_state': state,
-            'finished_current': finished_current
+        'games': glist,
+        'current_game': current_game,
+        'current_state': state,
+        'finished_current': finished_current
     }
     return HttpResponse(json.dumps(data), mimetype='application/json')
 
@@ -365,10 +367,10 @@ def games_create(request):
     games = games.filter(players=profile)
     if games.exists() and not all([profile in i.winners() for i in games]):
         Message.send(profile, ('Cannot create a game since you are '
-            'already playing an open game.'))
+                               'already playing an open game.'))
     else:
         game = Game.objects.create_game(host=profile, goals=num_goals,
-                airports=num_airports)
+                                        airports=num_airports)
         game.save()
 
     return games_info(request)
@@ -418,33 +420,33 @@ def games_stats(request):
     cxt['won_count'] = profile.games_won.count()
     cxt['goal_count'] = profile.goals.count()
     cxt['goals_per_game'] = (
-            1.0 * cxt['goal_count'] / cxt['game_count']
-            if cxt['game_count']
-            else 0)
+        1.0 * cxt['goal_count'] / cxt['game_count']
+        if cxt['game_count']
+        else 0)
     cxt['ticket_count'] = profile.tickets.count()
     cxt['tix_per_goal'] = (1.0 * cxt['ticket_count'] /
-        cxt['goal_count'] if cxt['goal_count'] else 0)
+                           cxt['goal_count'] if cxt['goal_count'] else 0)
     cxt['flight_hours'] = sum((i.flight.flight_time
-        for i in profile.tickets)) / 60.0
+                               for i in profile.tickets)) / 60.0
     cxt['flight_hours_per_game'] = (cxt['flight_hours'] /
-        cxt['game_count'] if cxt['game_count'] else 0)
+                                    cxt['game_count'] if cxt['game_count'] else 0)
 
     # average game time
     cxt['total_time'] = datetime.timedelta(seconds=0)
     for game in games.distinct():
         last_goal = game.last_goal()
         my_time = Achievement.objects.get(game=game, goal=last_goal,
-                profile=profile).timestamp
+                                          profile=profile).timestamp
         if not my_time:
             continue
         cxt['total_time'] = (cxt['total_time']
-                + (my_time - game.creation_time))
+                             + (my_time - game.creation_time))
     cxt['total_time'] = cxt['total_time']
 
     cxt['avg_time'] = (
-            1.0 * cxt['total_time'].total_seconds() / cxt['game_count']
-            if cxt['game_count']
-            else 0)
+        1.0 * cxt['total_time'].total_seconds() / cxt['game_count']
+        if cxt['game_count']
+        else 0)
     # we really want hours though
     cxt['avg_time'] = cxt['avg_time'] / 3600.0
     cxt['total_time'] = timedelta_to_hrs(cxt['total_time'])
@@ -485,7 +487,7 @@ def game_summary(request):
 
     goals = list(Goal.objects.filter(game=game).order_by('order'))
     tickets = Purchase.objects.filter(profile=profile,
-            game=game).order_by('creation_time')
+                                      game=game).order_by('creation_time')
 
     current_goal = 0
     for ticket in tickets:
@@ -551,11 +553,11 @@ def register(request):
             try:
                 UserProfile.objects.get(user__username=username)
                 context['error'] = 'User {user} already exists.'.format(
-                        user=username)
+                    user=username)
             except UserProfile.DoesNotExist:
                 create_user(username, password)
                 django_messages.add_message(request, django_messages.INFO,
-                    'Account activated. Please sign in.')
+                                            'Account activated. Please sign in.')
                 return redirect(home)
         else:
             context['error'] = form._errors
@@ -570,10 +572,10 @@ def about(request):
     django_version = get_version()
     user_agent = request.META['HTTP_USER_AGENT']
     context = {
-            'version': VERSION,
-            'repo_url': repo_url,
-            'django_version': django_version,
-            'user_agent': user_agent
+        'version': VERSION,
+        'repo_url': repo_url,
+        'django_version': django_version,
+        'user_agent': user_agent
     }
 
     return render(request, 'airport/about.html', context)

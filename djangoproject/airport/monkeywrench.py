@@ -13,6 +13,7 @@ The MonkeyWrenchFactory collects all the various MonkeyWrench classes, and
 when it's create() method is called, picks one at random, instantiates it
 and returns it to the caller
 """
+from __future__ import unicode_literals
 
 import datetime
 import os
@@ -57,8 +58,8 @@ class CancelledFlight(MonkeyWrench):
         flight = flight[0]
         flight.cancel(now)
         broadcast('Flight {num} from {origin} to {dest} is cancelled'.format(
-                num=flight.number, origin=flight.origin.city.name,
-                dest=flight.destination.city.name),
+            num=flight.number, origin=flight.origin.city.name,
+            dest=flight.destination.city.name),
             self.game)
         self.thrown = True
         return
@@ -80,10 +81,10 @@ class DelayedFlight(MonkeyWrench):
             # damn, just missed it!
             return
         broadcast(('Flight {num} from {origin} to {dest} is delayed {min} '
-                'minutes'.format(num=flight.number,
-                    origin=flight.origin.city.name,
-                    dest=flight.destination, min=minutes)),
-                self.game)
+                   'minutes'.format(num=flight.number,
+                                    origin=flight.origin.city.name,
+                                    dest=flight.destination, min=minutes)),
+                  self.game)
         self.thrown = True
         return
 
@@ -95,7 +96,7 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
         now = self.game.time
         airport = self.game.airports.order_by('?')[0]
         flights = self.game.flights.filter(origin=airport,
-                depart_time__gt=now)
+                                           depart_time__gt=now)
         minutes = random.randint(20, 60)
         timedelta = datetime.timedelta(minutes=minutes)
         for flight in flights:
@@ -104,9 +105,9 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
             except flight.Finished:
                 continue
         broadcast(('Due to weather, all flights from {airport} are delayed'
-                ' {min} minutes'.format(airport=airport.code,
-                    min=minutes)),
-            self.game)
+                   ' {min} minutes'.format(airport=airport.code,
+                                           min=minutes)),
+                  self.game)
         self.thrown = True
 
 
@@ -116,12 +117,12 @@ class AllFlightsFromAirportCancelled(MonkeyWrench):
         now = self.game.time
         airport = self.game.airports.order_by('?')[0]
         flights = self.game.flights.filter(origin=airport,
-                depart_time__gt=now)
+                                           depart_time__gt=now)
         for flight in flights:
             flight.cancel(now)
         broadcast(('Due to weather, all flights from {airport} are'
-                ' cancelled'.format(airport=airport)),
-            self.game)
+                   ' cancelled'.format(airport=airport)),
+                  self.game)
         self.thrown = True
         return
 
@@ -134,15 +135,15 @@ class DivertedFlight(MonkeyWrench):
             return
         flight = random.choice(flights)
         diverted_to = (self.game.airports
-                .exclude(id=flight.destination.id)
-                .order_by('?')[0])
+                       .exclude(id=flight.destination.id)
+                       .order_by('?')[0])
         flight.destination = diverted_to
         flight.flight_time = City.get_flight_time(flight.origin,
-                flight.destination, Flight.cruise_speed)
+                                                  flight.destination, Flight.cruise_speed)
         flight.save()
         broadcast('Mayday! Flight {num} diverted to {dest}'.format(
-                    num=flight.number, dest=diverted_to),
-                self.game)
+            num=flight.number, dest=diverted_to),
+            self.game)
         self.thrown = True
         return
 
@@ -165,9 +166,9 @@ class MechanicalProblem(MonkeyWrench):
         flight.flight_time = time_travelled.total_seconds() * 2 / 60
         flight.save()
         broadcast('Flight {num} is having mechanical problems '
-                    'and will return to {airport}'.format(num=flight.number,
-                    airport=flight.origin),
-                self.game)
+                  'and will return to {airport}'.format(num=flight.number,
+                                                        airport=flight.origin),
+                  self.game)
         self.thrown = True
         return
 
@@ -194,9 +195,9 @@ class LateFlight(MonkeyWrench):
         flight.save()
         message = random.choice(self.RANDOM_MESSAGES)
         broadcast(message.format(
-                flight_number=flight.number,
-                minutes=minutes,
-                destination=flight.destination),
+            flight_number=flight.number,
+            minutes=minutes,
+            destination=flight.destination),
             self.game)
         self.thrown = True
         return
@@ -214,15 +215,15 @@ class Hint(MonkeyWrench):
 
         try:
             achievers = profile.achievement_set.filter(
-                    game=self.game,
-                    timestamp=None)
+                game=self.game,
+                timestamp=None)
             current_goal = achievers[0].goal.city
         except IndexError:
             return
 
         airport_to_goal = (self.game.airports.filter(
-                destinations__city=current_goal)
-                .order_by('?')[0])
+            destinations__city=current_goal)
+            .order_by('?')[0])
 
         if airport_to_goal.city == current_goal:
             return
@@ -249,8 +250,8 @@ class TSA(MonkeyWrench):
 
         # kick him off!
         Message.send(passenger,
-            'Someone reported you as suspicious and you have been removed '
-            'from the plane', message_type='MONKEYWRENCH')
+                     'Someone reported you as suspicious and you have been removed '
+                     'from the plane', message_type='MONKEYWRENCH')
         passenger.ticket = None
         passenger.save()
         self.thrown = True
@@ -270,7 +271,7 @@ class MonkeyWrenchFactory(object):
             self.wrenches = [globals()[mw_test]]
         else:
             self.wrenches = [i for i in globals().values()
-                    if type(i) is type and issubclass(i, MonkeyWrench)]
+                             if type(i) is type and issubclass(i, MonkeyWrench)]
 
     def create(self, game):
         """Create and return a new MonkeyWrench object"""

@@ -1,6 +1,9 @@
+from __future__ import unicode_literals
+
 from django.conf.urls.defaults import patterns, url
 
-urlpatterns = patterns('airport.views',
+urlpatterns = patterns(
+    'airport.views',
     url(r'^info$', 'info', name='info'),
     url(r'^$', 'home', name='home'),
     url(r'^messages/$', 'messages', name='messages'),

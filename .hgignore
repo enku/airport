@@ -9,3 +9,4 @@ share
 *.pyc
 *.swp
 djangoproject/settings_local.py
+.ropeproject/*

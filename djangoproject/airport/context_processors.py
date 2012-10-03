@@ -1,6 +1,7 @@
 """
 Context processors for the Airport app
 """
+from __future__ import unicode_literals
 
 from django.conf import settings
 
@@ -45,6 +46,7 @@ EXTERNALS = {
     'message_WINNER_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
 }
 
+
 def externals(request):
     """Exernal files, like javascript and images.  Stuff we want to use but
     not host ourselves"""
@@ -53,6 +55,6 @@ def externals(request):
 
     for external in EXTERNALS:
         context_extras[external] = external_settings.get(external,
-                EXTERNALS[external])
+                                                         EXTERNALS[external])
 
     return context_extras

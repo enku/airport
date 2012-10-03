@@ -1,11 +1,14 @@
 """
 Template tags for message templates
 """
+from __future__ import unicode_literals
+
 from django import template
 
 from airport.context_processors import externals
 
 register = template.Library()
+
 
 @register.filter
 def sound(message):
@@ -15,6 +18,7 @@ def sound(message):
         'message_{mtype}_sound'.format(mtype=message.message_type),
         ext['message_DEFAULT_sound']
     )
+
 
 @register.filter
 def icon(message):
