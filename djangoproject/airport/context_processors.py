@@ -1,7 +1,6 @@
 """
 Context processors for the Airport app
 """
-from __future__ import unicode_literals
 
 from django.conf import settings
 
@@ -12,7 +11,7 @@ EXTERNALS = {
     'jquery_scrollto': 'http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js',
     'jquery_cookie': 'https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js',
     'login_icon': 'http://www.ercmp.nic.in/images/login.png',
-    'login_button': 'http://tahatunga.net/downloads/icon/order/Concept_Icon_Set/Buttons/PNG/Button-Log%20off.png',
+    'login_button': 'http://nit-networking.net/images/Button%20-%20Logoff.png',
     'register_icon': 'https://help.ess.msu.edu/themes/client_default/063684-green-metallic-orb-icon-people-things-handshake.png',
     'background_image': 'http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg',
     'inflight_image': 'http://av-mech.com/images/flyinganimated_20airplane.gif',
@@ -38,8 +37,8 @@ EXTERNALS = {
 
     # message icons
     'message_DEFAULT_icon': 'http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif',
-    'message_MONKEYWRENCH_icon': 'http://www.la-legal.com/modules/newbb/templates/images/icon/topic_hot_new.gif',
-    'message_ERROR_icon': 'http://www.la-legal.com/modules/newbb/templates/images/icon/topic_hot_new.gif',
+    'message_MONKEYWRENCH_icon': 'http://sourceforge.net/apps/trac/xoops/export/1811/XoopsModules/newbb/trunk/templates/images/icon/topic_hot_new.gif',
+    'message_ERROR_icon': 'http://sourceforge.net/apps/trac/xoops/export/1811/XoopsModules/newbb/trunk/templates/images/icon/topic_hot_new.gif',
     'message_PLAYERACTION_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
     'message_GOAL_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
     'message_NEWGAME_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
