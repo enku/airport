@@ -29,7 +29,7 @@ class AirportTest(TestCase):
         """create «num_users»  users and UserProfiles, return a tuple of the
         users created"""
         users = []
-        for i in xrange(1, num_users + 1):
+        for i in range(1, num_users + 1):
             user = User.objects.create_user(
                 username='user%s' % i,
                 email='user%s@test.com' % i,
@@ -89,7 +89,7 @@ class DistinctAirports(AirportTest):
     def runTest(self):
         """Ensure games doesn't have duplicate airports"""
         self.game.end()
-        for i in xrange(10):
+        for i in range(10):
             game = models.Game.objects.create_game(
                 host=self.user.profile,
                 goals=1,
@@ -466,7 +466,7 @@ class Messages(AirportTest):
         view = reverse('messages')
 
         messages = []
-        for i in xrange(6):
+        for i in range(6):
             messages.append(models.Message.send(self.user, 'Test %s' % i))
 
         self.client.login(username='user1', password='test')
@@ -664,7 +664,7 @@ class GamePause(AirportTest):
 
         self.client.login(username=self.users[0].username, password='test')
         response = self.client.get(reverse('info'))
-        response = json.loads(response.content)
+        response = json.loads(response.content.decode('utf-8'))
         self.assertEqual(response['game_state'], 'Paused')
 
     def test_ticket_purchase(self):
@@ -729,9 +729,9 @@ class GamePause(AirportTest):
         user2 = self.users[1]
         self.client.login(username=user2.username, password='test')
         response = self.client.get(reverse('games_info'))
-        response = json.loads(response.content)
-        response_game = filter(lambda x: x['id'] == game.id,
-                               response['games'])[0]
+        response = json.loads(response.content.decode('utf-8'))
+        response_game = list(filter(lambda x: x['id'] == game.id,
+                                    response['games']))[0]
 
         self.assertEqual(response_game['status'], 'Paused')
 

@@ -92,7 +92,7 @@ class AirportMaster(AirportModel):
     city = models.ForeignKey(City)
 
     def __unicode__(self):
-        return u'Master Ariprot: {name}'.format(name=self.name)
+        return 'Master Ariprot: {name}'.format(name=self.name)
     __str__ = __unicode__
 
 
@@ -109,7 +109,7 @@ class Airport(AirportModel):
         aiports_per_city = Airport.objects.filter(game=self.game,
                                                   city=self.city).count()
         if aiports_per_city > 1:
-            return u'{city} {code}'.format(city=self.city, code=self.code)
+            return '{city} {code}'.format(city=self.city, code=self.code)
         return self.city.name
     __str__ = __unicode__
 
@@ -158,7 +158,7 @@ class Airport(AirportModel):
         # airport destinations can't be in the same city
         if self.destinations.filter(city=self.city).exists():
             raise ValidationError(
-                u'Airport cannot have itself as a destination.')
+                'Airport cannot have itself as a destination.')
 
     def next_flight_to(self, city, now):
         """Return the next flight to «city» or None"""
@@ -214,7 +214,7 @@ def _get_destinations_for(airport, dest_count):
     queryset = queryset.filter(num_dest__lt=dest_count)
 
     try:
-        return random.sample(queryset, dest_count)
+        return random.sample(set(queryset), dest_count)
     except ValueError:
         # try again
         return _get_destinations_for(airport, dest_count - 1)
@@ -402,15 +402,15 @@ class Flight(AirportModel):
         """Validate the model"""
         # Origin can't also be desitination
         if self.origin == self.destination:
-            raise ValidationError(u'Origin and destination cannot be the same')
+            raise ValidationError('Origin and destination cannot be the same')
 
         if self.origin.desitinations.filter(id=self.destination.id).exists():
-            raise ValidationError(u'%s not accessible from %s' %
+            raise ValidationError('%s not accessible from %s' %
                                   (self.destination.code, self.origin.code))
 
     ### Special Methods ###
     def __unicode__(self):
-        return u'{flight} from {origin} to {dest} departin at {time}'.format(
+        return '{flight} from {origin} to {dest} departin at {time}'.format(
             flight=self.number,
             origin=self.origin.code,
             dest=self.destination.code,
@@ -456,7 +456,7 @@ class UserProfile(AirportModel):
                                related_name='passengers')
 
     def __unicode__(self):
-        return u'Profile for {username}'.format(username=self.user.username)
+        return 'Profile for {username}'.format(username=self.user.username)
 
     @property
     def games(self):
@@ -733,7 +733,7 @@ class GameManager(models.Manager):
         game.save()
 
         # add other airports
-        for i in xrange(1, airports):
+        for i in range(1, airports):
             master = master_airports[i]
             airport = Airport.copy_from_master(game, master)
 
@@ -755,7 +755,7 @@ class GameManager(models.Manager):
         # add goals
         current_airport = game.start_airport
         goal_airports = []
-        for i in xrange(1, goals + 1):
+        for i in range(1, goals + 1):
             direct_flights = current_airport.destinations.distinct()
             dest = Airport.objects.filter(game=game)
             dest = dest.exclude(id=current_airport.id)
@@ -817,7 +817,7 @@ class Game(AirportModel):
     objects = GameManager()
 
     def __unicode__(self):
-        return u'Game {}'.format(self.pk)
+        return 'Game {}'.format(self.pk)
 
     def begin(self):
         """start the game"""
@@ -845,11 +845,11 @@ class Game(AirportModel):
     def add_player(self, profile):
         """Add player to profile if game hasn't ended"""
         if self.state == self.GAME_OVER:
-            print 'game over, cannot add players'
+            print('game over, cannot add players')
             return
 
         if profile in self.players.distinct():
-            print 'already in players'
+            print('already in players')
             return
 
         # This should never happen at the UI level, but we check anyway

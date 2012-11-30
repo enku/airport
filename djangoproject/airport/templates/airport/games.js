@@ -7,7 +7,7 @@ function update_games_list(data) {
 
     for (var i=0; i<data['games'].length; i++) {
         game = data['games'][i];
-        s = s + ('<tr><td><a class="games_join" href="{% url games_join %}?id=' + game['id'] + '">' + game['id'] + '</a></td>' 
+        s = s + ('<tr><td><a class="games_join" href="{% url "games_join" %}?id=' + game['id'] + '">' + game['id'] + '</a></td>' 
                 + '<td>' + game['goals'] + '</td><'
                 + '<td>' + game['airports'] + '</td>'
                 + '<td>' + game['players'] + '</td>'
@@ -22,7 +22,7 @@ function update_games_list(data) {
 
 function join_game_link(data) {
     if (data['current_game'] && !data['finished_current']) {
-        $('#start_game').attr('href', '{% url home %}');
+        $('#start_game').attr('href', '{% url "home" %}');
         $('#start_game').html('Play game ' + data['current_game'] 
                 + ' (current game)');
     }
@@ -41,7 +41,7 @@ function refresh_ui(data) {
     if (data['current_state'] == 'hosting') {
         hide_create_widget();
         lightbox.content.data('creating', 'false');
-        lightbox.content.html('<a href="{% url home %}"><img src="{{ inflight_image }}"><div>Start Game ' + data['current_game'] + '</div></a>');
+        lightbox.content.html('<a href="{% url "home" %}"><img src="{{ inflight_image }}"><div>Start Game ' + data['current_game'] + '</div></a>');
         lightbox.show();
     } 
     else if (data['current_state'] == 'waiting') {
@@ -71,7 +71,7 @@ function refresh_cb(data, textStatus, jqXHR) {
     refresh_ui(data);
     setTimeout(function() {
         $.ajax({
-            url: "{% url games_info %}", 
+            url: "{% url "games_info" %}", 
             success: refresh_cb, 
             dataType: "json"
         })},
@@ -89,7 +89,7 @@ function update_airports() {
 }
 function create_game() {
     var goals = $('#goals_range').val();
-    window.location.replace('{% url games_create %}' + goals );
+    window.location.replace('{% url "games_create" %}' + goals );
 }
 
 /* function called when the create game form is submitted */
@@ -124,7 +124,7 @@ function main() {
     $('#goals_range').change(update_goals);
     $('#airports_range').change(update_airports);
     $('#start_game').click(create_game);
-    $('#my_stats_widget').load('{% url airport.views.games_stats %}');
+    $('#my_stats_widget').load('{% url "airport.views.games_stats" %}');
 
     /* widgets that are draggable and remember their positions */
     $('#my_stats_widget').memdraggable();
@@ -138,7 +138,7 @@ function main() {
     lightbox = new airport.LightBox('#lightbox_content');
 
     $.ajax({
-        url: "{% url games_info %}",
+        url: "{% url "games_info" %}",
         success: refresh_cb,
         dataType: "json"
     });
