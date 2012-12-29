@@ -43,7 +43,7 @@
     {% if game.state = 0 and players %}
             <td id="others" colspan="7">
                 {% for player in players %} 
-                <a href="{% url game_summary %}?id={{game.id}}?player={{player.user.username}}">>{{player.user.username}}</a>
+                <a href="{% url game_summary %}?id={{game.id}}&player={{player.user.username}}">>{{player.user.username}}</a>
                 {% endfor %}
             </td>
     {% else %}<td id="others" colspan="7">&nbsp;</td>
