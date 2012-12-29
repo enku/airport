@@ -331,6 +331,7 @@ class Flight(AirportModel):
                                      '{player} has departed {airport}'.format(
                                          player=passenger.user.username,
                                          airport=self.origin),
+                                     game=self.game,
                                      message_type='PLAYERACTION')
                 self.state = 'Departed'
                 self.save()
