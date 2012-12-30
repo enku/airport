@@ -1356,8 +1356,8 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "41.47", 
-            "image": "http://upload.wikimedia.org/wikipedia/en/thumb/d/da/P1220330.JPG/1280px-P1220330.JPG", 
-            "creation_time": "2011-12-11 11:06:15", 
+            "image": "http://kathika.com/wp-content/uploads/shutterstock_566137.jpg", 
+            "creation_time": "2012-12-30 16:16:00", 
             "name": "Cleveland", 
             "longitude": "-81.62"
         }
@@ -1477,8 +1477,8 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "32.77", 
-            "image": "http://www.hantx.org/wp-content/uploads/2010/08/dallas1.jpg", 
-            "creation_time": "2011-12-11 11:06:15", 
+            "image": "http://www.jblog.fr/wallpapers/jeux/gratte-ciel/Dallas-Texas.jpg", 
+            "creation_time": "2012-12-30 15:56:15", 
             "name": "Dallas", 
             "longitude": "-96.77"
         }
@@ -1675,8 +1675,8 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "38.25", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Louisvillecityhall.jpg/1280px-Louisvillecityhall.jpg", 
-            "creation_time": "2011-12-11 11:06:16", 
+            "image": "http://0.tqn.com/d/louisville/1/0/H/-/-/-/LouisvilleNightSkyline.jpg", 
+            "creation_time": "2012-12-30 16:14:00", 
             "name": "Louisville", 
             "longitude": "-85.77"
         }
@@ -1785,8 +1785,8 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "43.17", 
-            "image": "http://imedia.io/photos/Rochester_-28New_York-29-14.jpg", 
-            "creation_time": "2011-12-11 11:06:16", 
+            "image": "http://25.media.tumblr.com/tumblr_m65pdoUJ3F1qdmh1ho1_1280.jpg", 
+            "creation_time": "2012-12-30 16:11:00", 
             "name": "Rochester", 
             "longitude": "-77.6"
         }
@@ -1795,11 +1795,11 @@
         "pk": 74, 
         "model": "airport.city", 
         "fields": {
-            "latitude": "13.48", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Trinchera_Beach.JPG/1280px-Trinchera_Beach.JPG", 
+            "latitude": "13.47", 
+            "image": "http://www.cityimage.net/wp-content/uploads/2011/08/guam-sunset-21.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Agana, Guam", 
-            "longitude": "-144.75"
+            "longitude": "144.75"
         }
     }, 
     {
