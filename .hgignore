@@ -3,6 +3,7 @@ bin
 etc
 include
 lib
+src
 lib64
 db.sqlite
 share

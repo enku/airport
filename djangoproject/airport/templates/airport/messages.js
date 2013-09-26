@@ -4,12 +4,12 @@ airport.messages = function(widget) {
 
     var update = function() {
         if (initial) {
-            $.get('{% url messages %}', {last: last_message, old: 'true'}, 
+            $.get('{% url "messages" %}', {last: last_message, old: 'true'}, 
                   append);
             initial = false;
             return;
         }
-        $.get('{% url messages %}', {last: last_message}, append);
+        $.get('{% url "messages" %}', {last: last_message}, append);
     }
 
     var append = function(data) {

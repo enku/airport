@@ -228,8 +228,8 @@ class Hint(MonkeyWrench):
         if airport_to_goal.city == current_goal:
             return
 
-        Message.send(profile, u'Hint: {airport} goes to {city} ;-)'.format(
-            airport=airport_to_goal, city=current_goal))
+        Message.send(profile, 'Hint: {airport} goes to {city} ;-)'.format(
+            airport=airport_to_goal, city=current_goal.name))
         self.thrown = True
         return
 

@@ -148,7 +148,7 @@ function refresh_ui(data) {
     }
 
     if (data['city']) {
-        city_image_url = ('{% url city_image %}' 
+        city_image_url = ('{% url "city_image" %}' 
                           + encodeURIComponent(data['city']) + '/');
         preload_image(city_image_url);
     }
@@ -235,7 +235,7 @@ function refresh_cb(data, textStatus, jqXHR) {
     refresh_ui(data);
     timeout = setTimeout(function() {
         $.ajax({
-            url: "{% url info %}", 
+            url: "{% url "info" %}", 
             success: refresh_cb, 
             dataType: "json"
         })},
@@ -253,7 +253,7 @@ function buy_ticket(event) {
         type: 'POST',
         success: function(data) { refresh_ui(data);},
         data: form.serialize(),
-        url: "{% url info %}"
+        url: "{% url "info" %}"
     });
 }
 
@@ -279,7 +279,7 @@ function pause_game(event) {
     event.preventDefault();
     var resume_cb = function() {
         if (!timeout) {
-            $.ajax({ url: "{% url info %}", success: refresh_cb,
+            $.ajax({ url: "{% url "info" %}", success: refresh_cb,
                 dataType: "json" }
             );
         }
@@ -306,7 +306,7 @@ function pause_game(event) {
     }
     $.ajax({
         type: 'POST',
-        url: "{% url pause_game %}?id=" + "{{ game.id }}",
+        url: "{% url "pause_game" %}?id=" + "{{ game.id }}",
         success: callback
     });
 }
@@ -315,8 +315,8 @@ function quit_game(event) {
     event.preventDefault();
     $.ajax({
         type: 'POST',
-        url: "{% url rage_quit %}?id={{game.id}}",
-        success: function() { window.location.replace('{% url games %}');}
+        url: "{% url "rage_quit" %}?id={{game.id}}",
+        success: function() { window.location.replace('{% url "games" %}');}
     });
 }
 
@@ -344,7 +344,7 @@ function main() {
     airport.messages('#message_box');
     lightbox = new airport.LightBox('#lightbox_content');
     $.ajax({
-        url: "{% url info %}",
+        url: "{% url "info" %}",
         success: refresh_cb,
         dataType: "json"
     });

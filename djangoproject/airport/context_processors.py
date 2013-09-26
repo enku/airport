@@ -9,7 +9,7 @@ EXTERNALS = {
     'jquery_ui': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js',
     'jquery_ui_css': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css',
     'jquery_scrollto': 'http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js',
-    'jquery_cookie': 'https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js',
+    'jquery_cookie': 'https://rawgithub.com/carhartl/jquery-cookie/master/jquery.cookie.js',
     'login_icon': 'http://www.ercmp.nic.in/images/login.png',
     'login_button': 'http://nit-networking.net/images/Button%20-%20Logoff.png',
     'register_icon': 'https://help.ess.msu.edu/themes/client_default/063684-green-metallic-orb-icon-people-things-handshake.png',

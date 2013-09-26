@@ -30,7 +30,7 @@
 </table>
 
 <div id="create_widget">
-    <form method="post" id="create_form" action="{% url games_create %}">{% csrf_token %}
+    <form method="post" id="create_form" action="{% url "games_create" %}">{% csrf_token %}
     <table>
         <thead>
             <tr><td class="titlebar" colspan="3">Start a new game</td></tr>
@@ -75,7 +75,7 @@
 <div id="lightbox_content"></div>
 
 <div id="logout">
-    <a href="{% url logout %}">Sign Out</a>
+    <a href="{% url "logout" %}">Sign Out</a>
 </div>
 
 {% endblock %}{# content #}
