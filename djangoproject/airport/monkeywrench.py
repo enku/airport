@@ -143,8 +143,8 @@ class DivertedFlight(MonkeyWrench):
                        .exclude(id=flight.destination.id)
                        .order_by('?')[0])
         flight.destination = diverted_to
-        flight.flight_time = City.get_flight_time(flight.origin,
-                                                  flight.destination, Flight.cruise_speed)
+        flight.flight_time = City.get_flight_time(
+            flight.origin, flight.destination, Flight.cruise_speed)
         flight.save()
         reason = random.choice(self.reasons)
         broadcast(
@@ -254,9 +254,12 @@ class TSA(MonkeyWrench):
         passenger = random.choice(list(flight.passengers.all()))
 
         # kick him off!
-        Message.send(passenger,
-                     'Someone reported you as suspicious and you have been removed '
-                     'from the plane', message_type='MONKEYWRENCH')
+        Message.send(
+            passenger,
+            'Someone reported you as suspicious and you have been removed '
+            'from the plane',
+            message_type='MONKEYWRENCH'
+        )
         passenger.ticket = None
         passenger.save()
         self.thrown = True
@@ -275,8 +278,10 @@ class MonkeyWrenchFactory(object):
         if mw_test:
             self.wrenches = [globals()[mw_test]]
         else:
-            self.wrenches = [i for i in globals().values()
-                             if type(i) is type and issubclass(i, MonkeyWrench)]
+            self.wrenches = [
+                i for i in globals().values()
+                if type(i) is type and issubclass(i, MonkeyWrench)
+            ]
 
     def create(self, game):
         """Create and return a new MonkeyWrench object"""
