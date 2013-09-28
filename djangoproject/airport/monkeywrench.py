@@ -129,6 +129,11 @@ class AllFlightsFromAirportCancelled(MonkeyWrench):
 
 class DivertedFlight(MonkeyWrench):
     """Divert a flight to another airport"""
+    reasons = (
+        'Mayday! Flight {num} diverted to {dest}',
+        'Unruly passenger on Flight {num}.  Emergency landing at {dest}.',
+    )
+
     def throw(self):
         flights = self.flights_in_the_air()
         if not flights:
@@ -141,9 +146,9 @@ class DivertedFlight(MonkeyWrench):
         flight.flight_time = City.get_flight_time(flight.origin,
                                                   flight.destination, Flight.cruise_speed)
         flight.save()
-        broadcast('Mayday! Flight {num} diverted to {dest}'.format(
-            num=flight.number, dest=diverted_to),
-            self.game)
+        reason = random.choice(self.reasons)
+        broadcast(
+            reason.format(num=flight.number, dest=diverted_to), self.game)
         self.thrown = True
         return
 
