@@ -13,7 +13,7 @@ airport.messages = function(widget) {
     }
 
     var append = function(data) {
-        if (data != '') {
+        if (typeof data !== 'undefined') {
             widget.append(data);
             last_message = widget.data('last_message');
         }
