@@ -409,7 +409,7 @@ class Flight(AirportModel):
 
     ### Special Methods ###
     def __str__(self):
-        return '{flight} from {origin} to {dest} departin at {time}'.format(
+        return '{flight} from {origin} to {dest} departing at {time}'.format(
             flight=self.number,
             origin=self.origin.code,
             dest=self.destination.code,
