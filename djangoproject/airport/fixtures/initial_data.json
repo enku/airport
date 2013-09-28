@@ -1862,7 +1862,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "40.75", 
-            "image": "http://upload.wikimedia.org/wikipedia/en/thumb/b/b9/GreatSouth-B-B.jpg/1280px-GreatSouth-B-B.jpg", 
+            "image": "http://www.playasycosta.com/images/long-island.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Islip", 
             "longitude": "-73.2"
