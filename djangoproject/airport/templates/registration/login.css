@@ -3,7 +3,9 @@ body {
     background-color: DeepSkyBlue;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    background-image: url({{ background_image }});
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 /*
@@ -11,14 +13,6 @@ body {
     border: 1px dotted black;
 }
 */
-
-#background_image {
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-}
 
 #login_widget, #register_widget {
     height: 278px;

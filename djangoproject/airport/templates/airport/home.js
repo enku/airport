@@ -105,24 +105,15 @@ function update_stats(stats) {
     return widget;
 }
 
-function flip_background(elem, src) {
-    if (elem.attr('src') === src)
-        return;
-    var copy = elem.clone().appendTo('body').css({
-            'z-index': -1000,
-            'position': 'absolute',
-            'top': 0,
-            'left': 0}),
-        orig_zindex = parseInt(elem.css('z-index'));
-    
-    copy.attr('src', elem.attr('src'));
-    copy.css('z-index', orig_zindex);
-    elem.css('z-index', -1000);
-    elem.attr('src', src);
-    copy.fadeOut(1500, function() {
-        elem.css('z-index', orig_zindex);
-        copy.remove();
-    });
+function flip_background(src) {
+    var body = $('body');
+
+    if (body.data('background') === src) return;
+
+    body.data('background', src);
+    body.fadeTo('slow', 0.3, function() {
+        $(this).css('background-image', 'url(' + src + ')');
+    }).fadeTo('slow', 1);
 }
 
 function preload_image(url) {
@@ -174,12 +165,12 @@ function refresh_ui(data) {
             airport.play('{{ takeoff_sound }}');
         }
         $('#airplane_widget').show();
-        flip_background($('#background_image'), '{{ background_image }}');
+        flip_background('{{ background_image }}');
     }
     else {
         $('#airplane_widget').hide();
 
-        flip_background($('#background_image'), city_image_url);
+        flip_background(city_image_url);
 
         $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
 
