@@ -1114,7 +1114,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "44.98", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/MinneapolisSkyline.jpg/960px-MinneapolisSkyline.jpg", 
+            "image": "http://www.bpmds2013.com/images/minneapolis.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Minneapolis - St. Paul", 
             "longitude": "-93.23"
