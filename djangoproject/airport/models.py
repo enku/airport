@@ -51,7 +51,7 @@ class City(AirportModel):
     longitude = models.DecimalField(max_digits=5, decimal_places=2,
                                     null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def distance_from(self, city):
@@ -91,9 +91,8 @@ class AirportMaster(AirportModel):
     code = models.CharField(max_length=4, unique=True)
     city = models.ForeignKey(City)
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Master Ariprot: {name}'.format(name=self.name)
-    __str__ = __unicode__
 
 
 class Airport(AirportModel):
@@ -105,13 +104,12 @@ class Airport(AirportModel):
     destinations = models.ManyToManyField('self', null=True, blank=True,
                                           symmetrical=True)
 
-    def __unicode__(self):
+    def __str__(self):
         aiports_per_city = Airport.objects.filter(game=self.game,
                                                   city=self.city).count()
         if aiports_per_city > 1:
             return '{city} {code}'.format(city=self.city, code=self.code)
         return self.city.name
-    __str__ = __unicode__
 
     @classmethod
     def copy_from_master(cls, game, master):
@@ -410,7 +408,7 @@ class Flight(AirportModel):
                                   (self.destination.code, self.origin.code))
 
     ### Special Methods ###
-    def __unicode__(self):
+    def __str__(self):
         return '{flight} from {origin} to {dest} departin at {time}'.format(
             flight=self.number,
             origin=self.origin.code,
@@ -456,7 +454,7 @@ class UserProfile(AirportModel):
     ticket = models.ForeignKey(Flight, null=True, blank=True,
                                related_name='passengers')
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Profile for {username}'.format(username=self.user.username)
 
     @property
@@ -603,7 +601,7 @@ class Message(AirportModel):
     read = models.BooleanField(default=False)
     message_type = models.CharField(max_length=32, default='DEFAULT')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.text
 
     @classmethod
@@ -817,7 +815,7 @@ class Game(AirportModel):
     max_distance = models.IntegerField(null=True)
     objects = GameManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return 'Game {}'.format(self.pk)
 
     def begin(self):
@@ -1156,7 +1154,7 @@ class Goal(AirportModel):
     order = models.IntegerField()
     achievers = models.ManyToManyField(UserProfile, through='Achievement')
 
-    def __unicode__(self):
+    def __str__(self):
         return '{city}: Goal {order}/{total} for {game}'.format(
             city=self.city.name,
             order=self.order,
@@ -1227,7 +1225,7 @@ class Purchase(AirportModel):
     game = models.ForeignKey(Game, related_name='+')
     flight = models.ForeignKey(Flight, related_name='+')
 
-    def __unicode__(self):
+    def __str__(self):
         return ('{player} purchased flight {num} from '
                 '{origin} to {dest}'.format(player=self.profile.user.username,
                 num=self.flight.number, origin=self.flight.origin.code,
