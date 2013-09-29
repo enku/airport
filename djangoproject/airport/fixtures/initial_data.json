@@ -1246,7 +1246,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "21.3", 
-            "image": "http://www.beach-backgrounds.com/sunset-images/sunset-over-ala-moana-beach-park-honolulu-oahu-hawaii-wallpaper-1280x1024.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Waikiki_view_from_Diamond_Head.JPG/1280px-Waikiki_view_from_Diamond_Head.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Honolulu", 
             "longitude": "-157.83"
@@ -1268,7 +1268,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "27.95", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/7/7b/Tampa_Florida_Lawyers.jpg", 
+            "image": "http://www.globeimages.net/data/media/5/tampa_wallpaper.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Tampa", 
             "longitude": "-82.45"
@@ -1477,7 +1477,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "32.77", 
-            "image": "http://www.jblog.fr/wallpapers/jeux/gratte-ciel/Dallas-Texas.jpg", 
+            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Dallas-Reunion.jpg/1280px-Dallas-Reunion.jpg", 
             "creation_time": "2012-12-30 15:56:15", 
             "name": "Dallas", 
             "longitude": "-96.77"
@@ -1796,7 +1796,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "13.47", 
-            "image": "http://www.cityimage.net/wp-content/uploads/2011/08/guam-sunset-21.jpg", 
+            "image": "http://2.bp.blogspot.com/-HsLk0t3etUA/TzeccVPqTpI/AAAAAAAAATw/Rto4PEGHJac/s1600/Guam-Pacific-Islands.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Agana, Guam", 
             "longitude": "144.75"
@@ -1884,7 +1884,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "36.37", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/WalmartHQBentonvilleAR.jpg/1280px-WalmartHQBentonvilleAR.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Crystal_Bridges_Museum_of_American_Art--2012-04-12.jpg/1280px-Crystal_Bridges_Museum_of_American_Art--2012-04-12.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Bentonville", 
             "longitude": "-94.22"
