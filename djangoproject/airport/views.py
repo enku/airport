@@ -114,6 +114,12 @@ def info(request):
                     'Flight {num} has already left'.format(num=flight.number),
                     message_type='ERROR'
                 )
+            except Flight.Full:
+                Message.send(
+                    profile, 'Flight {num} is full'.format(num=flight.number),
+                    message_type='ERROR'
+                )
+
         return redirect(info)
 
     percentage = 100

@@ -242,6 +242,7 @@ class Flight(AirportModel):
     flight_time = models.IntegerField()
     arrival_time = models.DateTimeField()  # caculated field
     state = models.CharField(max_length=20, default='On Time')
+    full = models.BooleanField(default=False)
     objects = FlightManager()
 
     cruise_speed = 14.890  # cruise speed (km/min) of a 747
@@ -313,14 +314,18 @@ class Flight(AirportModel):
         """
         now = now or self.game.time
         suffix = ''
+        full = '/Full' if self.full else ''
 
         if not self.origin.destinations.filter(id=self.destination.id).exists():
             suffix = '*'
 
         state = self.state
 
-        if state in ('Cancelled', 'Delayed'):
+        if state == 'Cancelled':
             return state
+
+        if state == 'Delayed':
+            return state + full
 
         if self.in_flight(now):
             if self.state != 'Departed':
@@ -343,15 +348,16 @@ class Flight(AirportModel):
             return 'Arrived' + suffix
 
         if self.depart_time - BOARDING < now:
-            return 'Boarding'
+            return 'Boarding' + full
 
-        return 'On Time'
+        return 'On Time' + full
 
     def buyable(self, profile, now):
         """Return True if a ticket is buyable else return False"""
 
         return (
             not self.cancelled
+            and not self.full
             and self.depart_time > now
             and self != profile.ticket
         )
@@ -422,6 +428,10 @@ class Flight(AirportModel):
 
     class AlreadyDeparted(BaseException):
         """A Flight is already departed"""
+        pass
+
+    class Full(Exception):
+        """The flight is full"""
         pass
 
     class NotAtDepartingAirport(BaseException):
@@ -564,6 +574,9 @@ class UserProfile(AirportModel):
         if flight.game.state == flight.game.PAUSED:
             raise flight.game.Paused('Cannot purchase tickets while '
                                      'game is paused')
+
+        if flight.full:
+            raise flight.Full('This flight is full')
 
         if self.ticket and self.ticket.in_flight(now):
             raise flight.AlreadyDeparted(

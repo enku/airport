@@ -265,6 +265,22 @@ class TSA(MonkeyWrench):
         self.thrown = True
 
 
+class FullFlight(MonkeyWrench):
+    """Make a flight full so tickets can no longer be purchased"""
+    def throw(self):
+        now = self.game.time
+        flight = self.game.flights.filter(
+            depart_time__gt=now).filter(full=False).order_by('?')
+        if not flight.exists():
+            return
+        flight = flight[0]
+        flight.full = True
+        flight.save()
+        # no need to send a message
+        self.thrown = True
+        return
+
+
 class MonkeyWrenchFactory(object):
     """This factory is responsible for returning a new randomly chosen
     MonkeyWrench for a given game
