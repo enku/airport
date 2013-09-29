@@ -106,14 +106,31 @@ function update_stats(stats) {
 }
 
 function flip_background(src) {
-    var body = $('body');
+    var body = $('body'),
+        elem;
 
     if (body.data('background') === src) return;
 
+    elem = $('<div></div>').hide();
+    elem.width($(window).width());
+    elem.height($(window).height());
+    elem.css('background-image', body.css('background-image'));
+    elem.css('background-size', 'cover');
+    elem.css('background-repeat', 'repeat-none');
+    elem.css('position', 'absolute');
+    elem.css('left', '0');
+    elem.css('top', '0');
+    elem.css('z-index', '-1');
+    body.prepend(elem);
+    elem.show();
+
+
     body.data('background', src);
-    body.fadeTo('slow', 0.3, function() {
-        $(this).css('background-image', 'url(' + src + ')');
-    }).fadeTo('slow', 1);
+    body.css('background-image', 'url(' + src + ')');
+    elem.fadeOut(1500, function () {
+        elem.remove();
+    });
+    return;
 }
 
 function preload_image(url) {
