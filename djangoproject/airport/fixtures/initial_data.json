@@ -1268,7 +1268,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "27.95", 
-            "image": "http://www.globeimages.net/data/media/5/tampa_wallpaper.jpg", 
+            "image": "http://crew.princeton.edu/content/sites/default/files/Tampa-skyline.jpeg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Tampa", 
             "longitude": "-82.45"
