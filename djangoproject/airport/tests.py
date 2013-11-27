@@ -306,7 +306,7 @@ class UserProfileTest(AirportTest):
 class PurchaseFlight(AirportTest):
     def runTest(self):
         """Test the purchase_flight() method"""
-        profile = self.user.get_profile()
+        profile = self.user.profile
         now = datetime.datetime(2011, 11, 20, 7, 13)
         x = self.game.update(profile, now)
         self.assertEqual(x[1], self.game.start_airport)

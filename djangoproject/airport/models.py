@@ -459,7 +459,7 @@ def random_time(now, maximum=40):
 
 class UserProfile(AirportModel):
     """Profile for players"""
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name='profile')
     airport = models.ForeignKey(Airport, null=True, blank=True)
     ticket = models.ForeignKey(Flight, null=True, blank=True,
                                related_name='passengers')
@@ -666,7 +666,7 @@ class Message(AirportModel):
         """Send a unicast message to «user» return the Message object"""
         if isinstance(user, User):
             # we want the UserProfile, but allow the caller to pass User as well
-            user = user.get_profile()
+            user = user.profile
 
         logging.info('MESSAGE(%s): %s', user.user.username, text)
 
@@ -701,7 +701,7 @@ class Message(AirportModel):
         """Get the latest message for a user.  By default, does not mark
         the message as read"""
         if isinstance(user, User):
-            user = user.get_profile()
+            user = user.profile
 
         messages = cls.objects.filter(profile=user).order_by('-creation_time')
         if messages.exists():

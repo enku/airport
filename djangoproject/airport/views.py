@@ -209,7 +209,7 @@ def info(request):
         },
         default=DTHANDLER
     )
-    return HttpResponse(json_str, mimetype='application/json')
+    return HttpResponse(json_str, content_type='application/json')
 
 
 @require_http_methods(['POST'])
@@ -342,7 +342,7 @@ def games_info(request):
         'current_state': state,
         'finished_current': finished_current
     }
-    return HttpResponse(json.dumps(data), mimetype='application/json')
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 @require_http_methods(['POST'])
@@ -541,7 +541,7 @@ def json_redirect(url):
     """Return a simple json dictionary with a redirect key and url value"""
     return HttpResponse(
         json.dumps({'redirect': url}),
-        mimetype='application/json'
+        content_type='application/json'
     )
 
 
