@@ -14,7 +14,7 @@ EXTERNALS = {
     'login_button': 'http://www.iconhot.com/icon/png/i-buttons-3c/64/bright-ball-logoff.png',
     'register_icon': 'https://help.ess.msu.edu/themes/client_default/063684-green-metallic-orb-icon-people-things-handshake.png',
     'background_image': 'http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg',
-    'inflight_image': 'http://av-mech.com/images/flyinganimated_20airplane.gif',
+    'inflight_image': 'http://paysonairport.com/images/AnimatedAirplane.gif',
     'landed_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
     'takeoff_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
     'gold_star': 'http://njwltech.wikispaces.com/file/view/gold_star.png/35350229/gold_star.png',
