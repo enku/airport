@@ -10,6 +10,7 @@ import threading
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings as django_settings
 from tornado import websocket
 from tornado.ioloop import IOLoop
 from tornado.web import Application
@@ -311,6 +312,14 @@ class IPCHandler(WebSocketConnection):
     def on_message(self, message):
         """Handle message"""
         message = json.loads(message)
+
+        # Since IPC and "regular" websocket messages come on the same
+        # (potentially open) port, we "sign" the IPC message with a pre-shared
+        # key... what better key than Django's mandatory SECRET_KEY.  If the
+        # key isn't sent or isn't our key, disregard the message.
+        if message.get('key') != django_settings.SECRET_KEY:
+            logger.critical('Someone is trying to hack me!', extra=message)
+            return
         message_type = message['type']
         data = message['data']
         handler_name = 'handle_%s' % message_type
@@ -325,13 +334,14 @@ class IPCHandler(WebSocketConnection):
         """
         Create a websocket connection and send a message to the handler.
         """
-        url = 'ws://localhost:%s/ipc' % settings.IPC_PORT
+        url = 'ws://localhost:%s/ipc' % settings.WEBSOCKET_PORT
         ioloop = tornado.ioloop.IOLoop()
         conn = ioloop.run_sync(functools.partial(
             tornado.websocket.websocket_connect, url))
         conn.write_message(json.dumps(
             {
                 'type': message_type,
+                'key': django_settings.SECRET_KEY,
                 'data': data,
             }
         ))
@@ -400,12 +410,11 @@ class SocketServer(threading.Thread):
 
     def run(self):
         logger.debug('%s has started', self.name)
-        self.application = Application([(r"/", SocketHandler)])
+        self.application = Application([
+            (r'/', SocketHandler),
+            (r'/ipc', IPCHandler),
+        ])
         self.application.listen(settings.WEBSOCKET_PORT)
-
-        self.ipc = Application([(r"/ipc", IPCHandler)])
-        self.ipc.listen(settings.IPC_PORT, address='localhost')
-
         IOLoop.instance().start()
 
     @staticmethod

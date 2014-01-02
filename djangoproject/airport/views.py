@@ -182,8 +182,7 @@ def games_home(request):
         'user': request.user.username,
         'open_game': open_game,
         'airport_count': airport_count,
-        'websocket_url': 'ws://{0}:{1}/'.format(
-            'localhost', settings.WEBSOCKET_PORT),
+        'websocket_url': get_websocket_url(request),
     }
 
     return render(request, 'airport/games.html', context)

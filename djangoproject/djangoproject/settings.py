@@ -147,12 +147,6 @@ LOGGING = {
 
 AUTH_PROFILE_MODULE = 'airport.UserProfile'
 
-# Maximum # of user messages that are stored in their session
-AIRPORT_MAX_SESSION_MESSAGES = 16
-MAX_FLIGHT_TIME = 60
-WEBSOCKET_PORT = 8080
-IPC_PORT = 8081
-GAME_HISTORY_COUNT = 15
 
 try:
     from .settings_local import *
