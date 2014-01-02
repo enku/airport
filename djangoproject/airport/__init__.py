@@ -35,7 +35,7 @@ def take_turn(game, now=None, throw_wrench=True):
         for player in players_arrived:
             arrivals[player.pk] = airport
 
-    handle_players(game, winners_before, arrivals)
+    handle_players(game, now, winners_before, arrivals)
     return now
 
 
@@ -92,7 +92,7 @@ def handle_flights(game, airport, now=None):
     return players_arrived
 
 
-def handle_players(game, winners_before, arrivals):
+def handle_players(game, now, winners_before, arrivals):
     """Update each player in game."""
     broadcast = models.Message.broadcast
     players = game.players.distinct()
@@ -104,7 +104,7 @@ def handle_players(game, winners_before, arrivals):
     # different than "real" time, we can't rely on the client to know the
     # game time on its own.  Hmmm...
     for player in players:
-        player_info = player.info()
+        player_info = player.info(game, now)
         if player.pk in arrivals:
             notify = 'You have arrived at {0}.'.format(arrivals[player.pk])
             player_info['notify'] = notify

@@ -15,12 +15,14 @@ from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db import transaction
 from django.template.defaultfilters import date, escape
 
 MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
 SCALE_FLIGHT_TIMES = getattr(settings, 'SCALE_FLIGHT_TIMES', True)
 MIN_FLIGHT_TIME = getattr(settings, 'MIN_FLIGHT_TIME', 30)
 MAX_FLIGHT_TIME = getattr(settings, 'MAX_FLIGHT_TIME', 120)
+AI_USERNAMES = getattr(settings, 'AI_USERNAMES', 'Guy Miles')
 BOARDING = timedelta(minutes=10)
 logger = getLogger('airport.models')
 
@@ -353,10 +355,6 @@ class Flight(AirportModel):
             return 'Departed' + suffix
 
         if self.arrival_time <= now:
-            # first update 'Arrived' messages
-            #if self.state != 'Arrived':
-            #    self.state = 'Arrived'
-            #    self.save()
             return 'Arrived' + suffix
 
         if self.depart_time - BOARDING < now:
@@ -481,6 +479,7 @@ class UserProfile(AirportModel):
     airport = models.ForeignKey(Airport, null=True, blank=True)
     ticket = models.ForeignKey(Flight, null=True, blank=True,
                                related_name='passengers')
+    ai_player = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Profile for {username}'.format(username=self.user.username)
@@ -527,9 +526,12 @@ class UserProfile(AirportModel):
     def current_game(self):
         """Return user's current open game or None if there is none"""
         try:
-            return self.games.order_by('-id')[0]
+            last_game = self.games.order_by('-id')[0]
+            if self not in last_game.finishers():
+                return last_game
         except IndexError:
-            return None
+            pass
+        return None
 
     @property
     def current_state(self):
@@ -712,6 +714,7 @@ class UserProfile(AirportModel):
 
         info_dict = {
             'time': date(now, 'P'),
+            'game': game.pk,
             'game_state': states[game.state + 1],
             'airport': airport,
             'city': city,
@@ -726,9 +729,6 @@ class UserProfile(AirportModel):
             'notify': None,
             'player': self.user.username
         }
-        if finished:
-            game_summary = reverse('airport.views.game_summary')
-            info_dict['redirect'] = '%s?id=%s' % (game_summary, game.pk)
 
         if redirect:
             info_dict['redirect'] = redirect
@@ -740,7 +740,7 @@ class UserProfile(AirportModel):
         state = self.current_state
 
         if game:
-            finished_current = self in game.winners()
+            finished_current = self in game.finishers()
             current_game = game.pk
         else:
             current_game = None
@@ -752,6 +752,93 @@ class UserProfile(AirportModel):
             'finished_current': finished_current
         }
         return data
+
+    @classmethod
+    @transaction.atomic
+    def get_or_create_ai_player(cls, game):
+        """Create an AI player and attach to game."""
+        # the reason why game is required is why would you don't need to create
+        # an AI player anyway w/o a game associated with it
+
+        # if game already has an AI player, just return that
+        try:
+            return game.players.get(ai_player=True)
+        except UserProfile.DoesNotExist:
+            pass
+
+        # See if there are any available players
+        players = cls.objects.filter(ai_player=True)
+        players = players.order_by('?')
+        for player in players:
+            if player.current_game is None:
+                break
+        else:
+            # If none, create one
+            pcount = cls.objects.filter(ai_player=True).count()
+            username = '{0}{1}'.format(AI_USERNAMES, pcount + 1)
+            user = User.objects.create_user(username=username)
+            player = cls.objects.create(user=user, ai_player=True)
+
+        game.add_player(player)
+        return player
+
+    def make_move(self, game=None, now=None):
+        """AI make a move.  Assume we are in a game."""
+        assert self.ai_player
+        game = game or self.current_game
+        assert game
+
+        # First, determine if we even need to/can make a move
+        # Thank goodness for short-circuiting
+        no_move = game is None
+        no_move = no_move or self.current_state != 'playing'
+        no_move = no_move or self.ticket is not None
+        no_move = no_move or game.state == game.GAME_OVER
+        no_move = no_move or self in game.finishers()
+
+        if no_move:
+            return
+
+        now = now or game.time
+        airport = self.airport
+        assert airport
+
+        ach = self.next_goal(game)
+        goal = ach.goal
+
+        # If our next goal is at this airport and the ticket is buyable, buy it
+        next_flight = airport.next_flight_to(goal.city, now)
+        if next_flight and next_flight.buyable(self, now):
+            self.purchase_flight(next_flight, now)
+            return
+
+        # Else figure out the next flights.
+        next_flights = airport.next_flights(
+            now, future_only=True, auto_create=False)
+
+        # If there is only one flight. Take it
+        if len(next_flights) == 1:
+                self.purchase_flight(next_flights[0], now)
+                return
+
+        # Exclude the airport we just came from
+        last_purchases = Purchase.objects.filter(profile=self, game=game)
+        try:
+            last_purchase = last_purchases.order_by('-flight__arrival_time')[0]
+        except IndexError:
+            pass
+        else:
+            origin = last_purchase.flight.origin
+            next_flights = [i for i in next_flights if i.destination != origin]
+
+        if not next_flights:
+            return
+
+        next_flights.sort(key=lambda x: x.arrival_time)
+        for next_flight in next_flights:
+            if next_flight.buyable(self, now):
+                self.purchase_flight(next_flight, now)
+                return
 
     def save(self, *args, **kwargs):
         new_user = not self.id
@@ -792,12 +879,13 @@ class Message(AirportModel):
         messages = []
 
         if game:
-            profiles = UserProfile.objects.filter(game=game).distinct()
+            profiles = UserProfile.objects.filter(game=game)
+            profiles = profiles.exclude(ai_player=True).distinct()
             if not finishers:
                 profiles = profiles.exclude(id__in=[i.id for i in
                                                     game.finishers()])
         else:
-            profiles = UserProfile.objects.all()
+            profiles = UserProfile.objects.exclude(ai_player=True)
 
         for profile in profiles:
             messages.append(cls.objects.create(profile=profile, text=text,
@@ -818,11 +906,12 @@ class Message(AirportModel):
 
         if game:
             profiles = UserProfile.objects.filter(game=game).distinct()
+            profiles = profiles.exclude(ai_player=True)
             if not finishers:
                 profiles = profiles.exclude(id__in=[i.id for i in
                                                     game.finishers()])
         else:
-            profiles = UserProfile.objects.all()
+            profiles = UserProfile.objects.exclude(ai_player=True)
 
         for profile in profiles.exclude(id=announcer.id).distinct():
             messages.append(cls.objects.create(profile=profile, text=text,
@@ -836,6 +925,9 @@ class Message(AirportModel):
             # we want the UserProfile, but allow the caller to pass User
             # as well
             user = user.profile
+
+        if user.ai_player:
+            return
 
         logger.info('MESSAGE(%s): %s', user.user.username, text)
 
@@ -968,7 +1060,7 @@ class GameManager(models.Manager):
         msg = '{0} has created {1}.'
         msg = msg.format(host.user.username, game)
         broadcast(msg, message_type='NEW_GAME')
-        #Message.touch(messages, now)
+        UserProfile.get_or_create_ai_player(game)
 
         return game
 

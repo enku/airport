@@ -8,7 +8,7 @@ import time
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from mock import patch
 
 from airport import take_turn
@@ -101,19 +101,22 @@ class NextFlights(AirportTestBase):
         self.assertEqual(len(next_flights), 0)
 
 
-class DistinctAirports(AirportTestBase):
+class DistinctAirports(TransactionTestCase):
     def runTest(self):
         """Ensure games doesn't have duplicate airports"""
-        self.game.end()
         for i in range(10):
+            user = User.objects.create_user(
+                username='user%s' % i,
+                email='user%s@test.com' % i,
+                password='test'
+            )
             game = models.Game.objects.create_game(
-                host=self.user.profile,
+                host=user.profile,
                 goals=1,
                 airports=random.randint(10, 50)
             )
             codes = game.airports.values_list('code', flat=True)
             self.assertEqual(len(set(codes)), len(codes))
-            game.delete()
 
 
 class FlightTest(AirportTestBase):
@@ -741,7 +744,7 @@ class GamePause(AirportTestBase):
         game.pause()
 
         game.add_player(self.users[1].profile)
-        self.assertEqual(set(game.players.all()),
+        self.assertEqual(set(game.players.filter(ai_player=False)),
                          set([self.users[0].profile, self.users[1].profile])
                          )
 

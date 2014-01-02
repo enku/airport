@@ -76,6 +76,8 @@ class GameThread(Thread):
         self.fix_players()
         mw_gen = MonkeyWrenchGenerator()
 
+        now = None
+
         while True:
             # re-fetch game
             game = self.game.__class__.objects.get(pk=self.game.pk)
@@ -84,7 +86,9 @@ class GameThread(Thread):
                 logger.info('Game %s ended.', game)
                 return
 
-            take_turn(game, throw_wrench=next(mw_gen))
+            ai_player = game.players.distinct().get(ai_player=True)
+            ai_player.make_move(game, now)
+            now = take_turn(game, throw_wrench=next(mw_gen))
 
             # send all messages for this cycle
             messenger.message_event.set()

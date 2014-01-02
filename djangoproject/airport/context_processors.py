@@ -10,7 +10,7 @@ EXTERNALS = {
     'jquery_ui_css': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css',
     'jquery_scrollto': 'http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js',
     'jquery_cookie': '//cdn.jsdelivr.net/jquery.cookie/1.4.0/jquery.cookie.min.js',
-    'mustache_js': '//rawgithub.com/janl/mustache.js/master/mustache.js',
+    'mustache_js': '//cdn.jsdelivr.net/mustache.js/0.7.3/mustache.js',
     'login_icon': 'http://www.ercmp.nic.in/images/login.png',
     'login_button': 'http://www.iconhot.com/icon/png/i-buttons-3c/64/bright-ball-logoff.png',
     'register_icon': 'https://help.ess.msu.edu/themes/client_default/063684-green-metallic-orb-icon-people-things-handshake.png',

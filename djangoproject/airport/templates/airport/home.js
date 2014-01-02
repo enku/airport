@@ -130,15 +130,16 @@ function refresh_ui(data) {
         city_image_url,
         current_goal_flagged = false;
 
+    $('*').css('cursor', 'auto');
+    if (data['finished']) {
+        $('#finished_content a').attr(
+                'href', '{% url "game_summary" %}' + '?id=' + data['game']);
+        finished.show();
+    }
+
     if (data['redirect']) {
-        if (data['finished']) {
-            $('#finished_content a').attr('href', data['redirect']);
-            finished.show();
-        }
-        else {
-            window.location.replace(data['redirect']);
-            return;
-        }
+        window.location.replace(data['redirect']);
+        return;
     }
 
     if (data['notify']) {
@@ -235,6 +236,7 @@ function buy_ticket(event) {
     var form = $('#frm'),
         selected = form.find('#selected').val();
     $('input[name="buy_'+selected+'"]').attr('disabled', true);
+    $('*').css('cursor', 'wait');
     airport.play('{{ button_click }}');
     $.ajax({
         type: 'POST',
@@ -264,6 +266,7 @@ function permit_notifications_cb() {
 
 function pause_game(event) {
     event.preventDefault();
+    $('*').css('cursor', 'wait');
     $.ajax({
         type: 'POST',
         url: "{% url "pause_game" %}?id=" + "{{ game.id }}",
