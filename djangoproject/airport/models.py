@@ -1041,7 +1041,7 @@ class GameManager(models.Manager):
             direct_flights = current_airport.destinations.distinct()
             dest = Airport.objects.filter(game=game)
             dest = dest.exclude(id=current_airport.id)
-            dest = dest.exclude(id__in=[j.id for j in goal_airports])
+            dest = dest.exclude(city__in=[j.city for j in goal_airports])
             dest = dest.exclude(id__in=[j.id for j in direct_flights])
             dest = dest.order_by('?')
             dest = dest[0]
