@@ -59,17 +59,6 @@ function show_create_widget() {
     $('#create_widget:hidden').show();
 }
 
-function refresh_cb(data, textStatus, jqXHR) {
-    refresh_ui(data);
-    setTimeout(function() {
-        $.ajax({
-            url: "{% url "games_info" %}", 
-            success: refresh_cb, 
-            dataType: "json"
-        })},
-        5000);
-}
-
 function update_goals() {
     var goals = $('#goals_range').val();
     $('#goals_count').html(goals);
@@ -128,11 +117,11 @@ function main() {
 
     airport.messages('#message_box');
     lightbox = new airport.LightBox('#lightbox_content');
-    airport.websocket_connect();
+    airport.websocket_connect('games_menu');
 
     $.ajax({
         url: "{% url "games_info" %}",
-        success: refresh_cb,
+        success: refresh_ui,
         dataType: "json"
     });
 }

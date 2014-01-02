@@ -11,10 +11,11 @@ from random import randint, sample, shuffle
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.template.defaultfilters import date
+from django.template.defaultfilters import date, escape
 
 MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
 SCALE_FLIGHT_TIMES = getattr(settings, 'SCALE_FLIGHT_TIMES', True)
@@ -671,12 +672,7 @@ class UserProfile(AirportModel):
         "redirect", if passed, should be a URL string informing the user's
         browser to redirect to said URL.
         """
-        states = [
-            'New',
-            'Finished',
-            'Started',
-            'Paused'
-        ]
+        states = ['New', 'Finished', 'Started', 'Paused']
         game = game or self.current_game
         now = now or game.time
         finished = self in game.finishers()
@@ -731,11 +727,31 @@ class UserProfile(AirportModel):
             'player': self.user.username
         }
         if finished:
-            info_dict['redirect'] = '%s?id=%s' % (GAME_SUMMARY, game.pk)
+            game_summary = reverse('airport.views.game_summary')
+            info_dict['redirect'] = '%s?id=%s' % (game_summary, game.pk)
 
         if redirect:
             info_dict['redirect'] = redirect
         return info_dict
+
+    def game_info(self):
+        # TODO: Document
+        game = self.current_game
+        state = self.current_state
+
+        if game:
+            finished_current = self in game.winners()
+            current_game = game.pk
+        else:
+            current_game = None
+            finished_current = False
+
+        data = {
+            'current_game': current_game,
+            'current_state': state,
+            'finished_current': finished_current
+        }
+        return data
 
     def save(self, *args, **kwargs):
         new_user = not self.id
@@ -1261,6 +1277,34 @@ class Game(AirportModel):
         return Purchase.objects.get_or_create(
             profile=player, game=self, flight=flight)
 
+    def info(self):
+        """Return a json-able dict about the current info of the game.
+
+        This should be equivalent to what the views.games_info view used to do,
+        but is now put on the Game since we now push the data to the browser
+        via websockets.
+        """
+        states = ['New', 'Finished', 'Started', 'Paused']
+        url = reverse('airport.views.games_join')
+        info_dict = {
+            'id': self.pk,
+            'players': self.players.distinct().count(),
+            'host': escape(self.host.user.username),
+            'goals': self.goals.count(),
+            'airports': self.airports.count(),
+            'status': states[self.state + 1],
+            'created': naturaltime(self.creation_time),
+            'url': '{0}?id={1}'.format(url, self.pk),
+        }
+        return info_dict
+
+    @classmethod
+    def games_info(cls):
+        """Return a list of .info()s for open games."""
+        games = cls.objects.exclude(state=0)
+        games = games.order_by('creation_time')
+        return [i.info() for i in games]
+
     class BaseException(Exception):
 
         """Base class for Game exceptions"""
@@ -1375,5 +1419,3 @@ class Purchase(AirportModel):
             origin=self.flight.origin.code,
             dest=self.flight.destination.code
         )
-
-GAME_SUMMARY = reverse('airport.views.game_summary')

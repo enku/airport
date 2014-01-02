@@ -157,8 +157,12 @@ airport.play = function(url) {
     return snd;
 }
 
-airport.websocket_connect = function () {
+airport.websocket_connect = function (page) {
     var socket = new WebSocket("{{ websocket_url }}");
+
+    socket.onopen = function () {
+        this.send(JSON.stringify({type: 'page', data: page}));
+    };
 
     socket.onmessage = function (message) {
         message = JSON.parse(message.data);

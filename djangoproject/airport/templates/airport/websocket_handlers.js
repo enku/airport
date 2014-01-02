@@ -11,5 +11,9 @@ airport.websocket_handlers = {
 
     info: function (data) {
         refresh_ui(data);
+    },
+
+    games_info: function (data) {
+        refresh_ui(data);
     }
 };

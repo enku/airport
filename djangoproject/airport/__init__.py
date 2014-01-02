@@ -128,6 +128,7 @@ def handle_players(game, winners_before, arrivals):
     # if all players have achieved all goals, end the game
     if game.is_over():
         game.end()
+        send_message('game_ended', game.pk)
 
 
 def send_message(message_type, data):

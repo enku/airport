@@ -302,7 +302,7 @@ function main() {
     $('#permit_notify').click(permit_notifications_cb);
 
     airport.messages('#message_box');
-    airport.websocket_connect();
+    airport.websocket_connect('home');
     lightbox = new airport.LightBox('#lightbox_content');
     finished = new airport.LightBox('#finished_content');
     $.ajax({

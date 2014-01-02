@@ -12,18 +12,16 @@ from django.contrib import messages as django_messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.urlresolvers import reverse
-from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import (
     render, render_to_response, get_object_or_404, redirect)
-from django.template.defaultfilters import escape
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 
 import airport
 from airport.context_processors import externals
+from airport.lib import websocket
 from airport.models import (
     Achievement,
     AirportMaster,
@@ -133,6 +131,7 @@ def pause_game(request):
         game_time = airport.take_turn(game, throw_wrench=False)
 
     player_info = player.info(game, game_time)
+    websocket.IPCHandler.send_message('game_paused', game.pk)
     return json_response(player_info)
 
 
@@ -150,10 +149,10 @@ def rage_quit(request):
     # them because the game is over (because there are no players).  Anyway we
     # don't want this either way.  Call player.info() before removing them from
     # the game.
-    player_info = player.info(game, redirect=reverse(games_home))
     game.remove_player(player)
     send(player, 'You have quit %s. Wuss!' % game)
-    return json_response(player_info)
+    websocket.IPCHandler.send_message('player_left_game', (player.pk, game.pk))
+    return json_redirect(reverse(games_home))
 
 
 @login_required
@@ -202,68 +201,16 @@ def games_home(request):
 @login_required
 def games_info(request):
     """Just another json view"""
-
     profile = request.user.profile
     game = profile.current_game
-    state = profile.current_state
-    states = [
-        'New',
-        'Finished',
-        'Started',
-        'Paused'
-    ]
 
     # if user is in an open game and it has started, redirect to that game
     if (game and game.state in (game.IN_PROGRESS, game.PAUSED)
             and request.user.profile not in game.finishers()):
         return json_redirect(reverse(home))
 
-    # active games
-    games = Game.objects.annotate(Count('players', distinct=True))
-    games = games.annotate(Count('airports', distinct=True))
-    games = games.annotate(Count('goals', distinct=True))
-    games = games.exclude(state=0)
-    games = games.order_by('creation_time')
-    games = games.values(
-        'id',
-        'players__count',
-        'host__user__username',
-        'goals__count',
-        'airports__count',
-        'state',
-        'creation_time')
-    glist = []
-    for game in games:
-        glist.append(dict(
-            id=game['id'],
-            players=game['players__count'],
-            host=escape(game['host__user__username']),
-            goals=game['goals__count'],
-            airports=game['airports__count'],
-            status=states[game['state'] + 1],
-            created=naturaltime(game['creation_time']),
-            url='{0}?id={1}'.format(reverse(games_join), game['id']),
-        ))
-
-    current_game = (Game.objects
-                    .exclude(state=0)
-                    .filter(players=request.user.profile)
-                    .distinct()
-                    .order_by('-timestamp'))
-
-    if current_game.exists():
-        finished_current = request.user.profile in current_game[0].winners()
-        current_game = current_game[0].id
-    else:
-        current_game = None
-        finished_current = False
-
-    data = {
-        'games': glist,
-        'current_game': current_game,
-        'current_state': state,
-        'finished_current': finished_current
-    }
+    data = profile.game_info()
+    data['games'] = Game.games_info()
     return json_response(data)
 
 
@@ -300,6 +247,7 @@ def games_create(request):
         game = Game.objects.create_game(host=profile, goals=num_goals,
                                         airports=num_airports)
         game.save()
+        websocket.IPCHandler.send_message('game_created', game.pk)
 
     return games_info(request)
 
@@ -331,6 +279,8 @@ def games_join(request):
         msg = '{player.user.username} has joined {game}.'
         msg = msg.format(player=profile, game=game)
         announce(profile, msg, game, 'PLAYERACTION')
+        websocket.IPCHandler.send_message('player_joined_game',
+                                          (profile.pk, game.pk))
 
     return games_info(request)
 
