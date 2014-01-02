@@ -89,8 +89,11 @@ def info(request):
             flight = get_object_or_404(Flight, game=game, pk=flight_id)
             flight_purchased = purchase_flight(profile, flight, now)
 
-    game_time = airport.take_turn(game, throw_wrench=bool(flight_purchased))
-    player_info = profile.info(game, game_time)
+    if flight_purchased:
+        websocket.IPCHandler.send_message('throw_wrench', game.pk)
+        game = Game.objects.get(pk=game.pk)
+        now = game.time
+    player_info = profile.info(game, now)
     return json_response(player_info)
 
 
