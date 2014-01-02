@@ -57,12 +57,12 @@ function update_ticket_widget(ticket, player) {
     }
     
     $('#ticket_name').html(player.toUpperCase());
-    $('#ticket_status').html(ticket['status'].toUpperCase());
-    $('#ticket_no').html(ticket['number']);
-    $('#ticket_origin').html(ticket['origin'].toUpperCase());
-    $('#ticket_dest').html(ticket['destination'].toUpperCase());
-    $('#ticket_depart').html(ticket['depart_time'].toUpperCase());
-    $('#ticket_arrive').html(ticket['arrival_time'].toUpperCase());
+    $('#ticket_status').html(ticket.status.toUpperCase());
+    $('#ticket_no').html(ticket.number);
+    $('#ticket_origin').html(ticket.origin.code.toUpperCase());
+    $('#ticket_dest').html(ticket.destination.code.toUpperCase());
+    $('#ticket_depart').html(ticket.depart_time.toUpperCase());
+    $('#ticket_arrive').html(ticket.arrival_time.toUpperCase());
     widget.fadeIn();
 
     if (ticket['number'] != last_ticket) {
@@ -154,13 +154,13 @@ function refresh_ui(data) {
 
     $('.time').html(data['time']);
 
-    if (data['in_flight']) {
+    if (data.in_flight) {
         $('#flight_status').html('&nbsp;Flight '
-                + data['ticket']['number']
+                + data.ticket.number
                 + ' to '
-                + data['ticket']['destination']
+                + data.ticket.destination.city
                 + ' arriving at <span class="time">'
-                + data['ticket']['arrival_time']
+                + data.ticket.arrival_time
                 + '&nbsp;<span class="fsb">NO SMOKING</span>'
                 + '&nbsp;<span class="fsb">FASTEN SEATBELT WHILE SEATED</span>'
                 + '</span>');

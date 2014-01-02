@@ -364,16 +364,21 @@ class Flight(AirportModel):
             and self != profile.ticket
         )
 
-    def to_dict(self, now, use_airport_codes=False):
+    def to_dict(self, now):
         """Helper method to return Flight as a json-serializable dict"""
         status = self.get_remarks(now)
 
-        if use_airport_codes:
-            origin = self.origin.code
-            dest = self.destination.code
-        else:
-            origin = str(self.origin)
-            dest = str(self.destination)
+        origin = {
+            'airport': str(self.origin),
+            'city': self.origin.city.name,
+            'code': self.origin.code,
+        }
+
+        dest = {
+            'airport': str(self.destination),
+            'city': self.destination.city.name,
+            'code': self.destination.code,
+        }
 
         return {
             'number': self.number,
@@ -739,7 +744,7 @@ class UserProfile(AirportModel):
         # airport name
         airport = self.airport
         airport = airport.name if airport else self.ticket.origin.name
-        ticket = None if not self.ticket else self.ticket.to_dict(now, True)
+        ticket = None if not self.ticket else self.ticket.to_dict(now)
 
         info_dict = {
             'time': date(now, 'P'),
