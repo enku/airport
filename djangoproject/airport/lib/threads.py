@@ -72,7 +72,7 @@ class GameThread(Thread):
     def run(self):
         from airport import take_turn
 
-        logger.info('Starting thread for game %s', self.game)
+        logger.info('Starting thread for %s', self.game)
         self.fix_players()
         mw_gen = MonkeyWrenchGenerator()
 
@@ -83,7 +83,7 @@ class GameThread(Thread):
             game = self.game.__class__.objects.get(pk=self.game.pk)
 
             if game.state == game.GAME_OVER:
-                logger.info('Game %s ended.', game)
+                logger.info('%s ended.', game)
                 return
 
             ai_player = game.players.distinct().get(ai_player=True)
@@ -101,7 +101,7 @@ class GameThread(Thread):
         # like a player's plane has already landed but their ticket hasn't been
         # taken away.  So they end up in limbo... or Texas.
         fixed_players = []
-        msg = 'Player %s had to be fixed.'
+        msg = '%s: Player %s had to be fixed.'
 
         for player in self.game.players.distinct():
             if not player.in_limbo(self.game):
@@ -112,7 +112,7 @@ class GameThread(Thread):
             else:
                 player.airport = self.game.start_airport
             player.save()
-            logger.info(msg % player.user.username)
+            logger.info(msg, self.game, player.user.username)
             fixed_players.append(player)
         return fixed_players
 

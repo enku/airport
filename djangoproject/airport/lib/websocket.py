@@ -186,7 +186,7 @@ class IPCHandler(WebSocketConnection):
     def handle_throw_wrench(self, game_id):
         game = Game.objects.get(pk=game_id)
         monkey_wrench = game.mwf.create(game)
-        logger.info('throwing %s', monkey_wrench)
+        logger.info('%s: throwing %s.', game, monkey_wrench)
         monkey_wrench.throw()
 
     def handle_player_joined_game(self, data):

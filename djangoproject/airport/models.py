@@ -875,7 +875,7 @@ class Message(AirportModel):
     def broadcast(cls, text, game=None, message_type='DEFAULT',
                   finishers=False):
         """Send a message to all users in «game» with a UserProfile"""
-        logger.info('BROADCAST: %s', text)
+        logger.info('%s: BROADCAST: %s', game, text)
         messages = []
 
         if game:
@@ -896,7 +896,7 @@ class Message(AirportModel):
     def announce(cls, announcer, text, game=None, message_type='DEFAULT',
                  finishers=False):
         """Sends a message to all users but «announcer»"""
-        logger.info('ANNOUNCE: %s', text)
+        logger.info('%s: ANNOUNCE: %s', game, text)
         messages = []
 
         if isinstance(announcer, User):
@@ -1144,11 +1144,11 @@ class Game(AirportModel):
     def add_player(self, profile):
         """Add player to profile if game hasn't ended"""
         if self.state == self.GAME_OVER:
-            logger.info('game over, cannot add players')
+            logger.info('%s: game over, cannot add players', self)
             return
 
         if profile in self.players.distinct():
-            logger.info('already in players')
+            logger.info('%s: already in players', self)
             return
 
         # This should never happen at the UI level, but we check anyway

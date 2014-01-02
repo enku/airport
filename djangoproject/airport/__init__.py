@@ -1,13 +1,10 @@
 """
 Airport
 """
-from logging import getLogger
-
 from . import models
 from .lib import websocket
 
 VERSION = '1.1.0'
-logger = getLogger('airport')
 
 
 def start_game(game):
