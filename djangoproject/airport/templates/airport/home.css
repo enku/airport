@@ -166,7 +166,7 @@ tr.header td {
 }
 
 #ticket_widget {
-    width: 320px; 
+    width: 270px; 
     height: 110px;
     overflow: hidden;
     font-size: 12px;
@@ -284,9 +284,9 @@ li.goal_city {
 
 #notepad {
     position: absolute;
-    right: 25px;
+    right: 75px;
     bottom: 30px;
-    width: 162px; 
+    width: 212px; 
     overflow: hidden;
     height: 200px;
     font-size: 13px;

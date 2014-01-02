@@ -364,17 +364,24 @@ class Flight(AirportModel):
             and self != profile.ticket
         )
 
-    def to_dict(self, now):
+    def to_dict(self, now, use_airport_codes=False):
         """Helper method to return Flight as a json-serializable dict"""
         status = self.get_remarks(now)
+
+        if use_airport_codes:
+            origin = self.origin.code
+            dest = self.destination.code
+        else:
+            origin = str(self.origin)
+            dest = str(self.destination)
 
         return {
             'number': self.number,
             'id': self.pk,
             'depart_time': date(self.depart_time, 'P'),
             'arrival_time': date(self.arrival_time, 'P'),
-            'origin': str(self.origin),
-            'destination': str(self.destination),
+            'origin': origin,
+            'destination': dest,
             'status': status,
         }
 
@@ -703,6 +710,7 @@ class UserProfile(AirportModel):
         # airport name
         airport = self.airport
         airport = airport.name if airport else self.ticket.origin.name
+        ticket = None if not self.ticket else self.ticket.to_dict(now, True)
 
         info_dict = {
             'time': date(now, 'P'),
@@ -710,7 +718,7 @@ class UserProfile(AirportModel):
             'game_state': states[game.state + 1],
             'airport': airport,
             'city': city,
-            'ticket': None if not self.ticket else self.ticket.to_dict(now),
+            'ticket': ticket,
             'next_flights': nf_list,
             'message_id': None,
             'in_flight': in_flight,

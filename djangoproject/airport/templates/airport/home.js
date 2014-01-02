@@ -180,7 +180,7 @@ function refresh_ui(data) {
 
         flip_background(city_image_url);
 
-        $('#airportname').html('Welcome to ' + data['airport'] + ' Airport');
+        $('#airportname').html('Welcome to ' + data['city']);
 
         /* update the flights */
         flights_table(data['next_flights']);
