@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import AirportMaster
+from airport import models
 
 
 class CreateGameForm(forms.Form):
@@ -9,7 +9,7 @@ class CreateGameForm(forms.Form):
     ai_player = forms.BooleanField(required=False, initial=True)
 
     def clean_airports(self):
-        num_airports = AirportMaster.objects.count()
+        num_airports = models.AirportMaster.objects.count()
         airports = self.cleaned_data['airports']
         if airports > num_airports:
             txt = 'No more than {0} airports allowed.'

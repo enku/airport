@@ -22,7 +22,7 @@ import random
 
 from django.db.models import Count
 
-from airport.models import City, Flight, Message
+from airport import models
 
 logger = logging.getLogger()
 
@@ -156,8 +156,8 @@ class DivertedFlight(MonkeyWrench):
                        .exclude(id=flight.destination.id)
                        .order_by('?')[0])
         flight.destination = diverted_to
-        flight.flight_time = City.get_flight_time(
-            flight.origin, flight.destination, Flight.cruise_speed)
+        flight.flight_time = models.City.get_flight_time(
+            flight.origin, flight.destination, models.Flight.cruise_speed)
         flight.save()
         reason = random.choice(self.reasons)
         broadcast(
@@ -246,8 +246,9 @@ class Hint(MonkeyWrench):
         if airport_to_goal.city == current_goal:
             return
 
-        Message.send(profile, 'Hint: {airport} goes to {city} ;-)'.format(
-            airport=airport_to_goal, city=current_goal.name))
+        msg = 'Hint: {0} goes to {1} ;-)'
+        msg = msg.format(airport_to_goal, current_goal.name)
+        models.Message.send(profile, msg)
         self.thrown = True
         return
 
@@ -267,12 +268,9 @@ class TSA(MonkeyWrench):
         passenger = random.choice(list(flight.passengers.all()))
 
         # kick him off!
-        Message.send(
-            passenger,
-            'Someone reported you as suspicious and you have been removed '
-            'from the plane',
-            message_type='MONKEYWRENCH'
-        )
+        msg = ('Somone reported you as suspicious and you have been removed'
+               ' from the plane.')
+        models.Message.send(passenger, msg, message_type='MONKEYWRENCH')
         passenger.ticket = None
         passenger.save()
         self.thrown = True
@@ -321,7 +319,7 @@ class TailWind(MonkeyWrench):
 
         msg = 'Flight {0} caught some tail wind.  Arriving {1} minutes early.'
         msg = msg.format(flight.number, mins_to_shave)
-        Message.broadcast(msg, game=self.game, message_type='DEFAULT')
+        models.Message.broadcast(msg, game=self.game, message_type='DEFAULT')
         self.thrown = True
 
 
@@ -366,4 +364,4 @@ class MonkeyWrenchFactory(object):
 def broadcast(text, game):
     """Helper function, sends a Message.broadcast with
     message_type='MONKEYWRENCH'"""
-    Message.broadcast(text, game=game, message_type='MONKEYWRENCH')
+    models.Message.broadcast(text, game=game, message_type='MONKEYWRENCH')

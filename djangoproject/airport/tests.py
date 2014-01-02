@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
 from mock import patch
 
-from airport import take_turn
+from airport import lib
 from airport import models
 from airport import monkeywrench as mw
 
@@ -287,7 +287,7 @@ class ToDict(AirportTestBase):
 
 class UserProfileTest(AirportTestBase):
     """Test the UserProfile model"""
-    @patch('airport.send_message')
+    @patch('airport.lib.send_message')
     def test_location_and_update(self, send_message):
         """Test the Flight.location() and take_turn()"""
         self.game.begin()
@@ -301,40 +301,40 @@ class UserProfileTest(AirportTestBase):
 
         self.user.profile.airport = airport
         self.user.profile.save()
-        take_turn(self.game, now)
+        lib.take_turn(self.game, now)
         self.user.profile.purchase_flight(flight, self.game.time)
         l = self.user.profile.location(now)
         self.assertEqual(self.user.profile.ticket, flight)
         self.assertEqual(l, (airport, flight))
 
         # Take off!, assert we are in flight
-        take_turn(self.game, flight.depart_time)
+        lib.take_turn(self.game, flight.depart_time)
         self.assertEqual(self.user.profile.airport, None)
         self.assertEqual(self.user.profile.ticket, flight)
 
         # when flight is delayed we are still in the air
         original_arrival = flight.arrival_time
         flight.delay(datetime.timedelta(minutes=20), now)
-        take_turn(self.game, original_arrival)
+        lib.take_turn(self.game, original_arrival)
         profile = models.UserProfile.objects.get(pk=self.user.profile.pk)
         self.assertEqual(profile.airport, None)
         self.assertEqual(profile.ticket, flight)
 
         # now land
         now = flight.arrival_time + datetime.timedelta(minutes=1)
-        take_turn(self.game, now)
+        lib.take_turn(self.game, now)
         profile = models.UserProfile.objects.get(pk=self.user.profile.pk)
         self.assertEqual(profile.airport, flight.destination)
         self.assertEqual(profile.ticket, None)
 
 
 class PurchaseFlight(AirportTestBase):
-    @patch('airport.send_message')
+    @patch('airport.lib.send_message')
     def runTest(self, send_message):
         """Test the purchase_flight() method"""
         profile = self.user.profile
         now = datetime.datetime(2011, 11, 20, 7, 13)
-        take_turn(self.game, now)
+        lib.take_turn(self.game, now)
         self.assertEqual(profile.airport, self.game.start_airport)
         self.assertEqual(profile.ticket, None)
 
@@ -361,7 +361,7 @@ class PurchaseFlight(AirportTestBase):
 
         # ok let's land
         now = flight.arrival_time + datetime.timedelta(minutes=1)
-        now = take_turn(self.game, now)
+        now = lib.take_turn(self.game, now)
 
         # make sure we have flights
         airport.create_flights(now)
@@ -411,7 +411,7 @@ class CurrentGameTest(AirportTestBase):
         self.assertEqual(user.profile.current_game.state, game.IN_PROGRESS)
         self.assertEqual(user2.profile.current_game.state, game.IN_PROGRESS)
 
-    @patch('airport.send_message')
+    @patch('airport.lib.send_message')
     def test_game_over(self, send_message):
         """Test that when a game is over current_game returns the game, but
         status is GAME_OVER"""
@@ -423,7 +423,7 @@ class CurrentGameTest(AirportTestBase):
         self.assertEqual(user.profile.current_game, game)
 
         game.end()
-        take_turn(game)
+        lib.take_turn(game)
 
         # game should be over
         self.assertEqual(user.profile.current_game, game)
@@ -564,7 +564,7 @@ class HomeViewNoGameRedirect(HomeViewTest):
 
 
 class HomeViewNewGame(HomeViewTest):
-    @patch('airport.send_message')
+    @patch('airport.lib.send_message')
     def runTest(self, send_message):
         """Test that there's no redirect when you're in a new game"""
         player = self.user
@@ -576,7 +576,7 @@ class HomeViewNewGame(HomeViewTest):
 
 
 class HomeViewFinishedGame(HomeViewTest):
-    @patch('airport.send_message')
+    @patch('airport.lib.send_message')
     def runTest(self, send_message):
         """Test that when you have finished a game, you are redirected"""
         player = self.user
@@ -813,7 +813,7 @@ class AIPlayer(AirportTestBase):
         ai_player = game.players.filter(ai_player=True)
         self.assertFalse(ai_player.exists())
 
-    @patch('airport.views.websocket.IPCHandler.send_message')
+    @patch('airport.lib.send_message')
     def test_view(self, send_message):
         url = reverse('airport.views.games_create')
         self.game.end()
@@ -939,7 +939,7 @@ class GameServerTest(AirportTestBase):
         if message_type == 'info':
             self.messages.append(data)
 
-    @patch('airport.views.websocket.IPCHandler.send_message')
+    @patch('airport.lib.send_message')
     def test_does_not_show_finished_on_new_game(self, send_message):
         # when we finish our first game
         self.game.begin()
@@ -962,7 +962,7 @@ class GameServerTest(AirportTestBase):
 
         # and the original game takes a turn
         send_message.side_effect = self.send_message
-        take_turn(self.game)
+        lib.take_turn(self.game)
 
         # we don't get any info messages wrt the original game
         for message in self.messages:

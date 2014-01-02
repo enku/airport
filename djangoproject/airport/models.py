@@ -1,9 +1,5 @@
 # -*- encoding: utf-8 -*-
 """Models for the airport django app"""
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 from datetime import datetime, timedelta
 from logging import getLogger
 from math import asin, cos, sin, radians, sqrt
