@@ -1015,7 +1015,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "41.83", 
-            "image": "http://www.wallpaperpimper.com/wallpaper/Places/Chicago/Chicago-Illinois-Landscapes-Cities-1-1280x1024.jpg", 
+            "image": "http://abeonaforum.files.wordpress.com/2007/11/purple_chicago_skylineresized.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Chicago", 
             "longitude": "-87.62"
@@ -1026,7 +1026,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "34.05", 
-            "image": "http://i1-win.softpedia-static.com/screenshots/Coast-of-Los-Angeles-Screensaver_1.png", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/e/e8/LAX_LA.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Los Angeles", 
             "longitude": "-118.25"
@@ -1037,7 +1037,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "39.75", 
-            "image": "http://www.100besteverything.com/best-cities/i-1-1603_denver-wp1.jpg", 
+            "image": "http://images.cdn.fotopedia.com/flickr-13436939-original.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Denver", 
             "longitude": "-105"
@@ -1048,7 +1048,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "36.17", 
-            "image": "http://augustocvp.files.wordpress.com/2011/05/las-vegas1.jpg", 
+            "image": "http://www.carefreetrip.com/gallery/var/albums/united-states-of-america/nevada/las-vegas/the-las-vegas-strip/las-vegas-strip-from-paris-hotel-north.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Las Vegas", 
             "longitude": "-115.2"
@@ -1070,7 +1070,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "33.48", 
-            "image": "http://www.travelskyline.net/wallpapers/skyline_phoenix_night-1280x1024.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Phoenix_panorama.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Phoenix", 
             "longitude": "-112.07"
@@ -1103,7 +1103,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "42.33", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/a/a0/DetroitSkyline.jpg", 
+            "image": "http://wallpaperweb.org/wallpaper/buildings/1152x864/Motor_City_Detroit_Michigan_1152x864.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Detroit", 
             "longitude": "-83.05"
@@ -1114,7 +1114,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "44.98", 
-            "image": "http://www.bpmds2013.com/images/minneapolis.jpg", 
+            "image": "http://upload.wikimedia.org/wikipedia/commons/7/7d/Minneapolis-Mississippi-20070704.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Minneapolis - St. Paul", 
             "longitude": "-93.23"
@@ -1125,7 +1125,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "28.53", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/8/82/OrlandoNightSkyline.jpg", 
+            "image": "http://3.bp.blogspot.com/-MKUNtNEOk1s/UCIFr0p4RWI/AAAAAAAACKw/6KesKjTSQQw/s1600/DSC_1326-1330HDR.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Orlando", 
             "longitude": "-81.37"
@@ -1147,7 +1147,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "25.77", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Biscayne_Boulevard_night_20101202.jpg/1280px-Biscayne_Boulevard_night_20101202.jpg", 
+            "image": "http://3.bp.blogspot.com/-u6jqbVWYJA8/TqH1qCeHHSI/AAAAAAAABQ8/jbXb-6IUDeg/s1600/miami_beach_at_night_picture.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Miami", 
             "longitude": "-80.2"
@@ -1158,7 +1158,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "39.95", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/d/d8/Schuylkill_Expressway_Sept_2007.jpg", 
+            "image": "http://3.bp.blogspot.com/-FlA-kDgJEYc/ThEcLSTr5cI/AAAAAAAAC-U/eIRYtoyV_3g/s1600/Philadelphia-skyline.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Philadelphia", 
             "longitude": "-75.17"
@@ -1169,7 +1169,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "35.23", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Light_rail.jpg/1280px-Light_rail.jpg", 
+            "image": "http://images.cdn.fotopedia.com/flickr-3180363127-hd.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Charlotte", 
             "longitude": "-80.83"
@@ -1202,7 +1202,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "38.88", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/US_Capitol_from_NW.JPG/1280px-US_Capitol_from_NW.JPG", 
+            "image": "http://www.thedistrictphotographer.com/wp-content/uploads/2011/05/Monument.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Washington, DC", 
             "longitude": "-77.03"
@@ -1213,7 +1213,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "39.3", 
-            "image": "http://kathika.com/wp-content/uploads/shutterstock_17877412.jpg", 
+            "image": "http://www.baltimoreattractions.org/wp-content/uploads/2013/06/Baltimore-innerHarbor.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Baltimore", 
             "longitude": "-76.63"
@@ -1224,7 +1224,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "40.77", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Temple_Square_October_05_%288%29_c.JPG/1280px-Temple_Square_October_05_%288%29_c.JPG", 
+            "image": "http://media-cache-ec0.pinimg.com/originals/d0/b7/65/d0b76517b08ecfb2b41a975ee4bc9bad.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Salt Lake City", 
             "longitude": "-111.9"
@@ -1235,7 +1235,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "26.13", 
-            "image": "http://www.cntraveler.com/hotels/north-america/united-states/w-fort-lauderdale-fort-lauderdale-florida/_jcr_content/par/cn_contentwell/par-main/cn_colctrl/par-col1/cn_features_containe/cn_manual_feature_1/cn_image_1.size.w-fort-lauderdale-fort-lauderdale-florida-110629-2.jpg", 
+            "image": "http://www.fortlauderdalemarinahotel.com/d/fortlauderdalemarinahotel/media/__thumbs_1400_900_crop/2.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Fort Lauderdale", 
             "longitude": "-80.13"
@@ -1246,7 +1246,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "21.3", 
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Waikiki_view_from_Diamond_Head.JPG/1280px-Waikiki_view_from_Diamond_Head.JPG", 
+            "image": "http://www.7rt.org/wp-content/uploads/2013/01/Honolulu-sunset-wallpaper-1680x1050-honolulu-sunset-wallpaper.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Honolulu", 
             "longitude": "-157.83"
@@ -1257,7 +1257,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "43.03", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Leisure_boating%2C_Milwaukee%2C_Wisconsin.jpg/1280px-Leisure_boating%2C_Milwaukee%2C_Wisconsin.jpg", 
+            "image": "http://farm4.static.flickr.com/3040/2643149964_4322605c6e_o.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Milwaukee", 
             "longitude": "-87.92"
@@ -1268,7 +1268,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "27.95", 
-            "image": "http://crew.princeton.edu/content/sites/default/files/Tampa-skyline.jpeg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Downtowntampa08.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Tampa", 
             "longitude": "-82.45"
@@ -1279,7 +1279,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "32.7", 
-            "image": "http://www.coastallajollahomes.com/assets/images/San-Diego-1.jpg", 
+            "image": "http://www.widescreen-wallpaper.eu/wallpapers/beautiful_cityscape-1920x1080.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "San Diego", 
             "longitude": "-117.17"
@@ -1433,7 +1433,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "39.77", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/DT_INDY_10-03-2010_JASSSMIT.JPG/1280px-DT_INDY_10-03-2010_JASSSMIT.JPG", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Robert_Indiana%27s_%22LOVE%22_%40_IMA.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Indianapolis", 
             "longitude": "-86.17"
@@ -1466,7 +1466,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "26.62", 
-            "image": "http://static.panoramio.com/photos/large/12084141.jpg", 
+            "image": "http://3.bp.blogspot.com/-hqMQt6yMbfU/ULQa9ybwSwI/AAAAAAAACso/yu_8U6y2sTg/s1600/fortmyers+bridge+(7).JPG", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Fort Myers", 
             "longitude": "-81.85"
@@ -1554,7 +1554,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "20.87", 
-            "image": "http://3.bp.blogspot.com/_G0tmPh1_3uc/TK0xZpkfW6I/AAAAAAAAACs/e48JY6xtji4/s1600/HawaiianAirlines.jpg", 
+            "image": "http://www.worldcamland.com/fotos/hawaii.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Kahului", 
             "longitude": "-156.47"
@@ -1697,7 +1697,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "31.77", 
-            "image": "http://www.texaswildnetwork.com/imagesfolder/misc/wyler.jpg", 
+            "image": "http://2.bp.blogspot.com/-OWbLe6JchzQ/UQAOg1qNBxI/AAAAAAAADbE/GuGTFWmycgk/s1600/P1110597.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "El Paso", 
             "longitude": "-106.48"
@@ -1708,7 +1708,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "43.6", 
-            "image": "http://freelance-zone.com/blog/wp-content/uploads/2010/08/Idaho-writers-groups-by-state.jpg", 
+            "image": "http://www.thehelpprogram.com/wp-content/uploads/2011/06/boise-river-fall.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Boise", 
             "longitude": "-116.22"
@@ -1774,7 +1774,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "42.67", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Lincoln_Park_Albany.jpg/1280px-Lincoln_Park_Albany.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/EmpireStatePlazaPanorama.jpg/1280px-EmpireStatePlazaPanorama.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Albany", 
             "longitude": "-73.75"
@@ -1818,7 +1818,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "33.77", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/3/38/POLB.jpg/1280px-POLB.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Downtown_Long_Beach.jpg/1280px-Downtown_Long_Beach.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Long Beach", 
             "longitude": "-118.18"
@@ -1829,7 +1829,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "21.97", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Lihue-hawaii-aerial.jpg/1280px-Lihue-hawaii-aerial.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Coast_of_Kauai%2C_Hawaii.jpg/1280px-Coast_of_Kauai%2C_Hawaii.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Lihue", 
             "longitude": "-159.35"
@@ -1851,7 +1851,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "34.73", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Skyline_of_Little_Rock%2C_Arkansas_-_20050319.jpg/1280px-Skyline_of_Little_Rock%2C_Arkansas_-_20050319.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Skyline_of_Little_Rock%2C_Arkansas_-_20050319.jpg/1280px-Skyline_of_Little_Rock%2C_Arkansas_-_20050319.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Little Rock", 
             "longitude": "-92.33"
@@ -1972,7 +1972,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "43.07", 
-            "image": "http://paradiseintheworld.com/wp-content/uploads/2012/03/wisconsin-capitol.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/WiscANG-F16-Madison-Skyline.jpg/1229px-WiscANG-F16-Madison-Skyline.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Madison", 
             "longitude": "-89.4"
@@ -1983,7 +1983,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "33.82", 
-            "image": "http://palmspringsweddingsminister.com/wp-content/uploads/2010/07/riviera-resort-spa1.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/9/91/Palm_Springs_through_mountains.JPG", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Palm Springs", 
             "longitude": "-116.53"
@@ -2004,11 +2004,11 @@
         "pk": 93, 
         "model": "airport.city", 
         "fields": {
-            "latitude": "32.33", 
-            "image": "http://media1.hellojackson.com/images/buildings/6282007istock_000000236716medium.jpg", 
+            "latitude": "32.30", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Amtrak_Jackson%2C_MS_Station.jpg/1280px-Amtrak_Jackson%2C_MS_Station.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Jackson", 
-            "longitude": "-90.2"
+            "longitude": "-90.18"
         }
     }, 
     {
@@ -2016,7 +2016,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "34.73", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/2/26/USSRC_Rocket_Park.JPG/1280px-USSRC_Rocket_Park.JPG", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Huntsville_city_hall.jpg/1280px-Huntsville_city_hall.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Huntsville", 
             "longitude": "-86.58"
@@ -2027,7 +2027,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "37.72", 
-            "image": "http://media-3.web.britannica.com/eb-media//81/96581-050-28FD8E82.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/The_Keeper_of_the_Plains_Wichita%2C_Kansas.jpg/1280px-The_Keeper_of_the_Plains_Wichita%2C_Kansas.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Wichita", 
             "longitude": "-97.28"
