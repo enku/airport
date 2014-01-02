@@ -30,8 +30,9 @@ logger = logging.getLogger()
 class MonkeyWrench(object):
     """A monkey wrench ☺"""
 
-    def __init__(self, game):
+    def __init__(self, game, now=None):
         self.game = game
+        self._now = now
         self.thrown = False
 
     def __str__(self):
@@ -43,13 +44,18 @@ class MonkeyWrench(object):
         self.thrown = True
         return
 
+    @property
+    def now(self):
+        if not self._now:
+            self._now = self.game.time
+        return self._now
+
     def flights_in_the_air(self):
         """Return a list of flights currently in the air"""
-        now = self.game.time
         in_flight = []
-        flights = self.game.flights.filter(depart_time__lt=now)
+        flights = self.game.flights.filter(depart_time__lt=self.now)
         for flight in flights:
-            if flight.in_flight(now):
+            if flight.in_flight(self.now):
                 in_flight.append(flight)
 
         return in_flight
@@ -58,7 +64,7 @@ class MonkeyWrench(object):
 class CancelledFlight(MonkeyWrench):
     """Randomly Cancel a flight"""
     def throw(self):
-        now = self.game.time
+        now = self.now
         flight = self.game.flights.filter(depart_time__gt=now).order_by('?')
         if not flight.exists():
             return
@@ -75,7 +81,7 @@ class CancelledFlight(MonkeyWrench):
 class DelayedFlight(MonkeyWrench):
     """Delay a flight that hasn't departed yet"""
     def throw(self):
-        now = self.game.time
+        now = self.now
         flight = self.game.flights.filter(depart_time__gt=now).order_by('?')
         if not flight.exists():
             return
@@ -100,7 +106,7 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
     """Take a random airport and delay all outgoing flights by a random
     number of minutes"""
     def throw(self):
-        now = self.game.time
+        now = self.now
         airport = self.game.airports.order_by('?')[0]
         flights = self.game.flights.filter(origin=airport,
                                            depart_time__gt=now)
@@ -121,7 +127,7 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
 class AllFlightsFromAirportCancelled(MonkeyWrench):
     """Cancel all future flights from a random airport"""
     def throw(self):
-        now = self.game.time
+        now = self.now
         airport = self.game.airports.order_by('?')[0]
         flights = self.game.flights.filter(origin=airport,
                                            depart_time__gt=now)
@@ -249,7 +255,7 @@ class Hint(MonkeyWrench):
 class TSA(MonkeyWrench):
     """Revoke a passenger's ticket just before the flight departs"""
     def throw(self):
-        now = self.game.time
+        now = self.now
         max_depart_time = now + datetime.timedelta(minutes=15)
         flights = self.game.flights.filter(depart_time__lte=max_depart_time)
         flights = self.game.flights.exclude(depart_time__lte=now)
@@ -275,7 +281,7 @@ class TSA(MonkeyWrench):
 class FullFlight(MonkeyWrench):
     """Make a flight full so tickets can no longer be purchased"""
     def throw(self):
-        now = self.game.time
+        now = self.now
         flight = self.game.flights.filter(
             depart_time__gt=now).filter(full=False).order_by('?')
         if not flight.exists():
@@ -286,6 +292,37 @@ class FullFlight(MonkeyWrench):
         # no need to send a message
         self.thrown = True
         return
+
+
+class TailWind(MonkeyWrench):
+    """Apply tail wind to an in-flight flight, making it arrive earlier."""
+    minimum_minutes = 15
+    maximum_minutes = 28
+
+    def throw(self):
+        now = self.now
+        flights = self.flights_in_the_air()
+        if not flights:
+            return
+        flight = random.choice(flights)
+        time_to_land = flight.arrival_time - now
+        if time_to_land < datetime.timedelta(minutes=self.minimum_minutes):
+            # forget it, not enough tail wind
+            return
+
+        secs_to_shave = random.randint(
+            self.minimum_minutes * 60,
+            min(int(time_to_land.total_seconds()), self.maximum_minutes * 60)
+        )
+        mins_to_shave = secs_to_shave // 60
+        flight.arrival_time = flight.arrival_time - datetime.timedelta(
+            minutes=mins_to_shave)
+        flight.save()
+
+        msg = 'Flight {0} caught some tail wind.  Arriving {1} minutes early.'
+        msg = msg.format(flight.number, mins_to_shave)
+        Message.broadcast(msg, game=self.game, message_type='DEFAULT')
+        self.thrown = True
 
 
 class MonkeyWrenchFactory(object):

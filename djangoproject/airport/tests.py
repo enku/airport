@@ -13,6 +13,7 @@ from mock import patch
 
 from airport import take_turn
 from airport import models
+from airport import monkeywrench as mw
 
 
 class AirportTestBase(TestCase):
@@ -876,3 +877,45 @@ class AIPlayer(AirportTestBase):
         # it doesn't try to buy a full flight (it will raise an exception if it
         # does)
         self.assertEqual(ai_player.ticket, None)
+
+
+class MonkeyWrenchTest(AirportTestBase):
+
+    """Tests for Monkey wrenches."""
+    def test_TailWind(self):
+        """HeadWind wrench."""
+        # let's make sure at least one flight is in the air
+        now = self.game.time
+        airport = self.game.start_airport
+        flights_out = airport.next_flights(now, future_only=True,
+                                           auto_create=False)
+
+        flights_out.sort(key=lambda x: x.depart_time)
+        flight = flights_out[0]
+        now = flight.depart_time + datetime.timedelta(minutes=1)
+
+        wrench = mw.TailWind(self.game, now)
+        flights_in_air = wrench.flights_in_the_air()
+        self.assertTrue(flight in flights_in_air)
+
+        # when the wrench is thrown
+        wrench.throw()
+        self.assertTrue(wrench.thrown)
+
+        # then one of the flights has changed
+        flights = models.Flight.objects.filter(
+            pk__in=[i.pk for i in flights_out])
+
+        for flight in flights:
+            arrival_time = flight.arrival_time
+            orig_flight = [i for i in flights_out if i.pk == flight.pk][0]
+            if orig_flight.arrival_time != arrival_time:
+                changed = True
+                break
+        else:
+            changed = False
+
+        self.assertTrue(changed)
+
+        # and the new arrival time is shorter than the original
+        self.assertLess(arrival_time, orig_flight.arrival_time)
