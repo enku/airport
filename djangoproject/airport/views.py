@@ -224,7 +224,7 @@ def games_info(request):
     games = games.annotate(Count('goals', distinct=True))
     games = games.exclude(state=0)
     games = games.order_by('creation_time')
-    games = games.values_list(
+    games = games.values(
         'id',
         'players__count',
         'host__user__username',
@@ -235,13 +235,15 @@ def games_info(request):
     glist = []
     for game in games:
         glist.append(dict(
-            id=game[0],
-            players=game[1],
-            host=escape(game[2]),
-            goals=game[3],
-            airports=game[4],
-            status=states[game[5] + 1],
-            created=naturaltime(game[6])))
+            id=game['id'],
+            players=game['players__count'],
+            host=escape(game['host__user__username']),
+            goals=game['goals__count'],
+            airports=game['airports__count'],
+            status=states[game['state'] + 1],
+            created=naturaltime(game['creation_time']),
+            url='{0}?id={1}'.format(reverse(games_join), game['id']),
+        ))
 
     current_game = (Game.objects
                     .exclude(state=0)

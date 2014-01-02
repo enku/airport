@@ -2,21 +2,13 @@ var lightbox;
 
 function update_games_list(data) {
     /* update the games list widget */
-    var s = '',
-        game = null;
+    var tbody = $('#games_widget tbody'),
+        template = $('#game_row_template').html();
 
-    for (var i=0; i<data['games'].length; i++) {
-        game = data['games'][i];
-        s = s + ('<tr><td><a class="games_join" href="{% url "games_join" %}?id=' + game['id'] + '">' + game['id'] + '</a></td>' 
-                + '<td>' + game['goals'] + '</td><'
-                + '<td>' + game['airports'] + '</td>'
-                + '<td>' + game['players'] + '</td>'
-                + '<td>' + game['host'] + '</td>'
-                + '<td>' + game['status'] + '</td>'
-                + '<td>' + game['created'] + '</td>'
-                + '</tr>\n');
+    tbody.empty();
+    for (var i=0; i<data.games.length; i++) {
+        tbody.append(Mustache.to_html(template, data.games[i]));
     }
-    $('#games_widget tbody').html(s);
     $('.games_join').click(join_game_cb);
 }
 

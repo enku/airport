@@ -78,6 +78,20 @@
     <a href="{% url "logout" %}">Sign Out</a>
 </div>
 
+{% verbatim %}
+<script type="text/template" id="game_row_template">
+<tr>
+    <td><a class="games_join" href="{{url}}">{{id}}</a></td> 
+    <td>{{goals}}</td>'
+    <td>{{airports}}</td>
+    <td>{{players}}</td>
+    <td>{{host}}</td>
+    <td>{{status}}</td>
+    <td>{{created}}</td>
+</tr>
+</script>
+{% endverbatim %}
+
 {% endblock %}{# content #}
 
 {% block scripts %}
