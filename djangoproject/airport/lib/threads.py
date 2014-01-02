@@ -3,7 +3,6 @@ from logging import getLogger
 from os import environ
 from random import randint
 from threading import Event, Thread, Timer
-from time import sleep
 
 from django.conf import settings
 from tornado.ioloop import IOLoop
@@ -68,6 +67,7 @@ class GameThread(Thread):
     def __init__(self, **kwargs):
         self.game = kwargs.pop('game')
         self.has_ai_player = self.game.players.filter(ai_player=True).exists()
+        self.turn_event = Event()
 
         super(GameThread, self).__init__(**kwargs)
 
@@ -81,6 +81,7 @@ class GameThread(Thread):
         now = None
 
         while True:
+            Timer(LOOP_DELAY, self.turn_event.set).start()
             # re-fetch game
             game = self.game.__class__.objects.get(pk=self.game.pk)
 
@@ -96,7 +97,9 @@ class GameThread(Thread):
 
             # send all messages for this cycle
             messenger.message_event.set()
-            sleep(LOOP_DELAY)
+
+            self.turn_event.wait()
+            self.turn_event.clear()
 
     def fix_players(self):
         """Make sure players are not in a "weird" state."""
