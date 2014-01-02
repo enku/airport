@@ -15,5 +15,9 @@ airport.websocket_handlers = {
 
     games_info: function (data) {
         refresh_ui(data);
+    },
+
+    join_game: function () {
+        window.location.replace('{% url "home" %}');
     }
 };

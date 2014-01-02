@@ -368,7 +368,9 @@ class IPCHandler(WebSocketConnection):
         name = 'Game{0}'.format(game_id)
         game_thread = GameThread(name=name, game_id=game_id)
         game_thread.start()
-        SocketHandler.games_info()
+        game = models.Game.objects.get(pk=game_id)
+        for player in game.players.filter(ai_player=False).distinct():
+            SocketHandler.message(player.user, 'join_game', {})
 
     def handle_game_created(self, game_id):
         """Handler to for creating a game."""
