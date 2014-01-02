@@ -776,3 +776,70 @@ class GamePause(AirportTestBase):
         new_time = game.time
         time_difference_secs = (new_time - orig_time).total_seconds()
         self.assertTrue(time_difference_secs < game.TIMEFACTOR)
+
+
+class AIPlayer(AirportTestBase):
+    def test_ai_player_optional(self):
+        """AI Player is optional"""
+        self.game.end()
+        game = models.Game.objects.create_game(
+            ai_player=True,
+            host=self.user.profile,
+            goals=1,
+            airports=10
+        )
+
+        ai_player = game.players.filter(ai_player=True)
+        self.assertTrue(ai_player.exists())
+        game.end()
+
+        game = models.Game.objects.create_game(
+            ai_player=False,
+            host=self.user.profile,
+            goals=1,
+            airports=10
+        )
+
+        ai_player = game.players.filter(ai_player=True)
+        self.assertFalse(ai_player.exists())
+
+    @patch('airport.views.websocket.IPCHandler.send_message')
+    def test_view(self, send_message):
+        url = reverse('airport.views.games_create')
+        self.game.end()
+
+        self.client.login(username='user1', password='test')
+
+        # first try with an ai player
+        form = {
+            'goals': 1,
+            'airports': 20,
+            'ai_player': True
+        }
+
+        self.client.post(url, form)
+        self.assertTrue(send_message.called)
+
+        args = send_message.call_args[0]
+        self.assertEqual(args[0], 'game_created')
+        game_id = args[1]
+        game = models.Game.objects.get(pk=game_id)
+        ai_player = game.players.filter(ai_player=True)
+        self.assertTrue(ai_player.exists())
+        game.end()
+
+        # now try with out an ai player
+        form = {
+            'goals': 1,
+            'airports': 20,
+            'ai_player': False
+        }
+
+        self.client.post(url, form)
+
+        args = send_message.call_args[0]
+        self.assertEqual(args[0], 'game_created')
+        game_id = args[1]
+        game = models.Game.objects.get(pk=game_id)
+        ai_player = game.players.filter(ai_player=True)
+        self.assertFalse(ai_player.exists())

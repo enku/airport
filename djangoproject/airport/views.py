@@ -21,6 +21,7 @@ from django.views.decorators.http import require_http_methods
 
 import airport
 from airport.context_processors import externals
+from airport import forms
 from airport.lib import websocket
 from airport.models import (
     Achievement,
@@ -224,19 +225,17 @@ def games_create(request):
     user = request.user
     profile = user.profile
 
-    try:
-        num_goals = int(request.POST['goals'])
-        num_airports = int(request.POST['airports'])
-    except KeyError:
-        text = (
-            'Error creating game. Incorrect params: '
-            'goals: {goals}, airports: {airports}'.format(
-                goals=request.POST.get('goals'),
-                airports=request.POST.get('airports')
-            )
-        )
+    form = forms.CreateGameForm(request.POST)
+    if not form.is_valid():
+        text = 'Error creating game: {0}'
+        text = text.format(form.errors)
         send(profile, text)
         return redirect(games_home)
+
+    data = form.cleaned_data
+    num_goals = data['goals']
+    num_airports = data['airports']
+    ai_player = data['ai_player']
 
     games = Game.objects.exclude(state=Game.GAME_OVER)
     games = games.filter(players=profile)
@@ -244,9 +243,12 @@ def games_create(request):
         m = 'Cannot create a game since you are already playing an open game.'
         send(profile, m)
     else:
-        game = Game.objects.create_game(host=profile, goals=num_goals,
-                                        airports=num_airports)
-        game.save()
+        game = Game.objects.create_game(
+            host=profile,
+            goals=num_goals,
+            airports=num_airports,
+            ai_player=ai_player,
+        )
         websocket.IPCHandler.send_message('game_created', game.pk)
 
     return games_info(request)

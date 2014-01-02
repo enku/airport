@@ -85,11 +85,9 @@ function create_form_cb(event) {
     lightbox.content.find('.pulsate').effect("pulsate", { times:60 }, 800);
 
     var form = $('#create_form'), 
-        goals = form.find('input[name="goals"]').val(), 
-        airports = form.find('input[name="airports"]').val(),
         url = form.attr('action');
 
-    $.post(url, {goals: goals, airports: airports}, refresh_ui);
+    $.post(url, form.serialize(), refresh_ui);
 }
 
 /* function called when user clicks on a join game "button" */

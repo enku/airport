@@ -988,7 +988,7 @@ class GameManager(models.Manager):
 
     """We manage Games"""
 
-    def create_game(self, host, goals, airports, density=5):
+    def create_game(self, host, goals, airports, density=5, ai_player=True):
         """Create a new «Game»"""
         master_airports = list(AirportMaster.objects.distinct())
         shuffle(master_airports)
@@ -1060,7 +1060,9 @@ class GameManager(models.Manager):
         msg = '{0} has created {1}.'
         msg = msg.format(host.user.username, game)
         broadcast(msg, message_type='NEW_GAME')
-        UserProfile.get_or_create_ai_player(game)
+
+        if ai_player:
+            UserProfile.get_or_create_ai_player(game)
 
         return game
 

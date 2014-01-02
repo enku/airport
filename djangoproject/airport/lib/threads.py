@@ -67,6 +67,8 @@ class GameThread(Thread):
 
     def __init__(self, **kwargs):
         self.game = kwargs.pop('game')
+        self.has_ai_player = self.game.players.filter(ai_player=True).exists()
+
         super(GameThread, self).__init__(**kwargs)
 
     def run(self):
@@ -86,8 +88,10 @@ class GameThread(Thread):
                 logger.info('%s ended.', game)
                 return
 
-            ai_player = game.players.distinct().get(ai_player=True)
-            ai_player.make_move(game, now)
+            if self.has_ai_player:
+                ai_player = game.players.distinct().get(ai_player=True)
+                ai_player.make_move(game, now)
+
             now = take_turn(game, throw_wrench=next(mw_gen))
 
             # send all messages for this cycle
