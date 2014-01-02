@@ -48,6 +48,22 @@
     </script>
     </li>
 </script>
+
+<script type="text/template" id="schedule_template">
+<tr class="schedule {{odd_or_even}}" id="flight_{{id}}">
+    <td>{{destination}}</td>
+    <td class="flightno">{{number}}</td>
+    <td>{{depart_time}}</td>
+    <td>{{arrival_time}}</td>
+    <td>{{status}}</td>
+    {{#number}}
+    <td class="buy"><input {{^buyable}}disabled="disabled" {{/buyable}}type="submit" value="Buy" name="buy_{{id}}" /></td>
+    {{/number}}
+    {{^number}}
+    <td class="buy">&nbsp;</td>
+    {{/number}}
+</tr>
+</script>
 {% endverbatim %}
 </html>
 

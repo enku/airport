@@ -10,37 +10,22 @@ function flights_table(flights) {
     var s = '',
         i,
         flight,
-        num_flights = flights.length;
+        num_flights = flights.length,
+        template = $('#schedule_template').html(),
+        schedule = $('#flights');
 
+    schedule.empty();
     for (i=0; i<num_flights; i++) {
         flight = flights[i];
         if (i%2) {
-            odd_or_even = "odd";
+            flight["odd_or_even"] = "odd";
         }
         else {
-            odd_or_even = "even";
+            flight["odd_or_even"] = "even";
         }
-        s = s + (
-            '<tr class="schedule ' + odd_or_even + '" id="flight_' + flight['id'] + '">\n'
-            + '<td>' + flight['destination'] + '</td>\n'
-            + '<td class="flightno">' + flight['number'] + '</td>\n'
-            + '<td>' + flight['depart_time'] + '</td>\n'
-            + '<td>' + flight['arrival_time'] + '</td>\n'
-            + '<td>' + flight['status'] + '</td>\n');
-
-        if (flight['buyable']) {
-            s = s + (
-                '<td class="buy"><input type="submit" value="Buy" name="buy_'
-                + flight['id']
-                + '" /></td></tr>\n');
-        }
-        else {
-            s = s + (
-                '<td class="buy"><input disabled="disabled" type="submit" value="Buy" name="buy_'
-                + flight['id']
-                + '" /></td></tr>\n');
-        }
-    };
+        s = Mustache.to_html(template, flight);
+        schedule.append(s);
+    }
 
     /* we prefer at least 10 rows */
     for (i=i; i<10; i++) {
@@ -50,10 +35,9 @@ function flights_table(flights) {
         else {
             odd_or_even = "even";
         }
-        s = s + '<tr class="schedule ' + odd_or_even + '"><td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;<td>&nbsp;</td>&nbsp;</tr>\n';
+        s = Mustache.to_html(template, {"odd_or_even": odd_or_even});
+        schedule.append(s);
     }
-
-    $('#flights').html(s);
 
     $('input').click(function() {
         var name = $(this).attr('name');
