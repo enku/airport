@@ -919,3 +919,45 @@ class MonkeyWrenchTest(AirportTestBase):
 
         # and the new arrival time is shorter than the original
         self.assertLess(arrival_time, orig_flight.arrival_time)
+
+
+class GameServerTest(AirportTestBase):
+    def setUp(self):
+        super(GameServerTest, self).setUp()
+        self.messages = []
+
+    def send_message(self, message_type, data):
+        if message_type == 'info':
+            self.messages.append(data)
+
+    @patch('airport.views.ipc.send_message')
+    def test_does_not_show_finished_on_new_game(self, send_message):
+        # when we finish our first game
+        self.game.begin()
+        now = self.game.time
+
+        # to finish the game, we cheat a bit
+        ach = models.Achievement.objects.get(profile=self.user.profile,
+                                             game=self.game)
+        ach = ach.fulfill(now)
+        self.assertTrue(self.user.profile in self.game.finishers())
+
+        # when we join a new game
+        game = models.Game.objects.create_game(
+            ai_player=True,
+            host=self.user.profile,
+            goals=1,
+            airports=10
+        )
+        game.begin()
+
+        # and the original game takes a turn
+        send_message.side_effect = self.send_message
+        take_turn(self.game)
+
+        # we don't get any info messages wrt the original game
+        for message in self.messages:
+            if message['player'] != self.user.username:
+                continue
+            game_id = message['game']
+            self.assertNotEqual(game_id, self.game.pk)

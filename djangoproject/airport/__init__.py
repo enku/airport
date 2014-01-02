@@ -103,6 +103,11 @@ def handle_players(game, now, winners_before, arrivals):
     # different than "real" time, we can't rely on the client to know the
     # game time on its own.  Hmmm...
     for player in players:
+        # if player is in another game, don't send any info. Doing so confuses
+        # the client.
+        current_game = player.current_game
+        if current_game and current_game != game:
+            continue
         player_info = player.info(game, now)
         if player.pk in arrivals:
             notify = 'You have arrived at {0}.'.format(arrivals[player.pk])
