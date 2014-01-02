@@ -1,5 +1,9 @@
 @import url(http://fonts.googleapis.com/css?family=Kavoon);
 
+html {
+    height: 100%;
+}
+
 body {
     font-family: "Droid Sans", sans-serif;
     background-color: DeepSkyBlue;
@@ -150,6 +154,8 @@ input[type="image"] {
     overflow: auto;
     font-size: smaller;
     box-shadow: inset 0 2px 6px white, 0 3px 3px rgba(0,0,0,0.6);
-    margin: auto;
-    margin-top: 8px;
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    margin-left: -225px;
 }

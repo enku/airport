@@ -8,12 +8,6 @@
 {% endblock %}
 
 {% block content %}
-    {% if messages or form.errors %}
-    <div id="messages">
-    {% for message in messages %}<p>{{ message }}</p>{% endfor %}
-    {{ form.errors }}
-    </div>
-    {% endif %}
     <h1 id="game_name">{{ game_name }}</h1>
     <div id="login_widget">
     <div id="logo">Login</div>
@@ -37,6 +31,12 @@
             style="width: 64px; height: 64px;" />
     </form>
     </div>
+    {% if messages or form.errors %}
+    <div id="messages">
+    {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+    {{ form.errors }}
+    </div>
+    {% endif %}
     <div id="meta">
         <a id="register" href="{% url "airport.views.register" %}">Sign Up</a>
          | 
