@@ -1,11 +1,10 @@
-# -*- encoding: utf-8 -*-
 """
 MonkeyWrenches are spontaneous events thrown in the game to produce some
 unpredictableness.  They are things that happen to flights and airports
 such as cancellations, delays, etc.
 
 This module produces a MonkeyWrench base class, which does nothing,
-subsecrent MonkeyWrenches should subclass the class, and implement a
+subsequent MonkeyWrenches should subclass the class, and implement a
 throw() method which actually does something.  It should also probably send
 a broadcast message to the Game notifying players of what happened.
 
@@ -13,14 +12,12 @@ The MonkeyWrenchFactory collects all the various MonkeyWrench classes, and
 when it's create() method is called, picks one at random, instantiates it
 and returns it to the caller
 """
-from __future__ import unicode_literals
-
 import datetime
 import logging
 import os
 import random
 
-from django.db.models import Count
+from django.db.models import Count, F
 
 from airport import models
 
@@ -28,7 +25,7 @@ logger = logging.getLogger()
 
 
 class MonkeyWrench(object):
-    """A monkey wrench ☺"""
+    """A monkey wrench """
 
     def __init__(self, game, now=None):
         self.game = game
@@ -49,16 +46,6 @@ class MonkeyWrench(object):
         if not self._now:
             self._now = self.game.time
         return self._now
-
-    def flights_in_the_air(self):
-        """Return a list of flights currently in the air"""
-        in_flight = []
-        flights = self.game.flights.filter(depart_time__lt=self.now)
-        for flight in flights:
-            if flight.in_flight(self.now):
-                in_flight.append(flight)
-
-        return in_flight
 
 
 class CancelledFlight(MonkeyWrench):
@@ -148,22 +135,23 @@ class DivertedFlight(MonkeyWrench):
     )
 
     def throw(self):
-        flights = self.flights_in_the_air()
-        if not flights:
+        flights = models.Flight.objects.in_flight(self.game, self.now)
+        if not flights.count():
             return
-        flight = random.choice(flights)
-        diverted_to = (self.game.airports
-                       .exclude(id=flight.destination.id)
-                       .order_by('?')[0])
+        flight = flights.order_by('?')[0]
+        diverted_to = models.Airport.objects.filter(game=self.game)
+        diverted_to = diverted_to.exclude(pk=flight.destination.pk)
+        diverted_to = diverted_to.order_by('?')[0]
         flight.destination = diverted_to
         flight.flight_time = models.City.get_flight_time(
-            flight.origin, flight.destination, models.Flight.cruise_speed)
+            flight.origin,
+            flight.destination,
+            models.Flight.cruise_speed)
         flight.save()
         reason = random.choice(self.reasons)
         broadcast(
             reason.format(num=flight.number, dest=diverted_to), self.game)
         self.thrown = True
-        return
 
 
 class MechanicalProblem(MonkeyWrench):
@@ -173,22 +161,20 @@ class MechanicalProblem(MonkeyWrench):
     * The flight time multiplied by how far it's travelled
     """
     def throw(self):
-        flights = self.flights_in_the_air()
-        if not flights:
-            return
-        flight = random.choice(flights)
-        if flight.destination == flight.origin:
+        flights = models.Flight.objects.in_flight(self.game, self.now)
+        flights = flights.exclude(destination=F('origin')).order_by('?')
+        try:
+            flight = flights[0]
+        except IndexError:
             return
         flight.destination = flight.origin
         time_travelled = self.game.time - flight.depart_time
         flight.flight_time = time_travelled.total_seconds() * 2 / 60
         flight.save()
-        broadcast('Flight {num} is having mechanical problems '
-                  'and will return to {airport}'.format(num=flight.number,
-                                                        airport=flight.origin),
-                  self.game)
+        msg = 'Flight {0} is having mechanical problems and will return to {1}'
+        msg = msg.format(flight.number, flight.origin)
+        broadcast(msg, self.game)
         self.thrown = True
-        return
 
 
 class LateFlight(MonkeyWrench):
@@ -203,20 +189,22 @@ class LateFlight(MonkeyWrench):
     )
 
     def throw(self):
-        flights = self.flights_in_the_air()
-        if not flights:
+        flights = models.Flight.objects.in_flight(self.game, self.now)
+        flights = flights.order_by('?')
+        try:
+            flight = flights[0]
+        except IndexError:
             return
-        flight = random.choice(flights)
         minutes = random.randint(self.MIN_LATENESS, self.MAX_LATENESS)
         flight.flight_time = flight.flight_time + minutes
         flight.state = 'Delayed'
         flight.save()
         message = random.choice(self.RANDOM_MESSAGES)
-        broadcast(message.format(
+        text = message.format(
             flight_number=flight.number,
             minutes=minutes,
-            destination=flight.destination),
-            self.game)
+            destination=flight.destination)
+        broadcast(text, self.game)
         self.thrown = True
         return
 
@@ -255,9 +243,14 @@ class Hint(MonkeyWrench):
 
 class TSA(MonkeyWrench):
     """Revoke a passenger's ticket just before the flight departs"""
+
+    # we revoke the tickets just before departure (sneaky ;)
+    minutes_before_departure = 15
+
     def throw(self):
         now = self.now
-        max_depart_time = now + datetime.timedelta(minutes=15)
+        max_depart_time = now + datetime.timedelta(
+            minutes=self.minutes_before_departure)
         flights = self.game.flights.filter(depart_time__lte=max_depart_time)
         flights = self.game.flights.exclude(depart_time__lte=now)
         flights = flights.annotate(num_passengers=Count('passengers'))
@@ -300,19 +293,20 @@ class TailWind(MonkeyWrench):
 
     def throw(self):
         now = self.now
-        flights = self.flights_in_the_air()
-        if not flights:
-            return
-        flight = random.choice(flights)
-        time_to_land = flight.arrival_time - now
-        if time_to_land < datetime.timedelta(minutes=self.minimum_minutes):
-            # forget it, not enough tail wind
+        min_arrival_time = now + datetime.timedelta(
+            minutes=self.minimum_minutes)
+        flights = models.Flight.objects.in_flight(self.game, now)
+        flights = flights.filter(arrival_time__gt=min_arrival_time)
+        flights = flights.order_by('?')
+        try:
+            flight = flights[0]
+        except IndexError:
             return
 
+        orig_arrival_time = int((flight.arrival_time - now).total_seconds())
         secs_to_shave = random.randint(
             self.minimum_minutes * 60,
-            min(int(time_to_land.total_seconds()), self.maximum_minutes * 60)
-        )
+            min(orig_arrival_time, self.maximum_minutes * 60))
         mins_to_shave = secs_to_shave // 60
         flight.arrival_time = flight.arrival_time - datetime.timedelta(
             minutes=mins_to_shave)
@@ -347,13 +341,13 @@ class MonkeyWrenchFactory(object):
     def create(self, game):
         """Create and return a new MonkeyWrench object"""
         wrench = random.choice(self.wrenches)(game)
-        logger.debug('Throwing wrench: %s', wrench)
+        logger.debug('Throwing wrench: %s' % wrench)
         return wrench
 
     def test(self, wrench):
-        """Only throw this «wrench»
+        """Only throw this *wrench*
 
-        «wrench» is a MonkeyWrench (sub)class or a string representing one"""
+        *wrench* is a MonkeyWrench (sub)class or a string representing one"""
         try:
             if issubclass(wrench, MonkeyWrench):
                 self.wrenches = [wrench]

@@ -28,7 +28,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['forcequit']:
             game = models.Game.objects.get(pk=options['forcequit'])
-            logger.info('Shutting down {}.'.format(game))
+            logger.info('Shutting down {0}.'.format(game))
             msg = '{0} is being forced to quit.'.format(game)
             models.Message.objects.broadcast(
                 msg, game=game, finishers=True, message_type='ERROR')

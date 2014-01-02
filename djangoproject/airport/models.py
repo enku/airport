@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 """Models for the airport django app"""
 from datetime import datetime, timedelta
 from logging import getLogger
@@ -26,8 +25,8 @@ class AirportModel(models.Model):
 
     @classmethod
     def touch(cls, objects, time=None):
-        """Re-touch object (list of qs) and set creation_time to «time» or
-        current time if «time» is None"""
+        """Re-touch object (list of qs) and set creation_time to *time* or
+        current time if *time* is None"""
         if not objects:
             return 0
 
@@ -52,7 +51,7 @@ class City(AirportModel):
         return self.name
 
     def distance_from(self, city):
-        """Return the distance (km) from «self» to «city»"""
+        """Return the distance (km) from *self* to *city*"""
 
         # using haversine
         lat1, lon1, lat2, lon2 = map(radians, [self.latitude,
@@ -115,7 +114,7 @@ class Airport(AirportModel):
 
     @classmethod
     def copy_from_master(cls, game, master):
-        """Copy airport from the AirportMaster into «game> and populate it
+        """Copy airport from the AirportMaster into *game* and populate it
         with destinations"""
         airport = cls()
         airport.name = master.name
@@ -127,16 +126,16 @@ class Airport(AirportModel):
         return airport
 
     def next_flights(self, now, future_only=False, auto_create=True):
-        """Return next Flights out from «self», creating new flights if
+        """Return next Flights out from *self*, creating new flights if
         necessary.  Return a list of flights ordered by destination city
         name
 
-        If «future_only» is True, only return future flights.  By default,
+        If *future_only* is True, only return future flights.  By default,
         will also return Flights that have already departed.  This is so
         the views that need flights can also display historical flights.
         If you only want future flights, pass "future_only=True"
 
-        If «auto_create» is True (default), automagically create fututure
+        If *auto_create* is True (default), automagically create fututure
         flights
         """
         game = self.game
@@ -161,7 +160,7 @@ class Airport(AirportModel):
                 'Airport cannot have itself as a destination.')
 
     def next_flight_to(self, city, now):
-        """Return the next flight to «city» or None"""
+        """Return the next flight to *city* or None"""
         if isinstance(city, Airport):
             city = city.city
         next_flights = self.next_flights(now, future_only=True,
@@ -206,8 +205,8 @@ class Airport(AirportModel):
     def get_destinations(self, dest_count):
         """Get the destinations for airport. rules are:
 
-        * Can't have more than «dest_count» destinations
-        * destination airports can't add more than «dest_count»
+        * Can't have more than *dest_count* destinations
+        * destination airports can't add more than *dest_count*
         * destination can't be in the same city
         """
         # if dest_count < 1:
@@ -231,7 +230,7 @@ class FlightManager(models.Manager):
     """we manage flights"""
 
     def random_flight_number(self, game):
-        """return a random number, not already a flight number for «game»"""
+        """return a random number, not already a flight number for *game*"""
         flights = self.filter(game=game).count()
         return flights % 9900 + 100
 
@@ -244,6 +243,16 @@ class FlightManager(models.Manager):
         flights = Flight.objects.filter(game=game)
         flights = flights.filter(arrival_time__lte=now)
         flights = flights.exclude(state='Arrived')
+        return flights
+
+    def in_flight(self, game, now=None):
+        """Return a queryset of flights currently in the air"""
+        now = now or game.time
+
+        flights = self.filter(game=game)
+        flights = flights.filter(depart_time__lt=now)
+        flights = flights.filter(arrival_time__gt=now)
+        flights = flights.exclude(state='Cancelled')
         return flights
 
 
@@ -306,7 +315,7 @@ class Flight(AirportModel):
                 'In-progress flight cannot be cancelled')
 
     def delay(self, timedelta, now=None):
-        """Delay the flight by «timedelta»"""
+        """Delay the flight by *timedelta*"""
         if now is None:
             now = self.game.time
 
@@ -408,7 +417,7 @@ class Flight(AirportModel):
 
     @property
     def passengers(self):
-        """Return a qs of passengers (Player) on this «Flight»"""
+        """Return a qs of passengers (Player) on this *Flight*"""
         return Player.objects.filter(ticket=self)
 
     def save(self, *args, **kwargs):
@@ -475,8 +484,8 @@ class Flight(AirportModel):
 
 
 def random_time(now, maximum=40):
-    """Helper function, return a random time in the future (from «now»)
-    with a maximium of «maximum» minutes in the future"""
+    """Helper function, return a random time in the future (from *now*)
+    with a maximium of *maximum* minutes in the future"""
 
     flight_time = randint(0, maximum)
     return now + timedelta(minutes=flight_time)
@@ -625,8 +634,8 @@ class Player(AirportModel):
 
         info is a tuple of (Airport or None, Flight or None)
 
-        This updates «ticket» and «airport» properties and returns either a
-        «Flight» object or an «Airport» object depending on whether the Player
+        This updates *ticket* and *airport* properties and returns either a
+        *Flight* object or an *Airport* object depending on whether the Player
         is currently in flight or not
         """
         if self.ticket:
@@ -669,7 +678,7 @@ class Player(AirportModel):
         self.save()
 
     def is_playing(self, game):
-        """Return True if player is a player in «game» else False"""
+        """Return True if player is a player in *game* else False"""
         return game.players.filter(id=self.id).exists()
 
     def needs_goal(self, game, city):
@@ -869,7 +878,7 @@ class MessageManager(models.Manager):
     def broadcast(self, text, game=None, message_type='DEFAULT',
                   finishers=False):
         """Send a message to all players in *game*"""
-        logger.info('%s: BROADCAST: %s', game, text)
+        logger.info('Game {0}: BROADCAST: {1}'.format(game, text))
         messages = []
 
         if game:
@@ -889,8 +898,8 @@ class MessageManager(models.Manager):
 
     def announce(self, announcer, text, game=None, message_type='DEFAULT',
                  finishers=False):
-        """Sends a message to all player but «announcer»"""
-        logger.info('%s: ANNOUNCE: %s', game, text)
+        """Sends a message to all player but *announcer*"""
+        logger.info('Game {0}: ANNOUNCE: {1}'.format(game, text))
         messages = []
 
         if isinstance(announcer, User):
@@ -914,7 +923,7 @@ class MessageManager(models.Manager):
         return messages
 
     def send(self, player, text, message_type='DEFAULT'):
-        """Send a unicast message to «player» return the Message object"""
+        """Send a unicast message to *player* return the Message object"""
         if isinstance(player, User):
             # we want the Player, but allow the caller to pass User
             # as well
@@ -923,13 +932,13 @@ class MessageManager(models.Manager):
         if player.ai_player:
             return
 
-        logger.info('MESSAGE(%s): %s', player.user.username, text)
+        logger.info('MESSAGE({0}): {1}'.format(player.username, text))
 
         return self.create(player=player, text=text, message_type=message_type)
 
     def get_messages(self, request, last_message=0, read=True, old=False):
-        """Get messages for «request.user» (as a list)
-            if «read»=True (default), mark the messages as read"""
+        """Get messages for *request.user* (as a list)
+            if *read*=True (default), mark the messages as read"""
 
         user = request.user
 
@@ -1004,7 +1013,7 @@ class GameManager(models.Manager):
     """We manage Games"""
 
     def create_game(self, host, goals, airports, density=5, ai_player=True):
-        """Create a new «Game»"""
+        """Create a new *Game*"""
         master_airports = list(AirportMaster.objects.distinct())
         shuffle(master_airports)
 
@@ -1186,11 +1195,11 @@ class Game(AirportModel):
     def add_player(self, player):
         """Add player to profile if game hasn't ended"""
         if self.state == self.GAME_OVER:
-            logger.info('%s: game over, cannot add players', self)
+            logger.info('{0}: game over, cannot add players'.format(self))
             return
 
         if player in self.players.distinct():
-            logger.info('%s: already in players', self)
+            logger.info('{0}: already in players'.format(self))
             return
 
         # This should never happen at the UI level, but we check anyway
@@ -1230,7 +1239,7 @@ class Game(AirportModel):
         player.save()
 
     def remove_player(self, player):
-        """Remove a player from the game... «player» can be a User or
+        """Remove a player from the game... *player* can be a User or
         Player model.
 
         This method does not check that the user is actually in the game.
@@ -1324,7 +1333,7 @@ class Game(AirportModel):
         return stats
 
     def goals_achieved_for(self, player):
-        """Return the number of goals achieved for «player»"""
+        """Return the number of goals achieved for *player*"""
         return Achievement.objects.filter(game=self, player=player,
                                           timestamp__isnull=False).count()
 
@@ -1464,7 +1473,7 @@ class Goal(AirportModel):
         """Return a dict of:
         stats[player] = datetime|None
 
-        where «player» are all players for the value is the datetime the
+        where *player* are all players for the value is the datetime the
         player finished the goal or None if player has yet to finish it
         """
         data = {}

@@ -1,30 +1,25 @@
 """
 Template tags for message templates
 """
-from __future__ import unicode_literals
-
 from django import template
 
 from airport.context_processors import externals
 
 register = template.Library()
+EXTERNALS = externals(None)
+DEFAULT_SOUND = EXTERNALS['message_DEFAULT_sound']
+DEFAULT_ICON = EXTERNALS['message_DEFAULT_icon']
 
 
 @register.filter
 def sound(message):
     """return the sound url for a given message"""
-    ext = externals(None)
-    return ext.get(
-        'message_{mtype}_sound'.format(mtype=message.message_type),
-        ext['message_DEFAULT_sound']
-    )
+    message_sound = 'message_{0}_sound'.format(message.message_type)
+    return EXTERNALS.get(message_sound, DEFAULT_SOUND)
 
 
 @register.filter
 def icon(message):
     """Return the icon url for a given message"""
-    ext = externals(None)
-    return ext.get(
-        'message_{mtype}_icon'.format(mtype=message.message_type),
-        ext['message_DEFAULT_icon']
-    )
+    message_icon = 'message_{0}_icon'.format(message.message_type)
+    return EXTERNALS.get(message_icon, DEFAULT_ICON)

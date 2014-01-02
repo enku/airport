@@ -1,8 +1,6 @@
 """
 Django views for the airport app
 """
-from __future__ import unicode_literals
-
 import datetime
 import json
 
@@ -273,8 +271,7 @@ def games_join(request):
                 models.Message.objects.send(player, msg)
     else:
         game.add_player(player)
-        msg = '{player.user.username} has joined {game}.'
-        msg = msg.format(player=player, game=game)
+        msg = '{0} has joined {1}.'.format(player, game)
         models.Message.objects.announce(player, msg, game, 'PLAYERACTION')
         lib.send_message('player_joined_game', (player.pk, game.pk))
 
@@ -292,19 +289,10 @@ def games_stats(request):
     cxt['game_count'] = games.count()
     cxt['won_count'] = models.Game.objects.won_by(player).count()
     cxt['goal_count'] = player.goals.count()
-    cxt['goals_per_game'] = (
-        1.0 * cxt['goal_count'] / cxt['game_count']
-        if cxt['game_count']
-        else 0)
     cxt['ticket_count'] = player.tickets.count()
-    cxt['tix_per_goal'] = (1.0 * cxt['ticket_count'] /
-                           cxt['goal_count'] if cxt['goal_count'] else 0)
     cxt['flight_hours'] = sum((i.flight.flight_time
                                for i in player.tickets)) / 60.0
-    cxt['flight_hours_per_game'] = (
-        cxt['flight_hours'] / cxt['game_count'] if cxt['game_count'] else 0)
 
-    # average game time
     cxt['total_time'] = datetime.timedelta(seconds=0)
     for game in games.distinct():
         last_goal = game.last_goal()
@@ -312,17 +300,26 @@ def games_stats(request):
                                                  player=player).timestamp
         if not my_time:
             continue
-        cxt['total_time'] = (cxt['total_time']
-                             + (my_time - game.creation_time))
+        cxt['total_time'] = cxt['total_time'] + (my_time - game.creation_time)
     cxt['total_time'] = cxt['total_time']
 
-    cxt['avg_time'] = (
-        1.0 * cxt['total_time'].total_seconds() / cxt['game_count']
-        if cxt['game_count']
-        else 0)
+    if cxt['game_count']:
+        cxt['avg_time'] = cxt['total_time'].total_seconds() / cxt['game_count']
+        cxt['flight_hours_per_game'] = cxt['flight_hours'] / cxt['game_count']
+        cxt['goals_per_game'] = cxt['goal_count'] / cxt['game_count']
+    else:
+        cxt['avg_time'] = 0.0
+        cxt['flight_hours_per_game'] = 0.0
+        cxt['game_count'] = 0.0
+
+    if cxt['goal_count']:
+        cxt['tix_per_goal'] = cxt['ticket_count'] / cxt['goal_count']
+    else:
+        cxt['tix_per_goal'] = 0.0
+
     # we really want hours though
     cxt['avg_time'] = cxt['avg_time'] / 3600.0
-    cxt['total_time'] = timedelta_to_hrs(cxt['total_time'])
+    cxt['total_time'] = cxt['total_time'].total_seconds() / 3600.0
 
     prior_games = games.exclude(state=-1).distinct()
     prior_games = prior_games.values_list('id', 'timestamp')
@@ -334,9 +331,8 @@ def games_stats(request):
     # then don't show it
     if prior_games:
         last_game = models.Game.objects.get(id=prior_games[0][0])
-        if last_game.place(player) == 0:
+        if not player.finished(last_game):
             prior_games.pop(0)
-
     cxt['prior_games'] = prior_games
 
     return render_to_response('airport/games_stats.html', cxt)
@@ -435,8 +431,7 @@ def register(request):
             password = form.cleaned_data['password1']
             try:
                 models.Player.objects.get(user__username=username)
-                context['error'] = 'User {user} already exists.'.format(
-                    user=username)
+                context['error'] = 'User {0} already exists.'.format(username)
             except models.Player.DoesNotExist:
                 create_user(username, password)
                 django_messages.add_message(
@@ -479,11 +474,6 @@ def create_user(username, password):
     player.save()
 
     return new_user
-
-
-def timedelta_to_hrs(td_object):
-    """Return timedelta object as hours"""
-    return td_object.total_seconds() / 3600.0
 
 
 def get_websocket_url(request):

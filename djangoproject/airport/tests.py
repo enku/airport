@@ -914,8 +914,8 @@ class MonkeyWrenchTest(AirportTestBase):
         crashed.exclude(pk=flight.pk).delete()
 
         wrench = mw.TailWind(self.game, now)
-        flights_in_air = wrench.flights_in_the_air()
-        self.assertEqual([flight], flights_in_air)
+        flights_in_air = models.Flight.objects.in_flight(self.game, now)
+        self.assertEqual([flight], list(flights_in_air))
 
         # when the wrench is thrown
         original_time = flight.arrival_time

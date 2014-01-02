@@ -221,7 +221,7 @@ class WebSocketConnection(websocket.WebSocketHandler):
         message_type = message['type']
         data = message['data']
         handler_name = 'handle_%s' % message_type
-        logger.debug('Message received: %s', message_type)
+        logger.debug('Message received: %s' % message_type)
 
         if hasattr(self, handler_name):
             handler = getattr(self, handler_name)
@@ -333,7 +333,7 @@ class IPCHandler(WebSocketConnection):
         message_type = message['type']
         data = message['data']
         handler_name = 'handle_%s' % message_type
-        logger.debug('Message received: %s', message_type)
+        logger.debug('Message received: %s' % message_type)
 
         if hasattr(self, handler_name):
             handler = getattr(self, handler_name)
@@ -391,7 +391,7 @@ class IPCHandler(WebSocketConnection):
     def handle_throw_wrench(self, game_id):
         game = models.Game.objects.get(pk=game_id)
         monkey_wrench = game.mwf.create(game)
-        logger.info('%s: throwing %s.', game, monkey_wrench)
+        logger.info('Game {0}: throwing {0}.'.format(game, monkey_wrench))
         monkey_wrench.throw()
 
     def handle_player_joined_game(self, data):
@@ -429,7 +429,7 @@ class SocketServer(threading.Thread):
     daemon = True
 
     def run(self):
-        logger.debug('%s has started', self.name)
+        logger.debug('%s has started' % self.name)
         self.application = Application([
             (r'/', SocketHandler),
             (r'/ipc', IPCHandler),
@@ -450,12 +450,11 @@ class GameThread(GameThreadClass):
 
     def __init__(self, **kwargs):
         self.game_id = kwargs.pop('game_id')
-        self.turn_event = threading.Event()
 
         super(GameThread, self).__init__(**kwargs)
 
     def run(self):
-        logger.info('Starting thread for Game %s', self.game_id)
+        logger.info('Starting thread for Game %s' % self.game_id)
         self.fix_players()
         mw_gen = MonkeyWrenchGenerator()
         executor = ThreadPoolExecutor(max_workers=4)
@@ -463,12 +462,14 @@ class GameThread(GameThreadClass):
         now = None
 
         while True:
-            threading.Timer(LOOP_DELAY, self.turn_event.set).start()
+            timer = threading.Timer(LOOP_DELAY, lambda: None)
+            timer.start()
             game = models.Game.objects.get(pk=self.game_id)
+            ai_player = None
             has_ai_player = game.players.filter(ai_player=True).exists()
 
             if game.state == game.GAME_OVER:
-                logger.info('%s ended.', game)
+                logger.info('Game {0} ended.', game.pk)
                 return
 
             if has_ai_player:
@@ -480,8 +481,7 @@ class GameThread(GameThreadClass):
             # send all messages for this cycle
             executor.submit(self.send_messages)
 
-            self.turn_event.wait()
-            self.turn_event.clear()
+            timer.join()
 
     def send_messages(self):
         # send all player messages (via IPC)
@@ -502,7 +502,7 @@ class GameThread(GameThreadClass):
         # like a player's plane has already landed but their ticket hasn't been
         # taken away.  So they end up in limbo... or Texas.
         fixed_players = []
-        msg = '%s: Player %s had to be fixed.'
+        msg = 'Game {0}: Player {1} had to be fixed.'
         game = models.Game.objects.get(pk=self.game_id)
 
         for player in game.players.distinct():
@@ -514,7 +514,7 @@ class GameThread(GameThreadClass):
             else:
                 player.airport = game.start_airport
             player.save()
-            logger.info(msg, game, player.user.username)
+            logger.info(msg.format(game.pk, player.username))
             fixed_players.append(player)
         return fixed_players
 
