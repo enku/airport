@@ -8,9 +8,9 @@ DEFAULTS = {
     'GAME_NAME': 'Airport',
     'MINUTES_BEFORE_BOARDING': 10,
     'MAX_SESSION_MESSAGES': 16,
-    'SCALE_FLIGHT_TIMES': True,
+    'SCALE_FLIGHT_TIMES': False,
     'MIN_FLIGHT_TIME': 30,
-    'MAX_FLIGHT_TIME': 120,
+    'MAX_FLIGHT_TIME': None,
     'CRUISE_SPEED': 13.0,  # km/min (Boeing 737)
     'AI_USERNAMES': 'Guy Miles',
     'GAME_HISTORY_COUNT': 15,

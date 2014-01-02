@@ -69,8 +69,8 @@ class City(AirportModel):
 
     @classmethod
     def get_flight_time(cls, source, destination, speed):
-        """Return the time, in minutes, it takes to fly from «source» to
-        «destination» at speed «speed»"""
+        """Return the time, in minutes, it takes to fly from *source* to
+        *destination* at speed *speed*"""
         if isinstance(source, (Airport, AirportMaster)):
             source = source.city
         if isinstance(destination, (Airport, AirportMaster)):
@@ -175,7 +175,7 @@ class Airport(AirportModel):
         return None
 
     def create_flights(self, now):
-        """Create some flights starting from «now»"""
+        """Create some flights starting from *now*"""
         game = self.game
         cushion = 20  # minutes
 
@@ -187,6 +187,12 @@ class Airport(AirportModel):
 
             if settings.SCALE_FLIGHT_TIMES:
                 flight_time = game.scale_flight_time(flight_time)
+            else:
+                if settings.MIN_FLIGHT_TIME is not None:
+                    flight_time = max(flight_time, settings.MIN_FLIGHT_TIME)
+                if settings.MAX_FLIGHT_TIME is not None:
+                    flight_time = min(flight_time, settings.MAX_FLIGHT_TIME)
+
             flight = Flight.objects.create(
                 game=game,
                 origin=self,
