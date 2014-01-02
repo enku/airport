@@ -28,27 +28,27 @@ from airport.conf import settings
 @login_required
 def home(request):
     """Main view"""
-    profile = request.user.profile
-    game = profile.current_game
+    player = request.user.player
+    game = player.current_game
     context = {}
 
     if not game:
         return redirect(games_home)
     if game.state == game.GAME_OVER:
         return redirect(games_home)
-    if profile.finished(game):
+    if player.finished(game):
         return redirect(games_home)
     if game.state == game.NOT_STARTED:
-        if profile == game.host:
+        if player == game.host:
             lib.start_game(game)
         else:
             msg = 'Waiting for {0} to start the game.'
             msg = msg.format(game.host.user.username)
-            models.Message.objects.send(profile, msg)
+            models.Message.objects.send(player, msg)
             return redirect(games_home)
     websocket_url = get_websocket_url(request)
     context['game'] = game
-    context['profile'] = profile
+    context['player'] = player
     context['websocket_url'] = websocket_url
     return render(request, 'airport/home.html', context)
 
@@ -61,11 +61,11 @@ def info(request):
     dictionary.
     """
     user = request.user
-    profile = user.profile
-    game = profile.current_game
+    player = user.player
+    game = player.current_game
     if not game:
         return json_redirect(reverse(games_home))
-    if game.state == game.GAME_OVER or profile.finished(game):
+    if game.state == game.GAME_OVER or player.finished(game):
         return json_redirect('%s?id=%s' % (reverse(game_summary), game.id))
     now = game.time
     flight_purchased = None
@@ -74,13 +74,13 @@ def info(request):
         if 'selected' in request.POST:
             flight_id = int(request.POST['selected'])
             flight = get_object_or_404(models.Flight, game=game, pk=flight_id)
-            flight_purchased = purchase_flight(profile, flight, now)
+            flight_purchased = purchase_flight(player, flight, now)
 
     if flight_purchased:
         lib.send_message('throw_wrench', game.pk)
         game = models.Game.objects.get(pk=game.pk)
         now = game.time
-    player_info = profile.info(game, now)
+    player_info = player.info(game, now)
     return json_response(player_info)
 
 
@@ -111,7 +111,7 @@ def pause_game(request):
     """Pause/Resume game"""
     game_id = request.GET.get('id', None)
     game = get_object_or_404(models.Game, pk=game_id)
-    player = request.user.profile
+    player = request.user.player
 
     if player != game.host:
         # only the host can pause/resume the game
@@ -132,7 +132,7 @@ def rage_quit(request):
     """Bail out of the game because you are a big wuss"""
     game_id = request.GET.get('id', None)
     game = get_object_or_404(models.Game, id=game_id)
-    player = request.user.profile
+    player = request.user.player
 
     # If we call player.info() *after* we've removed them from the game, it
     # gets confused because the player is not in the game and it tries to add
@@ -171,11 +171,11 @@ def messages(request):
 @login_required
 def games_home(request):
     """Main games view"""
-    profile = request.user.profile
-    open_game = profile.current_game
+    player = request.user.player
+    open_game = player.current_game
 
-    if open_game and (open_game.state == open_game.GAME_OVER or profile in
-                      models.UserProfile.objects.winners(open_game)):
+    if open_game and (open_game.state == open_game.GAME_OVER or player in
+                      models.Player.objects.winners(open_game)):
         open_game = None
 
     airport_count = models.AirportMaster.objects.all().count()
@@ -193,15 +193,15 @@ def games_home(request):
 @login_required
 def games_info(request):
     """Just another json view"""
-    profile = request.user.profile
-    game = profile.current_game
+    player = request.user.player
+    game = player.current_game
 
     # if user is in an open game and it has started, redirect to that game
     if (game and game.state in (game.IN_PROGRESS, game.PAUSED)
-            and request.user.profile.finished(game)):
+            and request.user.player.finished(game)):
         return json_redirect(reverse(home))
 
-    data = profile.game_info()
+    data = player.game_info()
     data['games'] = models.Game.games_info()
     return json_response(data)
 
@@ -214,13 +214,13 @@ def games_create(request):
     to the games view
     """
     user = request.user
-    profile = user.profile
+    player = user.player
 
     form = forms.CreateGameForm(request.POST)
     if not form.is_valid():
         text = 'Error creating game: {0}'
         text = text.format(form.errors)
-        models.Message.objects.send(profile, text)
+        models.Message.objects.send(player, text)
         return redirect(games_home)
 
     data = form.cleaned_data
@@ -229,14 +229,14 @@ def games_create(request):
     ai_player = data['ai_player']
 
     games = models.Game.objects.exclude(state=models.Game.GAME_OVER)
-    games = games.filter(players=profile)
-    winners = models.UserProfile.objects.winners
-    if games.exists() and not all([profile in winners(i) for i in games]):
+    games = games.filter(players=player)
+    winners = models.Player.objects.winners
+    if games.exists() and not all([player in winners(i) for i in games]):
         m = 'Cannot create a game since you are already playing an open game.'
-        models.Message.objects.send(profile, m)
+        models.Message.objects.send(player, m)
     else:
         game = models.Game.objects.create_game(
-            host=profile,
+            host=player,
             goals=num_goals,
             airports=num_airports,
             ai_player=ai_player,
@@ -251,32 +251,32 @@ def games_join(request):
     """Join a game.  Game must exist and have not ended (you can join a
     game that is in progress
     """
-    profile = request.user.profile
+    player = request.user.player
 
     game_id = request.GET.get('id', None)
     game = get_object_or_404(models.Game, id=game_id)
     if game.state == game.GAME_OVER:
         msg = 'Could not join you to {0} because it is over.'
         msg = msg.format(game)
-        models.Message.objects.send(profile, msg)
-    elif profile.is_playing(game):
-        if profile in models.UserProfile.objects.winners(game):
+        models.Message.objects.send(player, msg)
+    elif player.is_playing(game):
+        if player in models.Player.objects.winners(game):
             msg = 'You have already finished {0}.'
             msg = msg.format(game)
-            models.Message.objects.send(profile, msg)
+            models.Message.objects.send(player, msg)
         else:
             if game.state > game.GAME_OVER:
                 return json_redirect(reverse(home))
             else:
                 msg = 'You have already joined {0}.'
                 msg = msg.format(game)
-                models.Message.objects.send(profile, msg)
+                models.Message.objects.send(player, msg)
     else:
-        game.add_player(profile)
+        game.add_player(player)
         msg = '{player.user.username} has joined {game}.'
-        msg = msg.format(player=profile, game=game)
-        models.Message.objects.announce(profile, msg, game, 'PLAYERACTION')
-        lib.send_message('player_joined_game', (profile.pk, game.pk))
+        msg = msg.format(player=player, game=game)
+        models.Message.objects.announce(player, msg, game, 'PLAYERACTION')
+        lib.send_message('player_joined_game', (player.pk, game.pk))
 
     return games_info(request)
 
@@ -284,23 +284,23 @@ def games_join(request):
 @login_required
 def games_stats(request):
     """Return user stats on game"""
-    profile = request.user.profile
-    games = profile.games
+    player = request.user.player
+    games = player.games
 
     cxt = {}
     cxt['user'] = request.user
     cxt['game_count'] = games.count()
-    cxt['won_count'] = models.Game.objects.won_by(profile).count()
-    cxt['goal_count'] = profile.goals.count()
+    cxt['won_count'] = models.Game.objects.won_by(player).count()
+    cxt['goal_count'] = player.goals.count()
     cxt['goals_per_game'] = (
         1.0 * cxt['goal_count'] / cxt['game_count']
         if cxt['game_count']
         else 0)
-    cxt['ticket_count'] = profile.tickets.count()
+    cxt['ticket_count'] = player.tickets.count()
     cxt['tix_per_goal'] = (1.0 * cxt['ticket_count'] /
                            cxt['goal_count'] if cxt['goal_count'] else 0)
     cxt['flight_hours'] = sum((i.flight.flight_time
-                               for i in profile.tickets)) / 60.0
+                               for i in player.tickets)) / 60.0
     cxt['flight_hours_per_game'] = (
         cxt['flight_hours'] / cxt['game_count'] if cxt['game_count'] else 0)
 
@@ -309,7 +309,7 @@ def games_stats(request):
     for game in games.distinct():
         last_goal = game.last_goal()
         my_time = models.Achievement.objects.get(game=game, goal=last_goal,
-                                                 profile=profile).timestamp
+                                                 player=player).timestamp
         if not my_time:
             continue
         cxt['total_time'] = (cxt['total_time']
@@ -334,7 +334,7 @@ def games_stats(request):
     # then don't show it
     if prior_games:
         last_game = models.Game.objects.get(id=prior_games[0][0])
-        if last_game.place(profile) == 0:
+        if last_game.place(player) == 0:
             prior_games.pop(0)
 
     cxt['prior_games'] = prior_games
@@ -351,17 +351,17 @@ def game_summary(request):
 
     username = request.GET.get('player', None)
     if username:
-        profile = get_object_or_404(
-            models.UserProfile, user__username=username)
+        player = get_object_or_404(
+            models.Player, user__username=username)
     else:
-        profile = request.user.profile
+        player = request.user.player
 
-    if not profile.is_playing(game):
+    if not player.is_playing(game):
         return redirect(games_home)
 
     goals = list(models.Goal.objects.filter(game=game).order_by('order'))
     tickets = models.Purchase.objects.filter(
-        profile=profile, game=game).order_by('creation_time')
+        player=player, game=game).order_by('creation_time')
 
     current_goal = 0
     for ticket in tickets:
@@ -373,16 +373,16 @@ def game_summary(request):
         except IndexError:
             pass
 
-    placed = game.place(profile)
+    placed = game.place(player)
 
     context = {}
-    context['profile'] = profile
+    context['player'] = player
     context['tickets'] = tickets
     context['placed'] = placed
     context['game'] = game
     context['goals'] = goals
     context['num_airports'] = game.airports.distinct().count()
-    context['players'] = game.players.exclude(id=profile.id).distinct()
+    context['players'] = game.players.exclude(id=player.id).distinct()
     context['map_latitude'] = settings.MAP_INITIAL_LATITUDE
     context['map_longitude'] = settings.MAP_INITIAL_LONGITUDE
     context['map_zoom'] = settings.MAP_INITIAL_ZOOM
@@ -434,10 +434,10 @@ def register(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password1']
             try:
-                models.UserProfile.objects.get(user__username=username)
+                models.Player.objects.get(user__username=username)
                 context['error'] = 'User {user} already exists.'.format(
                     user=username)
-            except models.UserProfile.DoesNotExist:
+            except models.Player.DoesNotExist:
                 create_user(username, password)
                 django_messages.add_message(
                     request, django_messages.INFO,
@@ -446,7 +446,7 @@ def register(request):
         else:
             context['error'] = form._errors
 
-    context['users'] = models.UserProfile.objects.all()
+    context['users'] = models.Player.objects.all()
     return render(request, 'registration/register.html', context)
 
 
@@ -474,9 +474,9 @@ def create_user(username, password):
     new_user.is_active = True
     new_user.save()
 
-    userprofile = models.UserProfile()
-    userprofile.user = new_user
-    userprofile.save()
+    player = models.Player()
+    player.user = new_user
+    player.save()
 
     return new_user
 

@@ -223,16 +223,16 @@ class LateFlight(MonkeyWrench):
 
 class Hint(MonkeyWrench):
     """This isn't a monkey wrench at all, it actually is helpful.  It
-    picks a random user of the game, finds their current goal, and sends a
+    picks a random player of the game, finds their current goal, and sends a
     message telling them what (random) airport goes to that goal"""
     def throw(self):
         try:
-            profile = self.game.players.order_by('?')[0]
+            player = self.game.players.order_by('?')[0]
         except IndexError:
             return
 
         try:
-            achievers = profile.achievement_set.filter(
+            achievers = player.achievement_set.filter(
                 game=self.game,
                 timestamp=None)
             current_goal = achievers[0].goal.city
@@ -248,7 +248,7 @@ class Hint(MonkeyWrench):
 
         msg = 'Hint: {0} goes to {1} ;-)'
         msg = msg.format(airport_to_goal, current_goal.name)
-        models.Message.objects.send(profile, msg)
+        models.Message.objects.send(player, msg)
         self.thrown = True
         return
 

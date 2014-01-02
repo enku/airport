@@ -41,7 +41,7 @@ def take_turn(game, now=None, throw_wrench=True):
     if game.state in (game.GAME_OVER, game.NOT_STARTED, game.PAUSED):
         return now
 
-    winners_before = models.UserProfile.objects.winners(game)
+    winners_before = models.Player.objects.winners(game)
     now = now or game.time
     arrivals = {}
 
@@ -140,7 +140,7 @@ def handle_players(game, now, winners_before, arrivals):
             player_info['notify'] = notify
         send_message('info', player_info)
 
-    winners = models.UserProfile.objects.winners(game)
+    winners = models.Player.objects.winners(game)
     if not winners_before and winners:
         if len(winners) == 1:
             msg = '{0} has won {1}.'
@@ -295,11 +295,11 @@ class SocketHandler(WebSocketConnection):
             data['games'] = games
 
             if client.user:
-                profile = client.user.profile
-                if profile.current_game is not None:
+                player = client.user.player
+                if player.current_game is not None:
                     # we only care to give this info to users waiting on a game
                     continue
-                data.update(profile.game_info())
+                data.update(player.game_info())
 
             client.write_message(json.dumps(
                 {
@@ -486,9 +486,9 @@ class GameThread(GameThreadClass):
     def send_messages(self):
         # send all player messages (via IPC)
         msgs_to_send = models.Message.objects.filter(
-            read=False).order_by('profile', 'creation_time')
+            read=False).order_by('player', 'creation_time')
         for message in msgs_to_send:
-            user = message.profile.user
+            user = message.player.user
             IPCHandler.send_message(
                 'player_message',
                 {'player': user.username, 'message': message.to_dict()}
