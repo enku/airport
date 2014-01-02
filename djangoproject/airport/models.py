@@ -260,7 +260,7 @@ class Flight(AirportModel):
     full = models.BooleanField(default=False)
     objects = FlightManager()
 
-    cruise_speed = 14.890  # cruise speed (km/min) of a 747
+    cruise_speed = settings.CRUISE_SPEED
 
     def in_flight(self, now):
         """Return true if flight is in the air"""

@@ -11,6 +11,7 @@ DEFAULTS = {
     'SCALE_FLIGHT_TIMES': True,
     'MIN_FLIGHT_TIME': 30,
     'MAX_FLIGHT_TIME': 120,
+    'CRUISE_SPEED': 13.0,  # km/min (Boeing 737)
     'AI_USERNAMES': 'Guy Miles',
     'GAME_HISTORY_COUNT': 15,
     'MAX_TIME_BETWEEN_WRENCHES': 45,  # seconds
