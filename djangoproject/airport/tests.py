@@ -7,6 +7,7 @@ import random
 import time
 
 from django.contrib.auth.models import User
+from django.core import management
 from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
 from mock import patch
@@ -976,3 +977,12 @@ class GameServerTest(AirportTestBase):
                 continue
             game_id = message['game']
             self.assertNotEqual(game_id, self.game.pk)
+
+    @patch('airport.lib.send_message')
+    def test_force_quit_game(self, send_message):
+        # start the game server
+        lib.start_game(self.game)
+        management.call_command('gameserver', forcequit=self.game.pk)
+        # re-fetch the model
+        game = models.Game.objects.get(pk=self.game.pk)
+        self.assertEqual(game.state, game.GAME_OVER)

@@ -141,7 +141,8 @@ def rage_quit(request):
     # don't want this either way.  Call player.info() before removing them from
     # the game.
     game.remove_player(player)
-    models.Message.objects.send(player, 'You have quit %s. Wuss!' % game)
+    if game.state != game.GAME_OVER:
+        models.Message.objects.send(player, 'You have quit %s. Wuss!' % game)
     lib.send_message('player_left_game', (player.pk, game.pk))
     return json_redirect(reverse(games_home))
 

@@ -1,4 +1,6 @@
 from logging import getLogger
+from optparse import make_option
+from time import sleep
 
 from django.db import connection
 from django.core.management.base import BaseCommand
@@ -11,8 +13,31 @@ logger = getLogger('airport.gameserver')
 
 
 class Command(BaseCommand):
+
     """Airport Game Server"""
+    args = '[--forcequit=game_id]'
+    help = 'Airport Game Server'
+
+    option_list = BaseCommand.option_list + (
+        make_option('--forcequit',
+                    type='int',
+                    default=0,
+                    help='Force a game to quit'),
+    )
+
     def handle(self, *args, **options):
+        if options['forcequit']:
+            game = models.Game.objects.get(pk=options['forcequit'])
+            logger.info('Shutting down {}.'.format(game))
+            msg = '{0} is being forced to quit.'.format(game)
+            models.Message.objects.broadcast(
+                msg, game=game, finishers=True, message_type='ERROR')
+            # give the broadcast a few seconds to get received
+            sleep(4.0)
+            game.end()
+            lib.send_message('game_ended', game.pk)
+            return
+
         logger.info('Game Server Started')
         socket_server = start_thread(lib.SocketServer, name='Socket Server')
 
@@ -26,7 +51,6 @@ class Command(BaseCommand):
 
 
 def start_thread(thread_class, **kwargs):
-    """Create, start and return the thread."""
     thread = thread_class(**kwargs)
     thread.daemon = True
     thread.start()
