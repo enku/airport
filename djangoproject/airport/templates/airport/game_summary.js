@@ -4,6 +4,7 @@ var map,
 // draw polylines on the map
 function draw_polylines(map) {
     var lat1, lon1, lat2, lon2;
+    var arrow = {path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW};
 
     {% for ticket in tickets %}
     lat1 = {{ ticket.flight.origin.city.latitude }};
@@ -27,7 +28,8 @@ function draw_polylines(map) {
         ],
         strokeColor: "{% cycle '#01004B' '#C70000' %}",
         strokeWeight: 3,
-        strokeOpacity: 0.6
+        strokeOpacity: 0.6,
+        icons: [{icon: arrow, offset: '100%'}]
     });
     {% if ticket.goal %}
         new google.maps.Marker({
