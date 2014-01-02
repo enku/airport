@@ -1,17 +1,16 @@
 """Thread classes and helpers for Airport"""
 from logging import getLogger
-from os import environ
 from random import randint
 from threading import Event, Thread, Timer
 
-from django.conf import settings
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 
+from airport.conf import settings
 from airport.lib.websocket import IPCHandler, SocketHandler
 from airport.models import Message
 
-LOOP_DELAY = float(environ.get('GAMESERVER_LOOP_DELAY', '5'))
+LOOP_DELAY = settings.GAMESERVER_LOOP_DELAY
 logger = getLogger('airport.threads')
 
 
@@ -125,7 +124,7 @@ class GameThread(Thread):
 
 
 class MonkeyWrenchGenerator(object):
-    max_wait = 45
+    max_wait = settings.MAX_TIME_BETWEEN_WRENCHES
 
     def __init__(self):
         self._set_throw()

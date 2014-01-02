@@ -5,7 +5,6 @@ import os
 import sys
 import signal
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -13,6 +12,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
+from airport.conf import settings
 from airport.lib import get_user_from_session_id
 from airport.models import Game
 

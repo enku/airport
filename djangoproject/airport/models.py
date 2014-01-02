@@ -9,7 +9,6 @@ from logging import getLogger
 from math import asin, cos, sin, radians, sqrt
 from random import randint, sample, shuffle
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ValidationError
@@ -18,12 +17,9 @@ from django.db import models
 from django.db import transaction
 from django.template.defaultfilters import date, escape
 
-MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
-SCALE_FLIGHT_TIMES = getattr(settings, 'SCALE_FLIGHT_TIMES', True)
-MIN_FLIGHT_TIME = getattr(settings, 'MIN_FLIGHT_TIME', 30)
-MAX_FLIGHT_TIME = getattr(settings, 'MAX_FLIGHT_TIME', 120)
-AI_USERNAMES = getattr(settings, 'AI_USERNAMES', 'Guy Miles')
-BOARDING = timedelta(minutes=10)
+from .conf import settings
+
+BOARDING = timedelta(minutes=settings.MINUTES_BEFORE_BOARDING)
 logger = getLogger('airport.models')
 
 
@@ -193,7 +189,7 @@ class Airport(AirportModel):
                                                destination.city,
                                                Flight.cruise_speed)
 
-            if SCALE_FLIGHT_TIMES:
+            if settings.SCALE_FLIGHT_TIMES:
                 flight_time = game.scale_flight_time(flight_time)
             flight = Flight.objects.create(
                 game=game,
@@ -775,7 +771,7 @@ class UserProfile(AirportModel):
         else:
             # If none, create one
             pcount = cls.objects.filter(ai_player=True).count()
-            username = '{0}{1}'.format(AI_USERNAMES, pcount + 1)
+            username = '{0}{1}'.format(settings.AI_USERNAMES, pcount + 1)
             user = User.objects.create_user(username=username)
             player = cls.objects.create(user=user, ai_player=True)
 
@@ -949,7 +945,7 @@ class Message(AirportModel):
             messages_qs = cls.objects.filter(profile=user.profile,
                                              id__gt=last_message, read=False)
         messages_qs = messages_qs.order_by('-id')
-        messages = list(messages_qs)[:MAX_SESSION_MESSAGES]
+        messages = list(messages_qs)[:settings.MAX_SESSION_MESSAGES]
         for message in messages:
             message.new = not message.read
         if read:
@@ -1359,12 +1355,14 @@ class Game(AirportModel):
     def scale_flight_time(self, flight_time):
         # keep within extremes of MIN_* and MAX_*. For explanation, see
         # http://goo.gl/Lex3W
+        max_flight_time = settings.MAX_FLIGHT_TIME
+        min_flight_time = settings.MIN_FLIGHT_TIME
         min_ = self.min_distance / Flight.cruise_speed
         max_ = self.max_distance / Flight.cruise_speed
 
         return (
-            ((MAX_FLIGHT_TIME - MIN_FLIGHT_TIME) * (flight_time - min_))
-            / (max_ - min_)) + MIN_FLIGHT_TIME
+            ((max_flight_time - min_flight_time) * (flight_time - min_))
+            / (max_ - min_)) + min_flight_time
 
     def record_ticket_purchase(self, player, flight):
         """Add entry to Purchase table"""

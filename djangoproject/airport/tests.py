@@ -930,7 +930,7 @@ class GameServerTest(AirportTestBase):
         if message_type == 'info':
             self.messages.append(data)
 
-    @patch('airport.views.ipc.send_message')
+    @patch('airport.views.websocket.IPCHandler.send_message')
     def test_does_not_show_finished_on_new_game(self, send_message):
         # when we finish our first game
         self.game.begin()

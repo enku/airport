@@ -7,7 +7,6 @@ import datetime
 import json
 
 from django import get_version
-from django.conf import settings
 from django.contrib import messages as django_messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
@@ -20,6 +19,7 @@ from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 
 import airport
+from airport.conf import settings
 from airport.context_processors import externals
 from airport import forms
 from airport.lib import websocket
@@ -457,7 +457,7 @@ def register(request):
 
 def about(request):
     """Classic /about view"""
-    repo_url = getattr(settings, 'AIRPORT_REPO_URL', None)
+    repo_url = settings.AIRPORT_REPO_URL
     django_version = get_version()
     user_agent = request.META['HTTP_USER_AGENT']
     context = {
