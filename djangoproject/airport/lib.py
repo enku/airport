@@ -46,11 +46,12 @@ def take_turn(game, now=None, throw_wrench=True):
     arrivals = {}
 
     if not hasattr(game, '_airports'):
-        game._airports = game.airports.distinct()
+        game._airports = list(game.airports.distinct())
 
     if throw_wrench:
         send_message('throw_wrench', game.pk)
 
+    random.shuffle(game._airports)
     for airport in game._airports:
         players_arrived = handle_flights(game, airport, now)
         for player in players_arrived:
@@ -67,6 +68,7 @@ def handle_flights(game, airport, now=None):
 
     # Departing flights
     flights = airport.next_flights(now, auto_create=False)
+    random.shuffle(flights)
     for flight in flights:
         in_flight = flight.in_flight(now)
         ticket_holders = flight.passengers.distinct()
