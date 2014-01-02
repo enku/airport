@@ -857,7 +857,8 @@ class AIPlayer(AirportTestBase):
         ai_player = game.players.filter(ai_player=True)
         self.assertFalse(ai_player.exists())
 
-    def test_cannot_buy_full_flight(self):
+    @patch('airport.lib.send_message')
+    def test_cannot_buy_full_flight(self, send_message):
         """An AI player cannot attempt to buy a full flight."""
         self.game.end()
         # given the game with ai player
@@ -872,7 +873,7 @@ class AIPlayer(AirportTestBase):
         # When only one flight is outbound
         game.begin()
         airport = game.start_airport
-        now = game.timestamp
+        now = lib.take_turn(game)
         flights_out = airport.next_flights(now, future_only=True,
                                            auto_create=False)
         for flight in flights_out[:-1]:
@@ -894,10 +895,12 @@ class AIPlayer(AirportTestBase):
 class MonkeyWrenchTest(AirportTestBase):
 
     """Tests for Monkey wrenches."""
-    def test_TailWind(self):
+    @patch('airport.lib.send_message')
+    def test_TailWind(self, send_message):
         """HeadWind wrench."""
         # let's make sure at least one flight is in the air
-        now = self.game.time
+        self.game.begin()
+        now = lib.take_turn(self.game)
         airport = self.game.start_airport
         flights_out = airport.next_flights(now, future_only=True,
                                            auto_create=False)

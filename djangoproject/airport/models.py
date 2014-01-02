@@ -1001,7 +1001,6 @@ class GameManager(models.Manager):
         """Create a new «Game»"""
         master_airports = list(AirportMaster.objects.distinct())
         shuffle(master_airports)
-        now = datetime.now()
 
         game = Game()
 
@@ -1039,9 +1038,6 @@ class GameManager(models.Manager):
         # record min/max distances
         game.min_distance, game.max_distance = game.get_extremes()
         game.save()
-
-        # pre-populate the starting airport with flights
-        start_airport.next_flights(now)
 
         # add goals
         current_airport = game.start_airport
