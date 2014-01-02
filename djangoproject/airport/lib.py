@@ -33,7 +33,7 @@ def take_turn(game, now=None, throw_wrench=True):
     if game.state in (game.GAME_OVER, game.NOT_STARTED, game.PAUSED):
         return now
 
-    winners_before = game.winners()
+    winners_before = models.UserProfile.objects.winners(game)
     now = now or game.time
     arrivals = {}
 
@@ -53,7 +53,7 @@ def take_turn(game, now=None, throw_wrench=True):
 
 
 def handle_flights(game, airport, now=None):
-    announce = models.Message.announce
+    announce = models.Message.objects.announce
     now = now or game.time
     players_arrived = []
 
@@ -109,7 +109,7 @@ def handle_players(game, now, winners_before, arrivals):
     """Update each player in game."""
     # re-fetch the game in case it's paused
     game = models.Game.objects.get(pk=game.pk)
-    broadcast = models.Message.broadcast
+    broadcast = models.Message.objects.broadcast
     players = game.players.distinct()
 
     # FIXME: If the data previously sent hasn't changed, we shouldn't
@@ -130,7 +130,7 @@ def handle_players(game, now, winners_before, arrivals):
             player_info['notify'] = notify
         send_message('info', player_info)
 
-    winners = game.winners()
+    winners = models.UserProfile.objects.winners(game)
     if not winners_before and winners:
         if len(winners) == 1:
             msg = '{0} has won {1}.'

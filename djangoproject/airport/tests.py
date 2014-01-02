@@ -459,13 +459,13 @@ class Messages(AirportTestBase):
 
     def test_get_latest(self):
         """Test the get_latest() method"""
-        message = models.Message.send(self.user, 'Test 1')
+        message = models.Message.objects.send(self.user, 'Test 1')
 
-        last_message = models.Message.get_latest(self.user)
+        last_message = models.Message.objects.get_latest(self.user)
         self.assertEqual(last_message, message)
 
-        message = models.Message.send(self.user, 'Test 2')
-        last_message = models.Message.get_latest(self.user)
+        message = models.Message.objects.send(self.user, 'Test 2')
+        last_message = models.Message.objects.get_latest(self.user)
         self.assertEqual(last_message, message)
 
     def test_in_view(self):
@@ -475,7 +475,7 @@ class Messages(AirportTestBase):
         self.client.login(username='user1', password='test')
 
         # inject a message
-        message = models.Message.send(self.user, 'Test 1')
+        message = models.Message.objects.send(self.user, 'Test 1')
         response = self.client.get(view)
         self.assertContains(response, 'data-id="%s"' % message.id)
 
@@ -484,8 +484,8 @@ class Messages(AirportTestBase):
         self.assertEqual(response.status_code, 304)
 
         # insert 2 messages
-        message1 = models.Message.send(self.user, 'Test 2')
-        message2 = models.Message.send(self.user, 'Test 3')
+        message1 = models.Message.objects.send(self.user, 'Test 2')
+        message2 = models.Message.objects.send(self.user, 'Test 3')
         response = self.client.get(view)
         self.assertContains(response, 'data-id="%s"' % message1.id)
         self.assertContains(response, 'data-id="%s"' % message2.id)
@@ -496,7 +496,8 @@ class Messages(AirportTestBase):
 
         messages = []
         for i in range(6):
-            messages.append(models.Message.send(self.user, 'Test %s' % i))
+            messages.append(models.Message.objects.send(
+                self.user, 'Test %s' % i))
 
         self.client.login(username='user1', password='test')
         response = self.client.get(view)
@@ -513,8 +514,9 @@ class Messages(AirportTestBase):
                                                airports=4, density=1)
         game.begin()
         goal = models.Goal.objects.get(game=game)
-        models.Message.broadcast('this is test1', finishers=False)
-        messages = models.Message.get_messages(self, read=False)
+        models.Message.objects.broadcast('this is test1',
+                                         finishers=False)
+        messages = models.Message.objects.get_messages(self, read=False)
         self.assertEqual(messages[0].text, 'this is test1')
 
         # finish
@@ -524,13 +526,14 @@ class Messages(AirportTestBase):
         my_achievement.save()
 
         # send a broadcast with finishers=False
-        models.Message.broadcast('this is test2', game, finishers=False)
-        messages = models.Message.get_messages(self, read=False)
+        models.Message.objects.broadcast('this is test2', game,
+                                         finishers=False)
+        messages = models.Message.objects.get_messages(self, read=False)
         self.assertNotEqual(messages[0].text, 'this is test2')
 
         # send a broadcast with finishers=True
-        models.Message.broadcast('this is test3', game, finishers=True)
-        messages = models.Message.get_messages(self, read=False)
+        models.Message.objects.broadcast('this is test3', game, finishers=True)
+        messages = models.Message.objects.get_messages(self, read=False)
         self.assertEqual(messages[0].text, 'this is test3')
 
 
@@ -949,7 +952,7 @@ class GameServerTest(AirportTestBase):
         ach = models.Achievement.objects.get(profile=self.user.profile,
                                              game=self.game)
         ach = ach.fulfill(now)
-        self.assertTrue(self.user.profile in self.game.finishers())
+        self.assertTrue(self.user.profile.finished(self.game))
 
         # when we join a new game
         game = models.Game.objects.create_game(

@@ -36,7 +36,7 @@ def home(request):
         return redirect(games_home)
     if game.state == game.GAME_OVER:
         return redirect(games_home)
-    if profile in game.finishers():
+    if profile.finished(game):
         return redirect(games_home)
     if game.state == game.NOT_STARTED:
         if profile == game.host:
@@ -44,7 +44,7 @@ def home(request):
         else:
             msg = 'Waiting for {0} to start the game.'
             msg = msg.format(game.host.user.username)
-            models.Message.send(profile, msg)
+            models.Message.objects.send(profile, msg)
             return redirect(games_home)
     websocket_url = get_websocket_url(request)
     context['game'] = game
@@ -65,7 +65,7 @@ def info(request):
     game = profile.current_game
     if not game:
         return json_redirect(reverse(games_home))
-    if game.state == game.GAME_OVER or profile in game.finishers():
+    if game.state == game.GAME_OVER or profile.finished(game):
         return json_redirect('%s?id=%s' % (reverse(game_summary), game.id))
     now = game.time
     flight_purchased = None
@@ -96,11 +96,11 @@ def purchase_flight(player, flight, game_time):
         player.purchase_flight(flight, game_time)
     except models.Flight.AlreadyDeparted:
         msg = 'Flight {0} has already left.'.format(flight.number)
-        models.Message.send(player, msg, message_type='ERROR')
+        models.Message.objects.send(player, msg, message_type='ERROR')
         return None
     except models.Flight.Full:
         msg = 'Flight {0} is full.'.format(flight.number)
-        models.Message.send(player, msg, message_type='ERROR')
+        models.Message.objects.send(player, msg, message_type='ERROR')
         return None
     return flight
 
@@ -141,7 +141,7 @@ def rage_quit(request):
     # don't want this either way.  Call player.info() before removing them from
     # the game.
     game.remove_player(player)
-    models.Message.send(player, 'You have quit %s. Wuss!' % game)
+    models.Message.objects.send(player, 'You have quit %s. Wuss!' % game)
     lib.send_message('player_left_game', (player.pk, game.pk))
     return json_redirect(reverse(games_home))
 
@@ -153,7 +153,8 @@ def messages(request):
     old = 'old' in request.GET
     response = HttpResponse()
     response['Cache-Control'] = 'no-cache'
-    _messages = models.Message.get_messages(request, last_message, old=old)
+    _messages = models.Message.objects.get_messages(request, last_message,
+                                                    old=old)
     if not _messages:
         response.status_code = 304
         response.content = ''
@@ -173,7 +174,7 @@ def games_home(request):
     open_game = profile.current_game
 
     if open_game and (open_game.state == open_game.GAME_OVER or profile in
-                      open_game.winners()):
+                      models.UserProfile.objects.winners(open_game)):
         open_game = None
 
     airport_count = models.AirportMaster.objects.all().count()
@@ -196,7 +197,7 @@ def games_info(request):
 
     # if user is in an open game and it has started, redirect to that game
     if (game and game.state in (game.IN_PROGRESS, game.PAUSED)
-            and request.user.profile not in game.finishers()):
+            and request.user.profile.finished(game)):
         return json_redirect(reverse(home))
 
     data = profile.game_info()
@@ -218,7 +219,7 @@ def games_create(request):
     if not form.is_valid():
         text = 'Error creating game: {0}'
         text = text.format(form.errors)
-        models.Message.send(profile, text)
+        models.Message.objects.send(profile, text)
         return redirect(games_home)
 
     data = form.cleaned_data
@@ -228,9 +229,10 @@ def games_create(request):
 
     games = models.Game.objects.exclude(state=models.Game.GAME_OVER)
     games = games.filter(players=profile)
-    if games.exists() and not all([profile in i.winners() for i in games]):
+    winners = models.UserProfile.objects.winners
+    if games.exists() and not all([profile in winners(i) for i in games]):
         m = 'Cannot create a game since you are already playing an open game.'
-        models.Message.send(profile, m)
+        models.Message.objects.send(profile, m)
     else:
         game = models.Game.objects.create_game(
             host=profile,
@@ -255,21 +257,24 @@ def games_join(request):
     if game.state == game.GAME_OVER:
         msg = 'Could not join you to {0} because it is over.'
         msg = msg.format(game)
-        models.Message.send(profile, msg)
+        models.Message.objects.send(profile, msg)
     elif profile.is_playing(game):
-        if profile in game.winners():
+        if profile in models.UserProfile.objects.winners(game):
             msg = 'You have already finished {0}.'
             msg = msg.format(game)
-            models.Message.send(profile, msg)
+            models.Message.objects.send(profile, msg)
         else:
-            msg = 'You have already joined {0}.'
-            msg.format(game)
-            models.Message.send(profile, msg)
+            if game.state > game.GAME_OVER:
+                return json_redirect(reverse(home))
+            else:
+                msg = 'You have already joined {0}.'
+                msg = msg.format(game)
+                models.Message.objects.send(profile, msg)
     else:
         game.add_player(profile)
         msg = '{player.user.username} has joined {game}.'
         msg = msg.format(player=profile, game=game)
-        models.Message.announce(profile, msg, game, 'PLAYERACTION')
+        models.Message.objects.announce(profile, msg, game, 'PLAYERACTION')
         lib.send_message('player_joined_game', (profile.pk, game.pk))
 
     return games_info(request)
@@ -284,7 +289,7 @@ def games_stats(request):
     cxt = {}
     cxt['user'] = request.user
     cxt['game_count'] = games.count()
-    cxt['won_count'] = profile.games_won.count()
+    cxt['won_count'] = models.Game.objects.won_by(profile).count()
     cxt['goal_count'] = profile.goals.count()
     cxt['goals_per_game'] = (
         1.0 * cxt['goal_count'] / cxt['game_count']

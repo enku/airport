@@ -248,7 +248,7 @@ class Hint(MonkeyWrench):
 
         msg = 'Hint: {0} goes to {1} ;-)'
         msg = msg.format(airport_to_goal, current_goal.name)
-        models.Message.send(profile, msg)
+        models.Message.objects.send(profile, msg)
         self.thrown = True
         return
 
@@ -270,7 +270,8 @@ class TSA(MonkeyWrench):
         # kick him off!
         msg = ('Somone reported you as suspicious and you have been removed'
                ' from the plane.')
-        models.Message.send(passenger, msg, message_type='MONKEYWRENCH')
+        models.Message.objects.send(passenger, msg,
+                                    message_type='MONKEYWRENCH')
         passenger.ticket = None
         passenger.save()
         self.thrown = True
@@ -319,7 +320,8 @@ class TailWind(MonkeyWrench):
 
         msg = 'Flight {0} caught some tail wind.  Arriving {1} minutes early.'
         msg = msg.format(flight.number, mins_to_shave)
-        models.Message.broadcast(msg, game=self.game, message_type='DEFAULT')
+        models.Message.objects.broadcast(msg, game=self.game,
+                                         message_type='DEFAULT')
         self.thrown = True
 
 
@@ -364,4 +366,5 @@ class MonkeyWrenchFactory(object):
 def broadcast(text, game):
     """Helper function, sends a Message.broadcast with
     message_type='MONKEYWRENCH'"""
-    models.Message.broadcast(text, game=game, message_type='MONKEYWRENCH')
+    models.Message.objects.broadcast(
+        text, game=game, message_type='MONKEYWRENCH')

@@ -471,6 +471,63 @@ def random_time(now, maximum=40):
     return now + timedelta(minutes=flight_time)
 
 
+class UserProfileManager(models.Manager):
+    def winners(self, game):
+        """Return the winners of the game."""
+
+        if game.state == game.NOT_STARTED:
+            # no winner if game hasn't started yet
+            return self.none()
+
+        # get the last goal
+        last_goal = Goal.objects.filter(game=game).order_by('-order')[0]
+        stats = last_goal.stats()
+        times = [stats[i] for i in stats if stats[i]]
+        if not times:
+            return self.none()
+        times.sort()
+        winning_time = times[0]
+        return self.filter(
+            achievement__goal=last_goal,
+            achievement__timestamp=winning_time
+        )
+
+    def finishers(self, game):
+        """Return the queryset of users who have finished the game"""
+        last_goal = Goal.objects.filter(game=game).order_by('-order')[0]
+        stats = last_goal.stats()
+        finishers = [i for i in stats if stats[i] is not None]
+        return self.filter(id__in=[i.id for i in finishers])
+
+    @transaction.atomic
+    def get_or_create_ai_player(self, game):
+        """Create an AI player and attach to game."""
+        # the reason why game is required is why would you don't need to create
+        # an AI player anyway w/o a game associated with it
+
+        # if game already has an AI player, just return that
+        try:
+            return game.players.get(ai_player=True)
+        except UserProfile.DoesNotExist:
+            pass
+
+        # See if there are any available players
+        players = self.filter(ai_player=True)
+        players = players.order_by('?')
+        for player in players:
+            if player.current_game is None:
+                break
+        else:
+            # If none, create one
+            pcount = self.filter(ai_player=True).count()
+            username = '{0}{1}'.format(settings.AI_USERNAMES, pcount + 1)
+            user = User.objects.create_user(username=username)
+            player = self.create(user=user, ai_player=True)
+
+        game.add_player(player)
+        return player
+
+
 class UserProfile(AirportModel):
 
     """Profile for players"""
@@ -479,6 +536,7 @@ class UserProfile(AirportModel):
     ticket = models.ForeignKey(Flight, null=True, blank=True,
                                related_name='passengers')
     ai_player = models.BooleanField(default=False)
+    objects = UserProfileManager()
 
     def __str__(self):
         return 'Profile for {username}'.format(username=self.user.username)
@@ -488,45 +546,16 @@ class UserProfile(AirportModel):
         """Games this user has played"""
         return self.game_set.distinct()
 
-    @property
-    def games_finished(self):
-        """Return qs of games finished"""
-        excludes = set()
-        for game in self.games:
-            nonachievers = (Achievement.objects.filter(game=game, profile=self,
-                                                       timestamp__isnull=True)
-                            .distinct()
-                            .values_list('goal__id', flat=True))
-            excludes.update(nonachievers)
-        return self.games.exclude(goal__id__in=excludes).distinct()
-
-    @property
-    def games_won(self):
-        """Return qs of games won"""
-        # TODO: There has got to be a better way to do this
-        winner_ids = set()
-        for game in self.games_finished:
-            last_goal = Goal.objects.filter(game=game).order_by('-order')[0]
-            winner_time = Achievement.objects.filter(
-                goal=last_goal,
-                timestamp__isnull=False
-            ).order_by('timestamp')[0].timestamp
-            winners = Achievement.objects.filter(
-                goal=last_goal,
-                timestamp=winner_time
-            )
-            for winner in winners:
-                if winner.profile == self:
-                    winner_ids.add(game.id)
-                    break
-        return Game.objects.filter(id__in=winner_ids)
+    def finished(self, game):
+        """Return if profile finished game"""
+        return UserProfile.objects.finishers(game).filter(pk=self.pk).exists()
 
     @property
     def current_game(self):
         """Return user's current open game or None if there is none"""
         try:
             last_game = self.games.order_by('-id')[0]
-            if self not in last_game.finishers():
+            if not self.finished(last_game):
                 return last_game
         except IndexError:
             pass
@@ -676,7 +705,7 @@ class UserProfile(AirportModel):
         states = ['New', 'Finished', 'Started', 'Paused']
         game = game or self.current_game
         now = now or game.time
-        finished = self in game.finishers()
+        finished = self.finished(game)
         stats = game.stats()
         goal_list = []
         nf_list = []
@@ -740,7 +769,7 @@ class UserProfile(AirportModel):
         state = self.current_state
 
         if game:
-            finished_current = self in game.finishers()
+            finished_current = self.finished(game)
             current_game = game.pk
         else:
             current_game = None
@@ -752,35 +781,6 @@ class UserProfile(AirportModel):
             'finished_current': finished_current
         }
         return data
-
-    @classmethod
-    @transaction.atomic
-    def get_or_create_ai_player(cls, game):
-        """Create an AI player and attach to game."""
-        # the reason why game is required is why would you don't need to create
-        # an AI player anyway w/o a game associated with it
-
-        # if game already has an AI player, just return that
-        try:
-            return game.players.get(ai_player=True)
-        except UserProfile.DoesNotExist:
-            pass
-
-        # See if there are any available players
-        players = cls.objects.filter(ai_player=True)
-        players = players.order_by('?')
-        for player in players:
-            if player.current_game is None:
-                break
-        else:
-            # If none, create one
-            pcount = cls.objects.filter(ai_player=True).count()
-            username = '{0}{1}'.format(settings.AI_USERNAMES, pcount + 1)
-            user = User.objects.create_user(username=username)
-            player = cls.objects.create(user=user, ai_player=True)
-
-        game.add_player(player)
-        return player
 
     def make_move(self, game=None, now=None):
         """AI make a move.  Assume we are in a game."""
@@ -794,7 +794,7 @@ class UserProfile(AirportModel):
         no_move = no_move or self.current_state != 'playing'
         no_move = no_move or self.ticket is not None
         no_move = no_move or game.state == game.GAME_OVER
-        no_move = no_move or self in game.finishers()
+        no_move = no_move or self.finished(game)
 
         if no_move:
             return
@@ -845,34 +845,14 @@ class UserProfile(AirportModel):
 
         super(UserProfile, self).save(*args, **kwargs)
         if new_user:
-            Message.send(self, 'Welcome to {}!'.format(settings.GAME_NAME))
+            msg = 'Welcome to {}!'.format(settings.GAME_NAME)
+            Message.objects.send(self, msg)
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
 
-class Message(AirportModel):
-
-    """Messages for users"""
-    text = models.CharField(max_length=255)
-    profile = models.ForeignKey(UserProfile, related_name='messages')
-    read = models.BooleanField(default=False)
-    message_type = models.CharField(max_length=32, default='DEFAULT')
-
-    def __str__(self):
-        return self.text
-
-    def to_dict(self):
-        """
-        Return Message as a Python dict.
-        """
-        return {
-            'id': self.pk,
-            'text': self.text,
-            'type': self.message_type,
-        }
-
-    @classmethod
-    def broadcast(cls, text, game=None, message_type='DEFAULT',
+class MessageManager(models.Manager):
+    def broadcast(self, text, game=None, message_type='DEFAULT',
                   finishers=False):
         """Send a message to all users in «game» with a UserProfile"""
         logger.info('%s: BROADCAST: %s', game, text)
@@ -882,18 +862,18 @@ class Message(AirportModel):
             profiles = UserProfile.objects.filter(game=game)
             profiles = profiles.exclude(ai_player=True).distinct()
             if not finishers:
-                profiles = profiles.exclude(id__in=[i.id for i in
-                                                    game.finishers()])
+                to_exclude = UserProfile.objects.finishers(game)
+                to_exclude = to_exclude.values_list('pk', flat=True)
+                profiles = profiles.exclude(pk__in=to_exclude)
         else:
             profiles = UserProfile.objects.exclude(ai_player=True)
 
         for profile in profiles:
-            messages.append(cls.objects.create(profile=profile, text=text,
-                                               message_type=message_type))
+            messages.append(self.create(profile=profile, text=text,
+                                        message_type=message_type))
         return messages
 
-    @classmethod
-    def announce(cls, announcer, text, game=None, message_type='DEFAULT',
+    def announce(self, announcer, text, game=None, message_type='DEFAULT',
                  finishers=False):
         """Sends a message to all users but «announcer»"""
         logger.info('%s: ANNOUNCE: %s', game, text)
@@ -908,18 +888,18 @@ class Message(AirportModel):
             profiles = UserProfile.objects.filter(game=game).distinct()
             profiles = profiles.exclude(ai_player=True)
             if not finishers:
-                profiles = profiles.exclude(id__in=[i.id for i in
-                                                    game.finishers()])
+                to_exclude = UserProfile.objects.finishers(game)
+                to_exclude = to_exclude.values_list('pk', flat=True)
+                profiles = profiles.exclude(pk__in=to_exclude)
         else:
             profiles = UserProfile.objects.exclude(ai_player=True)
 
         for profile in profiles.exclude(id=announcer.id).distinct():
-            messages.append(cls.objects.create(profile=profile, text=text,
-                                               message_type=message_type))
+            messages.append(self.create(profile=profile, text=text,
+                                        message_type=message_type))
         return messages
 
-    @classmethod
-    def send(cls, user, text, message_type='DEFAULT'):
+    def send(self, user, text, message_type='DEFAULT'):
         """Send a unicast message to «user» return the Message object"""
         if isinstance(user, User):
             # we want the UserProfile, but allow the caller to pass User
@@ -931,23 +911,20 @@ class Message(AirportModel):
 
         logger.info('MESSAGE(%s): %s', user.user.username, text)
 
-        return cls.objects.create(profile=user, text=text,
-                                  message_type=message_type)
+        return self.create(profile=user, text=text, message_type=message_type)
 
-    @classmethod
-    def get_messages(cls, request, last_message=0, read=True, old=False):
+    def get_messages(self, request, last_message=0, read=True, old=False):
         """Get messages for «request.user» (as a list)
             if «read»=True (default), mark the messages as read"""
-        # This should really be in a model manager, but i'm too lazy
 
         user = request.user
 
         if old:
-            messages_qs = cls.objects.filter(profile=user.profile,
-                                             id__gt=last_message)
+            messages_qs = self.filter(profile=user.profile,
+                                      id__gt=last_message)
         else:
-            messages_qs = cls.objects.filter(profile=user.profile,
-                                             id__gt=last_message, read=False)
+            messages_qs = self.filter(profile=user.profile,
+                                      id__gt=last_message, read=False)
         messages_qs = messages_qs.order_by('-id')
         messages = list(messages_qs)[:settings.MAX_SESSION_MESSAGES]
         for message in messages:
@@ -957,14 +934,13 @@ class Message(AirportModel):
 
         return messages
 
-    @classmethod
-    def get_latest(cls, user, read=False):
+    def get_latest(self, user, read=False):
         """Get the latest message for a user.  By default, does not mark
         the message as read"""
         if isinstance(user, User):
             user = user.profile
 
-        messages = cls.objects.filter(profile=user).order_by('-creation_time')
+        messages = self.filter(profile=user).order_by('-creation_time')
         if messages.exists():
             message = messages[0]
         else:
@@ -976,12 +952,37 @@ class Message(AirportModel):
 
         return message
 
+    pass
+
+
+class Message(AirportModel):
+
+    """Messages for users"""
+    text = models.CharField(max_length=255)
+    profile = models.ForeignKey(UserProfile, related_name='messages')
+    read = models.BooleanField(default=False)
+    message_type = models.CharField(max_length=32, default='DEFAULT')
+    objects = MessageManager()
+
+    def __str__(self):
+        return self.text
+
+    def to_dict(self):
+        """
+        Return Message as a Python dict.
+        """
+        return {
+            'id': self.pk,
+            'text': self.text,
+            'type': self.message_type,
+        }
+
     def mark_read(self):
         self.read = True
         self.save()
 
-announce = Message.announce
-broadcast = Message.broadcast
+announce = Message.objects.announce
+broadcast = Message.objects.broadcast
 
 
 class GameManager(models.Manager):
@@ -1062,9 +1063,38 @@ class GameManager(models.Manager):
         broadcast(msg, message_type='NEW_GAME')
 
         if ai_player:
-            UserProfile.get_or_create_ai_player(game)
+            UserProfile.objects.get_or_create_ai_player(game)
 
         return game
+
+    def finished_by(self, profile):
+        """Return qs of games finished by player"""
+        finished = []
+        games_played = self.filter(players=profile).distinct()
+        for game in games_played:
+            if profile.finished(game):
+                finished.append(game.pk)
+        return self.filter(pk__in=finished)
+
+    def won_by(self, profile):
+        """Return qs of games won"""
+        # TODO: There has got to be a better way to do this
+        winner_ids = set()
+        for game in self.finished_by(profile):
+            last_goal = Goal.objects.filter(game=game).order_by('-order')[0]
+            winner_time = Achievement.objects.filter(
+                goal=last_goal,
+                timestamp__isnull=False
+            ).order_by('timestamp')[0].timestamp
+            winners = Achievement.objects.filter(
+                goal=last_goal,
+                timestamp=winner_time
+            )
+            for winner in winners:
+                if winner.profile == profile:
+                    winner_ids.add(game.id)
+                    break
+        return Game.objects.filter(id__in=winner_ids)
 
 
 class Game(AirportModel):
@@ -1282,31 +1312,6 @@ class Game(AirportModel):
             stats.append(
                 [player.user.username, self.goals_achieved_for(player)])
         return stats
-
-    def winners(self):
-        """Return the winners of the game or [] if there are no
-        winners(yet)"""
-
-        if self.state == self.NOT_STARTED:
-            # no winner if game hasn't started yet
-            return []
-
-        # get the last goal
-        last_goal = Goal.objects.filter(game=self).order_by('-order')[0]
-        stats = last_goal.stats()
-        times = [stats[i] for i in stats if stats[i]]
-        if not times:
-            return []
-        times.sort()
-        winning_time = times[0]
-        return [i for i in stats if stats[i] == winning_time]
-
-    def finishers(self):
-        """Return the set of users who have finished the game"""
-        last_goal = Goal.objects.filter(game=self).order_by('-order')[0]
-        stats = last_goal.stats()
-        finishers = [i for i in stats if stats[i] is not None]
-        return self.players.filter(id__in=[i.id for i in finishers])
 
     def goals_achieved_for(self, profile):
         """Return the number of goals achieved for «profile»"""
