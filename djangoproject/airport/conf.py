@@ -15,6 +15,9 @@ DEFAULTS = {
     'GAME_HISTORY_COUNT': 15,
     'MAX_TIME_BETWEEN_WRENCHES': 45,  # seconds
     'AIRPORT_REPO_URL': 'https://bitbucket.org/marduk/airport',
+    'MAP_INITIAL_LATITUDE': 39.83,
+    'MAP_INITIAL_LONGITUDE': -98.58,
+    'MAP_INITIAL_ZOOM': 4,
     'WEBSOCKET_PORT': 8080,
     'IPC_PORT': 8081,
     'GAMESERVER_LOOP_DELAY': 4,

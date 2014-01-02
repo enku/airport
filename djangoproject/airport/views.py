@@ -391,6 +391,9 @@ def game_summary(request):
     context['goals'] = goals
     context['num_airports'] = game.airports.distinct().count()
     context['players'] = game.players.exclude(id=profile.id).distinct()
+    context['map_latitude'] = settings.MAP_INITIAL_LATITUDE
+    context['map_longitude'] = settings.MAP_INITIAL_LONGITUDE
+    context['map_zoom'] = settings.MAP_INITIAL_ZOOM
 
     return render(request, 'airport/game_summary.html', context)
 

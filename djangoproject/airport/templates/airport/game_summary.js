@@ -50,13 +50,13 @@ function show_map(event) {
     event.preventDefault();
     lightbox.show();
     google.maps.event.trigger(map, 'resize');
-    map.setCenter(new google.maps.LatLng(39.833, -98.583));
+    map.setCenter(new google.maps.LatLng({{ map_latitude }}, {{ map_longitude }}));
 }
 
 function main() {
     map_options = {
-            center: new google.maps.LatLng(39.833, -98.583),
-            zoom: 4,
+            center: new google.maps.LatLng({{ map_latitude }}, {{ map_longitude }}),
+            zoom: {{ map_zoom }},
             disableDefaultUI: true,
             zoomControl: true,
             mapTypeId: google.maps.MapTypeId.ROADMAP
