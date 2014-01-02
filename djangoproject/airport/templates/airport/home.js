@@ -249,8 +249,8 @@ function buy_ticket(event) {
 function show_notifications_widget() {
     /* show the notifications permission checkbox if the browser supports it,
      * but the user has not allowed the permission */
-    if (window.webkitNotifications 
-        && window.webkitNotifications.checkPermission() != 0) {
+    if (window.Notification 
+        && Notification.permisson !== 'granted') {
         $('#notification_permission').show();
     }
 }
@@ -259,8 +259,8 @@ function permit_notifications_cb() {
     /* call requestPermissions if the user has clicked on the allow
      * notifications checkbox */
     $('#notification_permission').fadeOut();
-    if (window.webkitNotifications) {
-        window.webkitNotifications.requestPermission();
+    if (window.Notification) {
+        Notification.requestPermission();
     }
 }
 

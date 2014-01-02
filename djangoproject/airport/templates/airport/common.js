@@ -135,15 +135,20 @@ jQuery.fn.center = function () {
 var airport = window.airport || {};
 airport.notify = function(message, timeout) {
     /* send a desktop notification, if allowed */
-    if (!window.webkitNotifications) {
+    if (!window.Notification) {
         return;
     }
     timeout = timeout || 20000;
-    if (window.webkitNotifications.checkPermission() == 0) {
-        var notification = window.webkitNotifications.createNotification(
-            '{{ notification_icon }}', '{{ game_name }}', message);
-        notification.show();
-        setTimeout(function() { notification.cancel();}, timeout);
+    if (Notification.permission === 'granted') {
+        var notification = new Notification(
+            '{{ game_name }}',
+            {body: message,
+             icon: '{{ notification_icon }}',
+             tag: 'airport'}
+        )
+        notification.onshow = function (event) {
+            setTimeout(function() { event.currentTarget.close();}, timeout);
+        }
     }
 }
 
