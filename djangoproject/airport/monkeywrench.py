@@ -16,12 +16,15 @@ and returns it to the caller
 from __future__ import unicode_literals
 
 import datetime
+import logging
 import os
 import random
 
 from django.db.models import Count
 
 from airport.models import City, Flight, Message
+
+logger = logging.getLogger()
 
 
 class MonkeyWrench(object):
@@ -30,6 +33,10 @@ class MonkeyWrench(object):
     def __init__(self, game):
         self.game = game
         self.thrown = False
+
+    def __str__(self):
+        text = 'MonkeyWrench: {0}'
+        return text.format(self.__class__.__name__)
 
     def throw(self):
         """throw this wrench"""
@@ -286,8 +293,9 @@ class MonkeyWrenchFactory(object):
     MonkeyWrench for a given game
 
     Usage:
-    >>> mwf = MonkeyWrenchFactory(game)
-    >>> mw = mwf.create()
+    mwf = MonkeyWrenchFactory(game)
+    mw = mwf.create()
+    mw.throw()
     """
     def __init__(self):
         mw_test = os.environ.get('MONKEYWRENCH_TEST', None)
@@ -301,7 +309,9 @@ class MonkeyWrenchFactory(object):
 
     def create(self, game):
         """Create and return a new MonkeyWrench object"""
-        return random.choice(self.wrenches)(game)
+        wrench = random.choice(self.wrenches)(game)
+        logger.debug('Throwing wrench: %s', wrench)
+        return wrench
 
     def test(self, wrench):
         """Only throw this «wrench»

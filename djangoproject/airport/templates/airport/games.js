@@ -136,6 +136,7 @@ function main() {
 
     airport.messages('#message_box');
     lightbox = new airport.LightBox('#lightbox_content');
+    airport.websocket_connect();
 
     $.ajax({
         url: "{% url "games_info" %}",

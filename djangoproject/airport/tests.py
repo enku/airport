@@ -9,7 +9,9 @@ import time
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from mock import patch
 
+from airport import take_turn
 from airport import models
 
 
@@ -41,7 +43,7 @@ class AirportTestBase(TestCase):
             users.append(user)
         return tuple(users)
 
-    def _create_game(self, host, goals=4, airports=30):
+    def _create_game(self, host, goals=1, airports=10):
         return models.Game.objects.create_game(
             host=host,
             goals=goals,
@@ -259,7 +261,7 @@ class ToDict(AirportTestBase):
         self.assertEqual(type(d), dict)
         self.assertEqual(sorted(d.keys()), sorted([
             'number', 'depart_time', 'arrival_time', 'destination',
-            'origin', 'status']))
+            'id', 'origin', 'status']))
         self.assertEqual(d['status'], 'On Time')
 
         now = datetime.datetime(2011, 11, 18, 4, 45)
@@ -278,8 +280,9 @@ class ToDict(AirportTestBase):
 
 class UserProfileTest(AirportTestBase):
     """Test the UserProfile model"""
-    def test_location_and_update(self):
-        """Test the Flight.location() and Game.update() methods"""
+    @patch('airport.send_message')
+    def test_location_and_update(self, send_message):
+        """Test the Flight.location() and take_turn()"""
         self.game.begin()
         now = self.game.time
         l = self.user.profile.location(now)
@@ -291,40 +294,42 @@ class UserProfileTest(AirportTestBase):
 
         self.user.profile.airport = airport
         self.user.profile.save()
-        self.game.update(self.user.profile, now)
+        take_turn(self.game, now)
         self.user.profile.purchase_flight(flight, self.game.time)
         l = self.user.profile.location(now)
         self.assertEqual(self.user.profile.ticket, flight)
         self.assertEqual(l, (airport, flight))
 
         # Take off!, assert we are in flight
-        x = self.game.update(self.user.profile,
-                             flight.depart_time)  # timestamp, airport, ticket
-        self.assertEqual(x[1], None)
-        self.assertEqual(x[2], flight)
+        take_turn(self.game, flight.depart_time)
+        self.assertEqual(self.user.profile.airport, None)
+        self.assertEqual(self.user.profile.ticket, flight)
 
         # when flight is delayed we are still in the air
         original_arrival = flight.arrival_time
         flight.delay(datetime.timedelta(minutes=20), now)
-        x = self.game.update(self.user.profile, original_arrival)
-        self.assertEqual(x[1], None)
-        self.assertEqual(x[2], flight)
+        take_turn(self.game, original_arrival)
+        profile = models.UserProfile.objects.get(pk=self.user.profile.pk)
+        self.assertEqual(profile.airport, None)
+        self.assertEqual(profile.ticket, flight)
 
         # now land
         now = flight.arrival_time + datetime.timedelta(minutes=1)
-        x = self.game.update(self.user.profile, now)
-        self.assertEqual(x[1], flight.destination)
-        self.assertEqual(x[2], None)
+        take_turn(self.game, now)
+        profile = models.UserProfile.objects.get(pk=self.user.profile.pk)
+        self.assertEqual(profile.airport, flight.destination)
+        self.assertEqual(profile.ticket, None)
 
 
 class PurchaseFlight(AirportTestBase):
-    def runTest(self):
+    @patch('airport.send_message')
+    def runTest(self, send_message):
         """Test the purchase_flight() method"""
         profile = self.user.profile
         now = datetime.datetime(2011, 11, 20, 7, 13)
-        x = self.game.update(profile, now)
-        self.assertEqual(x[1], self.game.start_airport)
-        self.assertEqual(x[2], None)
+        take_turn(self.game, now)
+        self.assertEqual(profile.airport, self.game.start_airport)
+        self.assertEqual(profile.ticket, None)
 
         airport = random.choice(models.Airport.objects.all())
         airport.create_flights(now)
@@ -346,8 +351,7 @@ class PurchaseFlight(AirportTestBase):
 
         # ok let's land
         now = flight.arrival_time + datetime.timedelta(minutes=1)
-        now, airport, flight = self.game.update(profile, now)
-        profile.airport = airport
+        now = take_turn(self.game, now)
 
         # make sure we have flights
         airport.create_flights(now)
@@ -397,9 +401,10 @@ class CurrentGameTest(AirportTestBase):
         self.assertEqual(user.profile.current_game.state, game.IN_PROGRESS)
         self.assertEqual(user2.profile.current_game.state, game.IN_PROGRESS)
 
-    def test_game_over(self):
+    @patch('airport.send_message')
+    def test_game_over(self, send_message):
         """Test that when a game is over current_game returns the game, but
-        statis us GAME_OVER"""
+        status is GAME_OVER"""
         user = self.users[0]
         game = models.Game.objects.create_game(host=user.profile, goals=1,
                                                airports=10)
@@ -409,7 +414,7 @@ class CurrentGameTest(AirportTestBase):
 
         # monkey
         game.is_over = lambda: True
-        game.update(user)
+        take_turn(game)
 
         # game should be over
         self.assertEqual(user.profile.current_game, game)
@@ -550,7 +555,8 @@ class HomeViewNoGameRedirect(HomeViewTest):
 
 
 class HomeViewNewGame(HomeViewTest):
-    def runTest(self):
+    @patch('airport.send_message')
+    def runTest(self, send_message):
         """Test that there's no redirect when you're in a new game"""
         player = self.user
         models.Game.objects.create_game(host=player.profile, goals=1,
@@ -561,7 +567,8 @@ class HomeViewNewGame(HomeViewTest):
 
 
 class HomeViewFinishedGame(HomeViewTest):
-    def runTest(self):
+    @patch('airport.send_message')
+    def runTest(self, send_message):
         """Test that when you have finished a game, you are redirected"""
         player = self.user
         games_view = reverse('games')

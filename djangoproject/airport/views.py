@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 
 import datetime
 import json
-import random
 
 from django import get_version
 from django.conf import settings
@@ -19,11 +18,11 @@ from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import (
     render, render_to_response, get_object_or_404, redirect)
-from django.template.defaultfilters import date, escape
+from django.template.defaultfilters import escape
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 
-from airport import VERSION
+import airport
 from airport.context_processors import externals
 from airport.models import (
     Achievement,
@@ -36,13 +35,8 @@ from airport.models import (
     Purchase,
     UserProfile)
 
-from airport.monkeywrench import MonkeyWrenchFactory
-
-DTHANDLER = lambda obj: (obj.isoformat()
-                         if isinstance(obj, datetime.datetime) else None)
-MW_PROBABILITY = getattr(settings, 'MONKEYWRENCH_PROBABILITY', 20)
-MWF = MonkeyWrenchFactory()
-GAME_HISTORY_COUNT = 15
+send = Message.send
+announce = Message.announce
 
 
 @login_required
@@ -50,6 +44,7 @@ def home(request):
     """Main view"""
     profile = request.user.profile
     game = profile.current_game
+    context = {}
 
     if not game:
         return redirect(games_home)
@@ -59,157 +54,66 @@ def home(request):
         return redirect(games_home)
     if game.state == game.NOT_STARTED:
         if profile == game.host:
-            game.begin()
+            airport.start_game(game)
         else:
-            Message.send(
-                profile,
-                'Waiting for {player} to start the game'.format(
-                    player=game.host.user.username
-                )
-            )
+            msg = 'Waiting for {0} to start the game.'
+            msg = msg.format(game.host.user.username)
+            send(profile, msg)
             return redirect(games_home)
-    context = {
-        'game': game,
-        'profile': profile
-    }
+    websocket_url = get_websocket_url(request)
+    context['game'] = game
+    context['profile'] = profile
+    context['websocket_url'] = websocket_url
     return render(request, 'airport/home.html', context)
 
 
 @login_required
 def info(request):
     """Used ajax called to be used by the home() view.
+
     Returns basically all the info needed by home() but as as json
-    dictionary"""
+    dictionary.
+    """
     user = request.user
     profile = user.profile
-    states = [
-        'New',
-        'Finished',
-        'Started',
-        'Paused'
-    ]
-
     game = profile.current_game
     if not game:
         return json_redirect(reverse(games_home))
     if game.state == game.GAME_OVER or profile in game.finishers():
         return json_redirect('%s?id=%s' % (reverse(game_summary), game.id))
-    now, airport, ticket = game.update(profile)
-
-    calc_mwp = game.players.distinct().count() * MW_PROBABILITY
-    if game.state == game.IN_PROGRESS and random.randint(1, calc_mwp) == calc_mwp:
-        MWF.create(game).throw()
+    now = game.time
+    flight_purchased = None
 
     if request.method == 'POST':
         if 'selected' in request.POST:
-            flight_no = int(request.POST['selected'])
-            flight = get_object_or_404(Flight, game=game, number=flight_no)
+            flight_id = int(request.POST['selected'])
+            flight = get_object_or_404(Flight, game=game, pk=flight_id)
+            flight_purchased = purchase_flight(profile, flight, now)
 
-            # try to purchase the flight
-            try:
-                ticket = profile.purchase_flight(flight, now)
-            except Flight.AlreadyDeparted:
-                Message.send(
-                    profile,
-                    'Flight {num} has already left'.format(num=flight.number),
-                    message_type='ERROR'
-                )
-            except Flight.Full:
-                Message.send(
-                    profile, 'Flight {num} is full'.format(num=flight.number),
-                    message_type='ERROR'
-                )
+    game_time = airport.take_turn(game, throw_wrench=bool(flight_purchased))
+    player_info = profile.info(game, game_time)
+    return json_response(player_info)
 
-        return redirect(info)
 
-    percentage = 100
-    next_flights = []
-    if ticket and ticket.in_flight(now):
-        next_flights = ticket.destination.next_flights(now)
-        percentage = ((now - ticket.depart_time).total_seconds()
-                      / 60.0
-                      / ticket.flight_time
-                      * 100)
-    elif airport:
-        next_flights = airport.next_flights(now)
+def purchase_flight(player, flight, game_time):
+    """Make player attempt to purchase flight.
 
-    last_message = Message.get_latest(request.user)
+    If flight is available for purchase, Return it. Else returns None.
 
-    if ticket:
-        in_flight = ticket.in_flight(now)
-    else:
-        in_flight = False
-
-    if airport and request.session.get('in_flight', False) and not in_flight:
-        Message.announce(
-            profile,
-            '{player} has arrived at {airport}'.format(
-                player=user.username, airport=airport),
-            game,
-            message_type='PLAYERACTION'
-        )
-
-    if ticket and not in_flight and ticket.destination == ticket.origin:
-        # special case when e.g. flight diverted back to origin
-        ticket = None
-
-    if not request.session.get('in_flight', False) and in_flight:
-        Purchase.objects.get_or_create(profile=profile, game=game,
-                                       flight=ticket)
-
-    if (request.session.get('in_flight', False)
-            and not in_flight
-            and not profile in game.winners()):
-        notify = 'You have arrived at {airport}'.format(airport=airport)
-    else:
-        notify = None
-
-    request.session['in_flight'] = in_flight
-
-    nf_list = []
-    finished = profile in game.finishers()
-    for next_flight in next_flights:
-        nf_dict = next_flight.to_dict(now)
-        if not finished:
-            nf_dict['buyable'] = next_flight.buyable(profile, now)
-        else:
-            nf_dict['buyable'] = False
-        nf_list.append(nf_dict)
-
-    goal_list = []
-    for goal in Goal.objects.filter(game=game):
-        achieved = goal.achievers.filter(id=profile.id,
-                                         achievement__timestamp__isnull=False).exists()
-        goal_list.append([goal.city.name, achieved])
-
-    stats = game.stats()
-
-    # city name
-    city = None
-    if airport:
-        city = airport.city.name
-    elif ticket:
-        city = ticket.destination.city.name
-
-    json_str = json.dumps(
-        {
-            'time': date(now, 'P'),
-            'game_state': states[game.state + 1],
-            'airport': airport.name if airport else ticket.origin,
-            'city': city,
-            'ticket': None if not ticket else ticket.to_dict(now),
-            'next_flights': nf_list,
-            'message_id': last_message.id if last_message else None,
-            'in_flight': in_flight,
-            'percentage': percentage,
-            'goals': goal_list,
-            'stats': stats,
-            'notify': notify,
-            'player': user.username
-        },
-        default=DTHANDLER
-    )
-    return HttpResponse(json_str, content_type='application/json')
+    Also sends an appropriate message to the player if the flight could not be
+    purchased.
+    """
+    try:
+        player.purchase_flight(flight, game_time)
+    except Flight.AlreadyDeparted:
+        msg = 'Flight {0} has already left.'.format(flight.number)
+        send(player, msg, message_type='ERROR')
+        return None
+    except Flight.Full:
+        msg = 'Flight {0} is full.'.format(flight.number)
+        send(player, msg, message_type='ERROR')
+        return None
+    return flight
 
 
 @require_http_methods(['POST'])
@@ -218,13 +122,18 @@ def pause_game(request):
     """Pause/Resume game"""
     game_id = request.GET.get('id', None)
     game = get_object_or_404(Game, id=game_id)
+    player = request.user.profile
+    game_time = None
 
-    if game.host == request.user.profile:
+    if game.host == player:
         if game.state == game.PAUSED:
             game.resume()
         elif game.state == game.IN_PROGRESS:
             game.pause()
-    return HttpResponse(status=204)
+        game_time = airport.take_turn(game, throw_wrench=False)
+
+    player_info = player.info(game, game_time)
+    return json_response(player_info)
 
 
 @require_http_methods(['POST'])
@@ -233,9 +142,18 @@ def rage_quit(request):
     """Bail out of the game because you are a big wuss"""
     game_id = request.GET.get('id', None)
     game = get_object_or_404(Game, id=game_id)
-    game.remove_player(request.user.profile)
-    Message.send(request.user.profile, 'You have quit %s. Wuss!' % game)
-    return HttpResponse(status=204)
+    player = request.user.profile
+
+    # If we call player.info() *after* we've removed them from the game, it
+    # gets confused because the player is not in the game and it tries to add
+    # them.  And then if they were the only player in the game it can't add
+    # them because the game is over (because there are no players).  Anyway we
+    # don't want this either way.  Call player.info() before removing them from
+    # the game.
+    player_info = player.info(game, redirect=reverse(games_home))
+    game.remove_player(player)
+    send(player, 'You have quit %s. Wuss!' % game)
+    return json_response(player_info)
 
 
 @login_required
@@ -273,7 +191,9 @@ def games_home(request):
     context = {
         'user': request.user.username,
         'open_game': open_game,
-        'airport_count': airport_count
+        'airport_count': airport_count,
+        'websocket_url': 'ws://{0}:{1}/'.format(
+            'localhost', settings.WEBSOCKET_PORT),
     }
 
     return render(request, 'airport/games.html', context)
@@ -342,7 +262,7 @@ def games_info(request):
         'current_state': state,
         'finished_current': finished_current
     }
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return json_response(data)
 
 
 @require_http_methods(['POST'])
@@ -366,14 +286,14 @@ def games_create(request):
                 airports=request.POST.get('airports')
             )
         )
-        Message.send(profile, text)
+        send(profile, text)
         return redirect(games_home)
 
     games = Game.objects.exclude(state=Game.GAME_OVER)
     games = games.filter(players=profile)
     if games.exists() and not all([profile in i.winners() for i in games]):
-        Message.send(profile, ('Cannot create a game since you are '
-                               'already playing an open game.'))
+        m = 'Cannot create a game since you are already playing an open game.'
+        send(profile, m)
     else:
         game = Game.objects.create_game(host=profile, goals=num_goals,
                                         airports=num_airports)
@@ -392,24 +312,23 @@ def games_join(request):
     game_id = request.GET.get('id', None)
     game = get_object_or_404(Game, id=game_id)
     if game.state == game.GAME_OVER:
-        Message.send(
-            profile,
-            'Could not join you to {game} because it is over'.format(
-                game=game),
-        )
+        msg = 'Could not join you to {0} because it is over.'
+        msg = msg.format(game)
+        send(profile, msg)
     elif profile.is_playing(game):
         if profile in game.winners():
-            Message.send(
-                profile,
-                'You have already finished {game}'.format(game=game)
-            )
+            msg = 'You have already finished {0}.'
+            msg = msg.format(game)
+            send(profile, msg)
         else:
-            Message.send(
-                profile,
-                'You have already joined {game}'.format(game=game)
-            )
+            msg = 'You have already joined {0}.'
+            msg.format(game)
+            send(profile, msg)
     else:
         game.add_player(profile)
+        msg = '{player.user.username} has joined {game}.'
+        msg = msg.format(player=profile, game=game)
+        announce(profile, msg, game, 'PLAYERACTION')
 
     return games_info(request)
 
@@ -434,8 +353,8 @@ def games_stats(request):
                            cxt['goal_count'] if cxt['goal_count'] else 0)
     cxt['flight_hours'] = sum((i.flight.flight_time
                                for i in profile.tickets)) / 60.0
-    cxt['flight_hours_per_game'] = (cxt['flight_hours'] /
-                                    cxt['game_count'] if cxt['game_count'] else 0)
+    cxt['flight_hours_per_game'] = (
+        cxt['flight_hours'] / cxt['game_count'] if cxt['game_count'] else 0)
 
     # average game time
     cxt['total_time'] = datetime.timedelta(seconds=0)
@@ -460,7 +379,7 @@ def games_stats(request):
     prior_games = games.exclude(state=-1).distinct()
     prior_games = prior_games.values_list('id', 'timestamp')
     prior_games = prior_games.order_by('-id')
-    prior_games = prior_games[:GAME_HISTORY_COUNT]
+    prior_games = prior_games[:settings.GAME_HISTORY_COUNT]
     prior_games = list(prior_games)
 
     # we may not yet be finished with the last game, if that's the case
@@ -545,6 +464,12 @@ def json_redirect(url):
     )
 
 
+def json_response(data):
+    """Return data as a json-formatted HttpResponse."""
+    json_str = json.dumps(data)
+    return HttpResponse(json_str, content_type='application/json')
+
+
 def register(request):
     """The view that handles the actual registration form"""
 
@@ -562,8 +487,9 @@ def register(request):
                     user=username)
             except UserProfile.DoesNotExist:
                 create_user(username, password)
-                django_messages.add_message(request, django_messages.INFO,
-                                            'Account activated. Please sign in.')
+                django_messages.add_message(
+                    request, django_messages.INFO,
+                    'Account activated. Please sign in.')
                 return redirect(home)
         else:
             context['error'] = form._errors
@@ -578,7 +504,7 @@ def about(request):
     django_version = get_version()
     user_agent = request.META['HTTP_USER_AGENT']
     context = {
-        'version': VERSION,
+        'version': airport.VERSION,
         'repo_url': repo_url,
         'django_version': django_version,
         'user_agent': user_agent
@@ -606,3 +532,10 @@ def create_user(username, password):
 def timedelta_to_hrs(td_object):
     """Return timedelta object as hours"""
     return td_object.total_seconds() / 3600.0
+
+
+def get_websocket_url(request):
+    http_host = request.META.get('HTTP_HOST', 'localhost')
+    if ':' in http_host:
+        http_host = http_host.split(':', 1)[0]
+    return 'ws://{0}:{1}/'.format(http_host, settings.WEBSOCKET_PORT)

@@ -157,6 +157,20 @@ airport.play = function(url) {
     return snd;
 }
 
+airport.websocket_connect = function () {
+    var socket = new WebSocket("{{ websocket_url }}");
+
+    socket.onmessage = function (message) {
+        message = JSON.parse(message.data);
+
+        if (airport.websocket_handlers.hasOwnProperty(message.type)) {
+            airport.websocket_handlers[message.type](message.data);
+        }
+    };
+}
+
+{% include "airport/websocket_handlers.js" %}
+
 airport.LightBox = function(content) {
     $('body').append('<div id="qqq_lightbox_bg"></div>');
     this.bg = $('#qqq_lightbox_bg');

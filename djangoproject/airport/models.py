@@ -2,27 +2,30 @@
 """Models for the airport django app"""
 from __future__ import division
 from __future__ import unicode_literals
+from __future__ import print_function
 
-import datetime
-import logging
-import math
-import random
+from datetime import datetime, timedelta
+from logging import getLogger
+from math import asin, cos, sin, radians, sqrt
+from random import randint, sample, shuffle
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db import models
-from django.db import transaction
 from django.template.defaultfilters import date
 
 MAX_SESSION_MESSAGES = getattr(settings, 'AIRPORT_MAX_SESSION_MESSAGES', 16)
 SCALE_FLIGHT_TIMES = getattr(settings, 'SCALE_FLIGHT_TIMES', True)
 MIN_FLIGHT_TIME = getattr(settings, 'MIN_FLIGHT_TIME', 30)
 MAX_FLIGHT_TIME = getattr(settings, 'MAX_FLIGHT_TIME', 120)
-BOARDING = datetime.timedelta(minutes=10)
+BOARDING = timedelta(minutes=10)
+logger = getLogger('airport.models')
 
 
 class AirportModel(models.Model):
+
     """Base class for airport models"""
     creation_time = models.DateTimeField(auto_now_add=True)
 
@@ -33,7 +36,7 @@ class AirportModel(models.Model):
         if not objects:
             return 0
 
-        time = time or datetime.datetime.now()
+        time = time or datetime.now()
 
         ids = [i.id for i in objects]
         return cls.objects.filter(id__in=ids).update(creation_time=time)
@@ -43,13 +46,12 @@ class AirportModel(models.Model):
 
 
 class City(AirportModel):
+
     """A City"""
     name = models.CharField(max_length=50, unique=True)
     image = models.CharField(max_length=300, null=True)
-    latitude = models.DecimalField(max_digits=5, decimal_places=2,
-                                   null=True)
-    longitude = models.DecimalField(max_digits=5, decimal_places=2,
-                                    null=True)
+    latitude = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    longitude = models.DecimalField(max_digits=5, decimal_places=2, null=True)
 
     def __str__(self):
         return self.name
@@ -58,15 +60,15 @@ class City(AirportModel):
         """Return the distance (km) from «self» to «city»"""
 
         # using haversine
-        lat1, lon1, lat2, lon2 = map(math.radians, [self.latitude,
-                                                    self.longitude,
-                                                    city.latitude,
-                                                    city.longitude])
+        lat1, lon1, lat2, lon2 = map(radians, [self.latitude,
+                                               self.longitude,
+                                               city.latitude,
+                                               city.longitude])
         dlat = lat2 - lat1
         dlon = lon2 - lon1
-        a = (math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) *
-             math.sin(dlon / 2) ** 2)
-        c = 2 * math.asin(math.sqrt(a))
+        a = (sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) *
+             sin(dlon / 2) ** 2)
+        c = 2 * asin(sqrt(a))
         km = 6367 * c
         return km
 
@@ -83,11 +85,13 @@ class City(AirportModel):
         return flight_time
 
     class Meta:
+
         """metadata"""
         verbose_name_plural = 'cities'
 
 
 class AirportMaster(AirportModel):
+
     """An Airport"""
     name = models.CharField(max_length=255, unique=True)
     code = models.CharField(max_length=4, unique=True)
@@ -98,6 +102,7 @@ class AirportMaster(AirportModel):
 
 
 class Airport(AirportModel):
+
     """Airports associated with a particular game"""
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=4)
@@ -191,7 +196,7 @@ class Airport(AirportModel):
                 game=game,
                 origin=self,
                 destination=destination,
-                depart_time=(datetime.timedelta(minutes=cushion) +
+                depart_time=(timedelta(minutes=cushion) +
                              random_time(now)),
                 flight_time=flight_time)
             flight_ids.append(flight.id)
@@ -204,7 +209,7 @@ class Airport(AirportModel):
         * destination airports can't add more than «dest_count»
         * destination can't be in the same city
         """
-        #if dest_count < 1:
+        # if dest_count < 1:
         #    raise ValueError("Can't have < 1 destinations on an airport")
 
         queryset = Airport.objects.exclude(city=self.city)
@@ -214,28 +219,37 @@ class Airport(AirportModel):
         queryset = queryset.filter(num_dest__lt=dest_count)
 
         try:
-            return random.sample(set(queryset), dest_count)
+            return sample(set(queryset), dest_count)
         except ValueError:
             # try again
             return self.get_destinations(dest_count - 1)
 
 
 class FlightManager(models.Manager):
+
     """we manage flights"""
 
     def random_flight_number(self, game):
         """return a random number, not already a flight number for «game»"""
-        while True:
-            number = random.randint(100, 9999)
-            flight = self.filter(game=game, number=number)
-            if flight.exists():
-                continue
-            return number
+        flights = self.filter(game=game).count()
+        return flights % 9900 + 100
+
+    def arrived_but_not_flagged(self, game, now=None):
+        """Return a qs of Flights that (should have) arrived but do not have
+        their state set to 'Arrived'
+        """
+        now = now or game.time
+
+        flights = Flight.objects.filter(game=game)
+        flights = flights.filter(arrival_time__lte=now)
+        flights = flights.exclude(state='Arrived')
+        return flights
 
 
 class Flight(AirportModel):
+
     """a flight from one airport to another"""
-    ### fields ###
+    # fields ###
     game = models.ForeignKey('Game', null=False, related_name='flights')
     number = models.IntegerField(editable=False)
     origin = models.ForeignKey(Airport, related_name='flights')
@@ -317,8 +331,10 @@ class Flight(AirportModel):
         now = now or self.game.time
         suffix = ''
         full = '/Full' if self.full else ''
+        origin = self.origin
+        destination = self.destination
 
-        if not self.origin.destinations.filter(id=self.destination.id).exists():
+        if not origin.destinations.filter(id=destination.id).exists():
             suffix = '*'
 
         state = self.state
@@ -331,22 +347,15 @@ class Flight(AirportModel):
 
         if self.in_flight(now):
             if self.state != 'Departed':
-                for passenger in self.passengers.all():
-                    Message.announce(passenger,
-                                     '{player} has departed {airport}'.format(
-                                         player=passenger.user.username,
-                                         airport=self.origin),
-                                     game=self.game,
-                                     message_type='PLAYERACTION')
                 self.state = 'Departed'
                 self.save()
             return 'Departed' + suffix
 
         if self.arrival_time <= now:
             # first update 'Arrived' messages
-            if self.state != 'Arrived':
-                self.state = 'Arrived'
-                self.save()
+            #if self.state != 'Arrived':
+            #    self.state = 'Arrived'
+            #    self.save()
             return 'Arrived' + suffix
 
         if self.depart_time - BOARDING < now:
@@ -370,6 +379,7 @@ class Flight(AirportModel):
 
         return {
             'number': self.number,
+            'id': self.pk,
             'depart_time': date(self.depart_time, 'P'),
             'arrival_time': date(self.arrival_time, 'P'),
             'origin': str(self.origin),
@@ -380,13 +390,11 @@ class Flight(AirportModel):
     def elapsed(self):
         """Return a timedelta of time elapsed (would have elapsed) since
         from game creation_time to the flight arrival time"""
-        arrived = self.depart_time + datetime.timedelta(
-            minutes=self.flight_time)
+        arrived = self.depart_time + timedelta(minutes=self.flight_time)
         game_create_time = self.game.creation_time
         elapsed_time = arrived - game_create_time
         # chop off microseconds
-        elapsed_time = datetime.timedelta(elapsed_time.days,
-                                          elapsed_time.seconds)
+        elapsed_time = timedelta(elapsed_time.days, elapsed_time.seconds)
         return elapsed_time
 
     @property
@@ -401,7 +409,7 @@ class Flight(AirportModel):
             self.number = Flight.objects.random_flight_number(self.game)
 
         self.arrival_time = (self.depart_time
-                             + datetime.timedelta(minutes=self.flight_time))
+                             + timedelta(minutes=self.flight_time))
 
         return super(Flight, self).save(*args, **kwargs)
 
@@ -415,7 +423,7 @@ class Flight(AirportModel):
             raise ValidationError('%s not accessible from %s' %
                                   (self.destination.code, self.origin.code))
 
-    ### Special Methods ###
+    # Special Methods ###
     def __str__(self):
         return '{flight} from {origin} to {dest} departing at {time}'.format(
             flight=self.number,
@@ -423,30 +431,36 @@ class Flight(AirportModel):
             dest=self.destination.code,
             time=date(self.depart_time, 'P'))
 
-    ### Exceptions ###
+    # Exceptions ###
     class BaseException(Exception):
+
         """Base Exception for scheduling/ticketing errors"""
         pass
 
     class AlreadyDeparted(BaseException):
+
         """A Flight is already departed"""
         pass
 
     class Full(Exception):
+
         """The flight is full"""
         pass
 
     class NotAtDepartingAirport(BaseException):
+
         """Exception raised when a player attempts to purchase a flight at a
         different airport than they are located in"""
         pass
 
     class Finished(BaseException):
+
         """Flight has already landed or is cancelled"""
         pass
 
-    ### Meta ###
+    # Meta ###
     class Meta:
+
         """metadata"""
         ordering = ['depart_time']
 
@@ -455,11 +469,12 @@ def random_time(now, maximum=40):
     """Helper function, return a random time in the future (from «now»)
     with a maximium of «maximum» minutes in the future"""
 
-    flight_time = random.randint(0, maximum)
-    return now + datetime.timedelta(minutes=flight_time)
+    flight_time = randint(0, maximum)
+    return now + timedelta(minutes=flight_time)
 
 
 class UserProfile(AirportModel):
+
     """Profile for players"""
     user = models.ForeignKey(User, related_name='profile')
     airport = models.ForeignKey(Airport, null=True, blank=True)
@@ -493,10 +508,14 @@ class UserProfile(AirportModel):
         winner_ids = set()
         for game in self.games_finished:
             last_goal = Goal.objects.filter(game=game).order_by('-order')[0]
-            winner_time = Achievement.objects.filter(goal=last_goal,
-                                                     timestamp__isnull=False).order_by('timestamp')[0].timestamp
-            winners = Achievement.objects.filter(goal=last_goal,
-                                                 timestamp=winner_time)
+            winner_time = Achievement.objects.filter(
+                goal=last_goal,
+                timestamp__isnull=False
+            ).order_by('timestamp')[0].timestamp
+            winners = Achievement.objects.filter(
+                goal=last_goal,
+                timestamp=winner_time
+            )
             for winner in winners:
                 if winner.profile == self:
                     winner_ids.add(game.id)
@@ -541,6 +560,18 @@ class UserProfile(AirportModel):
             achievers=self,
             achievement__timestamp__isnull=False,
         )
+
+    def next_goal(self, game):
+        """Return the next required goal (Achievment) for game.
+
+        If user has achieved all goals, return None.
+        """
+        query = Achievement.objects
+        achievements = query.filter(profile=self, game=game, timestamp=None)
+        achievements = achievements.order_by('goal__order')
+        if achievements.exists():
+            return achievements[0]
+        return None
 
     @property
     def tickets(self):
@@ -599,6 +630,113 @@ class UserProfile(AirportModel):
         """Return True if user is a player in «game» else False"""
         return game.players.filter(id=self.id).exists()
 
+    def needs_goal(self, game, city):
+        """If the user needs this city as a goal, return the Achievement model.
+
+        Else return False.
+        """
+        try:
+            ach = Achievement.objects.get(profile=self,
+                                          game=game,
+                                          goal__city=city)
+        except Achievement.DoesNotExist:
+            return False
+
+        if ach.timestamp is None:
+            return ach
+        return False
+
+    def in_limbo(self, game, now=None):
+        """Return True if player is in 'limbo'."""
+        ticket = self.ticket
+        airport = self.airport
+
+        # Not at an airport but has no ticket (not in flight)
+        if not any([ticket, airport]):
+            return True
+
+        # Has a ticket, the flight has landed but he's not at an airport
+        if ticket and not airport and ticket.has_landed(now or game.time):
+            return True
+
+        return False
+
+    def info(self, game=None, now=None, redirect=None):
+        """Return a json-able dict about the current info of the user.
+
+        This should be equivalent to what the views.info view used to do, but
+        is now put on the UserProfile since that view is gone and we now push
+        the data to the browser via websockets.
+
+        "redirect", if passed, should be a URL string informing the user's
+        browser to redirect to said URL.
+        """
+        states = [
+            'New',
+            'Finished',
+            'Started',
+            'Paused'
+        ]
+        game = game or self.current_game
+        now = now or game.time
+        finished = self in game.finishers()
+        stats = game.stats()
+        goal_list = []
+        nf_list = []
+        in_flight = self.ticket.in_flight(now) if self.ticket else False
+        percentage = 100 if not in_flight else int(
+            (now - self.ticket.depart_time).total_seconds()
+            / 60.0 / self.ticket.flight_time * 100)
+
+        airport = self.airport if self.airport else self.ticket.destination
+        next_flights = airport.next_flights(now, auto_create=False)
+
+        for next_flight in next_flights:
+            nf_dict = next_flight.to_dict(now)
+            buyable = False if finished else next_flight.buyable(self, now)
+            nf_dict['buyable'] = buyable
+            nf_list.append(nf_dict)
+
+        for goal in Goal.objects.filter(game=game):
+            achieved = goal.achievers.filter(
+                id=self.id, achievement__timestamp__isnull=False).exists()
+            goal_list.append([goal.city.name, achieved])
+
+        # city name
+        if self.airport:
+            city = self.airport.city.name
+        elif self.ticket:
+            city = self.ticket.destination.city.name
+        else:
+            city = None
+
+        # airport name
+        airport = self.airport
+        airport = airport.name if airport else self.ticket.origin.name
+
+        info_dict = {
+            'time': date(now, 'P'),
+            'game_state': states[game.state + 1],
+            'airport': airport,
+            'city': city,
+            'ticket': None if not self.ticket else self.ticket.to_dict(now),
+            'next_flights': nf_list,
+            'message_id': None,
+            'in_flight': in_flight,
+            'finished': finished,
+            'percentage': percentage,
+            'goals': goal_list,
+            'stats': stats,
+            'notify': None,
+            'player': self.user.username
+        }
+        if finished:
+            info_dict['redirect'] = '%s?id=%s' % (GAME_SUMMARY, game.pk)
+
+        if redirect:
+            info_dict['redirect'] = redirect
+        return info_dict
+
     def save(self, *args, **kwargs):
         new_user = not self.id
 
@@ -610,6 +748,7 @@ User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
 
 class Message(AirportModel):
+
     """Messages for users"""
     text = models.CharField(max_length=255)
     profile = models.ForeignKey(UserProfile, related_name='messages')
@@ -619,11 +758,21 @@ class Message(AirportModel):
     def __str__(self):
         return self.text
 
+    def to_dict(self):
+        """
+        Return Message as a Python dict.
+        """
+        return {
+            'id': self.pk,
+            'text': self.text,
+            'type': self.message_type,
+        }
+
     @classmethod
     def broadcast(cls, text, game=None, message_type='DEFAULT',
                   finishers=False):
         """Send a message to all users in «game» with a UserProfile"""
-        logging.info('BROADCAST: %s', text)
+        logger.info('BROADCAST: %s', text)
         messages = []
 
         if game:
@@ -643,11 +792,12 @@ class Message(AirportModel):
     def announce(cls, announcer, text, game=None, message_type='DEFAULT',
                  finishers=False):
         """Sends a message to all users but «announcer»"""
-        logging.info('ANNOUNCE: %s', text)
+        logger.info('ANNOUNCE: %s', text)
         messages = []
 
         if isinstance(announcer, User):
-            # we want the UserProfile, but allow the caller to pass User as well
+            # we want the UserProfile, but allow the caller to pass User as
+            # well
             announcer = announcer.profile
 
         if game:
@@ -667,10 +817,11 @@ class Message(AirportModel):
     def send(cls, user, text, message_type='DEFAULT'):
         """Send a unicast message to «user» return the Message object"""
         if isinstance(user, User):
-            # we want the UserProfile, but allow the caller to pass User as well
+            # we want the UserProfile, but allow the caller to pass User
+            # as well
             user = user.profile
 
-        logging.info('MESSAGE(%s): %s', user.user.username, text)
+        logger.info('MESSAGE(%s): %s', user.user.username, text)
 
         return cls.objects.create(profile=user, text=text,
                                   message_type=message_type)
@@ -717,14 +868,23 @@ class Message(AirportModel):
 
         return message
 
+    def mark_read(self):
+        self.read = True
+        self.save()
+
+announce = Message.announce
+broadcast = Message.broadcast
+
 
 class GameManager(models.Manager):
+
     """We manage Games"""
+
     def create_game(self, host, goals, airports, density=5):
         """Create a new «Game»"""
         master_airports = list(AirportMaster.objects.distinct())
-        random.shuffle(master_airports)
-        now = datetime.datetime.now()
+        shuffle(master_airports)
+        now = datetime.now()
 
         game = Game()
 
@@ -789,15 +949,16 @@ class GameManager(models.Manager):
 
         game.add_player(host)
 
-        messages = Message.broadcast(
-            '%s has created %s' % (host.user.username, game),
-            message_type='NEWGAME')
-        Message.touch(messages, now)
+        msg = '{0} has created {1}.'
+        msg = msg.format(host.user.username, game)
+        broadcast(msg, message_type='NEW_GAME')
+        #Message.touch(messages, now)
 
         return game
 
 
 class Game(AirportModel):
+
     """This is a game.  A Game is hosted and has it's own game time and
     players and stuff like that.  A Game is either not started, in progress or
     ended.
@@ -821,7 +982,7 @@ class Game(AirportModel):
                                      through='Achievement')
     state = models.SmallIntegerField(choices=STATE_CHOICES, default=-1)
     goals = models.ManyToManyField(City, through='Goal')
-    #airports = models.ManyToManyField(Airport)
+    # airports = models.ManyToManyField(Airport)
     start_airport = models.ForeignKey(Airport, null=True, related_name='+')
     timestamp = models.DateTimeField(auto_now_add=True)
     pausestamp = models.DateTimeField(null=True)
@@ -830,8 +991,19 @@ class Game(AirportModel):
     max_distance = models.IntegerField(null=True)
     objects = GameManager()
 
+    def __init__(self, *args, **kwargs):
+        from airport.monkeywrench import MonkeyWrenchFactory
+
+        super(Game, self).__init__(*args, **kwargs)
+        self.mwf = MonkeyWrenchFactory()
+
     def __str__(self):
         return 'Game {}'.format(self.pk)
+
+    @classmethod
+    def open_games(cls):
+        """Return the set of non-closed games."""
+        return cls.objects.exclude(state=cls.GAME_OVER)
 
     def begin(self):
         """start the game"""
@@ -841,29 +1013,34 @@ class Game(AirportModel):
             player.save()
 
         self.state = self.IN_PROGRESS
-        self.timestamp = datetime.datetime.now()
+        self.timestamp = datetime.now()
         self.save()
-        Message.announce(self.host, '{game} has begun'.format(game=self))
+        announce(self.host, '{game} has begun'.format(game=self))
 
     def end(self):
         """End the Game"""
+        if self.state == self.GAME_OVER and self.timestamp:
+            # We've already ended this game(?)
+            return
+
         self.state = self.GAME_OVER
-        self.timestamp = datetime.datetime.now()
+        self.timestamp = datetime.now()
         self.save()
         for player in self.players.distinct():
             player.game = None
             player.save()
-        Message.broadcast('{game} has ended!'.format(game=self),
-                          finishers=True)
+
+        msg = '{0} has ended!'.format(self)
+        broadcast(msg, finishers=True)
 
     def add_player(self, profile):
         """Add player to profile if game hasn't ended"""
         if self.state == self.GAME_OVER:
-            print('game over, cannot add players')
+            logger.info('game over, cannot add players')
             return
 
         if profile in self.players.distinct():
-            print('already in players')
+            logger.info('already in players')
             return
 
         # This should never happen at the UI level, but we check anyway
@@ -893,10 +1070,9 @@ class Game(AirportModel):
 
         # Send out an announcement
         if profile != self.host:
-            Message.broadcast('{player} has joined {game}'.format(
-                player=profile.user.username, game=self),
-                self,
-                message_type='PLAYERACTION')
+            msg = '{0} has joined {1}.'
+            msg = msg.format(profile.user.username, self)
+            broadcast(msg, self, message_type='PLAYERACTION')
         # put the player at the starting airport and take away their
         # tickets
         profile.ticket = None
@@ -911,13 +1087,10 @@ class Game(AirportModel):
         If the user is not a game player, then it fails silently"""
         if isinstance(user, User):
             user = user.profile
-        achievements = Achievement.objects.filter(profile=user, game=self)
+        achievements = Achievement.objects.select_for_update()
+        achievements = achievements.filter(profile=user, game=self)
         # bye!
         achievements.delete()
-
-        # if there are no more players, we need to end the game
-        if not self.players.exists():
-            self.end()
 
     @property
     def time(self):
@@ -925,9 +1098,9 @@ class Game(AirportModel):
         if self.state == self.PAUSED:
             now = self.pausestamp
         else:
-            now = datetime.datetime.now()
+            now = datetime.now()
 
-        now = now - datetime.timedelta(seconds=self.pause_time)
+        now = now - timedelta(seconds=self.pause_time)
 
         if hasattr(self, 'gettime'):
             # this can monkey-patched on the instance for debugging/testing
@@ -939,23 +1112,25 @@ class Game(AirportModel):
 
         difference = now - self.timestamp
         new_secs = difference.total_seconds() * self.TIMEFACTOR
-        return self.timestamp + datetime.timedelta(seconds=new_secs)
+        return self.timestamp + timedelta(seconds=new_secs)
 
     def save(self, *args, **kwargs):
         """Overriden save method"""
+        new_game = self.pk is None
+
         if self.timestamp is None:
-            self.timestamp = datetime.datetime.now()
+            self.timestamp = datetime.now()
 
         super(Game, self).save(*args, **kwargs)
 
         # make sure host is a player
-        if not self.players.filter(id=self.host.id).exists():
+        if new_game and not self.players.filter(id=self.host.id).exists():
             self.add_player(self.host)
 
     def pause(self):
         """Pause the game"""
         if self.state == self.IN_PROGRESS:
-            now = datetime.datetime.now()
+            now = datetime.now()
             self.state = self.PAUSED
             self.pausestamp = now
             self.save()
@@ -965,7 +1140,7 @@ class Game(AirportModel):
         if self.state == self.PAUSED:
             self.pause_time = (
                 self.pause_time
-                + (datetime.datetime.now() - self.pausestamp).total_seconds())
+                + (datetime.now() - self.pausestamp).total_seconds())
             self.state = self.IN_PROGRESS
             self.pausestamp = None
             self.save()
@@ -974,10 +1149,15 @@ class Game(AirportModel):
         """Return true iff game is over
 
         Game Over means all players have acheieve all goals"""
-        goals = Goal.objects.filter(game=self)
+        players = self.players.distinct()
 
+        # if there are no players, it's over
+        if players.count() == 0:
+            return True
+
+        goals = Goal.objects.filter(game=self)
         for goal in goals:
-            for player in self.players.all():
+            for player in players:
                 if not goal.was_achieved_by(player):
                     return False
         return True
@@ -992,73 +1172,6 @@ class Game(AirportModel):
             stats.append(
                 [player.user.username, self.goals_achieved_for(player)])
         return stats
-
-    @transaction.commit_on_success
-    def update(self, profile, now=None):
-        """Should be called by views"""
-        profile_ticket = profile_airport = None
-        winners_before = self.winners()
-        now = now or self.time
-
-        if self.state == self.GAME_OVER:
-            return (self.timestamp, None, None)
-
-        if self.is_over():
-            self.end()
-            return (self.timestamp, None, None)
-
-        goals = Goal.objects.filter(game=self).distinct()
-
-        # update player & goals
-        players = self.players.distinct()
-        for player in players:
-            if player.current_game != self:
-                continue
-            previous_ticket = player.ticket
-            airport, ticket = player.location(now)
-            if player == profile:
-                profile_airport, profile_ticket = airport, ticket
-            for goal in goals:
-                if goal.was_achieved_by(player):
-                    continue
-                if airport and airport.city == goal.city:
-                    ach = Achievement.objects.get(profile=player, goal=goal)
-                    ach.timestamp = previous_ticket.arrival_time
-                    ach.save()
-                    break
-                else:
-                    break
-
-        winners = self.winners()
-        if not winners_before and winners:
-            if len(winners) == 1:
-                Message.broadcast(
-                    '{player} has won {game}'.format(
-                        player=winners[0].user.username, game=self),
-                    self,
-                    message_type='WINNER',
-                    finishers=True)
-            else:
-                Message.broadcast(
-                    '{game}: {num}-way tie for 1st place'.format(
-                        game=self,
-                        num=len(winners)),
-                    self,
-                    message_type='WINNER',
-                    finishers=True)
-                for winner in winners:
-                    Message.broadcast(
-                        '{player} is a winner!'.format(
-                            player=winner.user.username),
-                        self,
-                        message_type='WINNER',
-                        finishers=True)
-
-        # if all players have achieved all goals, end the game
-        if self.is_over():
-            self.end()
-
-        return (now, profile_airport, profile_ticket)
 
     def winners(self):
         """Return the winners of the game or [] if there are no
@@ -1109,9 +1222,10 @@ class Game(AirportModel):
         my_finish_time = final_goal_stats[profile]
         placed = 0
         if my_finish_time:
-            finish_times = [final_goal_stats[i] for i in final_goal_stats if
-                            final_goal_stats[i]]
-            finish_times.sort()
+            finish_times = sorted(
+                [final_goal_stats[i] for i in final_goal_stats
+                 if final_goal_stats[i]]
+            )
             for finish_time in finish_times:
                 placed = placed + 1
                 if finish_time == my_finish_time:
@@ -1142,27 +1256,37 @@ class Game(AirportModel):
             ((MAX_FLIGHT_TIME - MIN_FLIGHT_TIME) * (flight_time - min_))
             / (max_ - min_)) + MIN_FLIGHT_TIME
 
+    def record_ticket_purchase(self, player, flight):
+        """Add entry to Purchase table"""
+        return Purchase.objects.get_or_create(
+            profile=player, game=self, flight=flight)
+
     class BaseException(Exception):
+
         """Base class for Game exceptions"""
         pass
 
     class Paused(BaseException):
+
         """Exception to be passed when an action cannot be performed
         because the game is paused"""
         pass
 
     class NotStarted(BaseException):
+
         """Raised when an action is requested from a game that has not yet
         started"""
         pass
 
     class AlreadyInGame(BaseException):
+
         """Raised if a user tries to join a game but has not finished an
         active game"""
         pass
 
 
 class Goal(AirportModel):
+
     """Goal cities for a game"""
     city = models.ForeignKey(City)
     game = models.ForeignKey(Game)
@@ -1170,11 +1294,8 @@ class Goal(AirportModel):
     achievers = models.ManyToManyField(UserProfile, through='Achievement')
 
     def __str__(self):
-        return '{city}: Goal {order}/{total} for {game}'.format(
-            city=self.city.name,
-            order=self.order,
-            total=self.game.goals.all().count(),
-            game=self.game)
+        text = 'Goal {0}/{1}'
+        return text.format(self.order, self.game.goals.count())
 
     def was_achieved_by(self, player):
         """Return True iff player has achieved goal"""
@@ -1204,16 +1325,23 @@ class Goal(AirportModel):
         return data
 
     class Meta:
+
         """metadata"""
         ordering = ['game', 'order']
 
 
 class Achievement(AirportModel):
+
     """Users who have achieved a goal"""
     profile = models.ForeignKey(UserProfile)
     goal = models.ForeignKey(Goal)
     game = models.ForeignKey(Game)
     timestamp = models.DateTimeField(null=True)
+
+    def fulfill(self, timestamp):
+        self.timestamp = timestamp
+        self.save()
+        return self
 
     def save(self, *args, **kwargs):
         """Overriden save() method"""
@@ -1224,24 +1352,28 @@ class Achievement(AirportModel):
             old_ach = Achievement.objects.get(id=self.id)
             if old_ach.timestamp is None:
                 # send out a message
-                Message.announce(
-                    self.profile,
-                    '{player} has achieved {goal}'.format(
-                        player=self.profile.user, goal=self.goal),
-                    game=self.game,
-                    message_type='GOAL')
+                msg = '{0} has achieved {1}.'
+                msg = msg.format(self.profile.user, self.goal)
+                broadcast(msg, self.game, message_type='GOAL')
 
         super(Achievement, self).save(*args, **kwargs)
 
 
 class Purchase(AirportModel):
+
     """Table used to track purchases"""
     profile = models.ForeignKey(UserProfile)
     game = models.ForeignKey(Game, related_name='+')
     flight = models.ForeignKey(Flight, related_name='+')
 
+    str = '{player} purchased flight {num} from {origin} to {dest}'
+
     def __str__(self):
-        return ('{player} purchased flight {num} from '
-                '{origin} to {dest}'.format(player=self.profile.user.username,
-                num=self.flight.number, origin=self.flight.origin.code,
-                dest=self.flight.destination.code))
+        return self.str.format(
+            player=self.profile.user.username,
+            num=self.flight.number,
+            origin=self.flight.origin.code,
+            dest=self.flight.destination.code
+        )
+
+GAME_SUMMARY = reverse('airport.views.game_summary')

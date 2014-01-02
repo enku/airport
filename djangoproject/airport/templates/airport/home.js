@@ -21,7 +21,7 @@ function flights_table(flights) {
             odd_or_even = "even";
         }
         s = s + (
-            '<tr class="schedule ' + odd_or_even + '" id="flight_' + flight['number'] + '">\n'
+            '<tr class="schedule ' + odd_or_even + '" id="flight_' + flight['id'] + '">\n'
             + '<td>' + flight['destination'] + '</td>\n'
             + '<td class="flightno">' + flight['number'] + '</td>\n'
             + '<td>' + flight['depart_time'] + '</td>\n'
@@ -31,13 +31,13 @@ function flights_table(flights) {
         if (flight['buyable']) {
             s = s + (
                 '<td class="buy"><input type="submit" value="Buy" name="buy_'
-                + flight['number']
+                + flight['id']
                 + '" /></td></tr>\n');
         }
         else {
             s = s + (
                 '<td class="buy"><input disabled="disabled" type="submit" value="Buy" name="buy_'
-                + flight['number']
+                + flight['id']
                 + '" /></td></tr>\n');
         }
     };
@@ -67,7 +67,7 @@ function update_ticket_widget(ticket, player) {
     
     if (!ticket) {
         if (widget.is(':visible')) {
-            widget.hide('drop', { direction: 'down' }, 500);
+            widget.hide('drop', { direction: 'down' }, 100);
         }
         return;
     }
@@ -147,8 +147,14 @@ function refresh_ui(data) {
         current_goal_flagged = false;
 
     if (data['redirect']) {
-        window.location.replace(data['redirect']);
-        return;
+        if (data['finished']) {
+            $('#finished_content a').attr('href', data['redirect']);
+            finished.show();
+        }
+        else {
+            window.location.replace(data['redirect']);
+            return;
+        }
     }
 
     if (data['notify']) {
@@ -239,17 +245,6 @@ function refresh_ui(data) {
     else lightbox.hide();
 }
 
-function refresh_cb(data, textStatus, jqXHR) {
-    refresh_ui(data);
-    timeout = setTimeout(function() {
-        $.ajax({
-            url: "{% url "info" %}", 
-            success: refresh_cb, 
-            dataType: "json"
-        })},
-        5000);
-}
-
 function buy_ticket(event) {
     /* callback for when a buy ticket button has been clicked */
     event.preventDefault();
@@ -285,37 +280,10 @@ function permit_notifications_cb() {
 
 function pause_game(event) {
     event.preventDefault();
-    var resume_cb = function() {
-        if (!timeout) {
-            $.ajax({ url: "{% url "info" %}", success: refresh_cb,
-                dataType: "json" }
-            );
-        }
-    };
-
-    var pause_cb = function() {
-        if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-        }
-    };
-
-    var callback;
-
-    if ($('#lightbox_content').is(':visible')) {
-        // paused... resume
-        callback = resume_cb;
-        lightbox.hide();
-    }
-    else {
-        // in progress.. pause
-        callback = pause_cb;
-        lightbox.show();
-    }
     $.ajax({
         type: 'POST',
         url: "{% url "pause_game" %}?id=" + "{{ game.id }}",
-        success: callback
+        success: function(data) { refresh_ui(data);}
     });
 }
 
@@ -324,7 +292,7 @@ function quit_game(event) {
     $.ajax({
         type: 'POST',
         url: "{% url "rage_quit" %}?id={{game.id}}",
-        success: function() { window.location.replace('{% url "games" %}');}
+        success: function(data) { refresh_ui(data);}
     });
 }
 
@@ -350,13 +318,14 @@ function main() {
     $('#permit_notify').click(permit_notifications_cb);
 
     airport.messages('#message_box');
+    airport.websocket_connect();
     lightbox = new airport.LightBox('#lightbox_content');
+    finished = new airport.LightBox('#finished_content');
     $.ajax({
-        url: "{% url "info" %}",
-        success: refresh_cb,
-        dataType: "json"
+        type: 'GET',
+        success: function(data) { refresh_ui(data);},
+        url: '{% url "info" %}'
     });
-
 }
 
 $(document).ready(main);
