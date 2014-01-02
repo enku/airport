@@ -68,7 +68,10 @@ class AirportTest(AirportTestBase):
 class NextFlights(AirportTestBase):
     def runTest(self):
         """Test that we can see next flights"""
-        airport = self.game.airports.order_by('?')[0]
+        # grab a random airport, but exclude the game's starting airport
+        # because game.begin() would have already populated it with flights
+        airport = self.game.airports.exclude(pk=self.game.start_airport.pk)
+        airport = airport.order_by('?')[0]
         now = datetime.datetime(2011, 11, 17, 11, 0)
         time1 = datetime.datetime(2011, 11, 17, 11, 30)
         dest1 = random.choice(airport.destinations.all())
@@ -335,7 +338,8 @@ class PurchaseFlight(AirportTestBase):
         self.assertEqual(profile.airport, self.game.start_airport)
         self.assertEqual(profile.ticket, None)
 
-        airport = random.choice(models.Airport.objects.all())
+        airport = random.choice(models.Airport.objects.exclude(
+            pk=profile.airport.pk))
         airport.create_flights(now)
         flight = random.choice(airport.flights.all())
 
@@ -349,7 +353,9 @@ class PurchaseFlight(AirportTestBase):
         # attempt to buy a flight while in flight
         profile.purchase_flight(flight, now)
         now = flight.depart_time
-        flight2 = random.choice(airport.flights.exclude(id=flight.id))
+        next_flights = airport.next_flights(now, future_only=True,
+                                            auto_create=True)
+        flight2 = random.choice(next_flights)
         self.assertRaises(models.Flight.AlreadyDeparted,
                           profile.purchase_flight, flight2, now)
 
@@ -645,7 +651,10 @@ class ConstantConnections(AirportTestBase):
                 s2d = flight.flight_time
                 d2s = destination.create_flights(self.game.time).filter(
                     destination=source)[0].flight_time
-                self.assertEqual(s2d, d2s)
+
+                # We use assertAlmostEqual to compensate for rounding (integer
+                # division)
+                self.assertAlmostEqual(s2d, d2s, delta=1)
 
 
 class GamePause(AirportTestBase):
