@@ -26,6 +26,7 @@ EXTERNALS = {
     'notepad_cursor': 'http://www.cursor.cc/cursor/154/0/cursor.png',
     'button_click': 'http://soundbible.com/mp3/Air%20Plane%20Ding-SoundBible.com-496729130.mp3',
     'pause_icon': 'http://icons.iconarchive.com/icons/icons-land/play-stop-pause/256/Pause-Normal-icon.png',
+    'green_dot': 'http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png',
 
     # message sounds
     'message_MONKEYWRENCH_sound': 'http://www.freesound.org/data/previews/17/17468_57789-lq.mp3',

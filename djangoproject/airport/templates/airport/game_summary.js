@@ -3,20 +3,27 @@ var map,
 
 // draw polylines on the map
 function draw_polylines(map) {
+    var lat1, lon1, lat2, lon2;
+
     {% for ticket in tickets %}
+    lat1 = {{ ticket.flight.origin.city.latitude }};
+    lon1 = {{ ticket.flight.origin.city.longitude }};
+    lat2 = {{ ticket.flight.destination.city.latitude }};
+    lon2 = {{ ticket.flight.destination.city.longitude }};
+
     {% if forloop.first %}
         new google.maps.Marker({
-            position: new google.maps.LatLng({{ ticket.flight.origin.city.latitude }}, {{ ticket.flight.origin.city.longitude }}),
+            position: new google.maps.LatLng(lat1, lon1),
             map: map,
-            icon: "http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png",
+            icon: "{{ green_dot }}",
             title: "{{ ticket.flight.origin.city }}" });
     {% endif %}
     new google.maps.Polyline( {
         geodesic: true,
         map: map,
         path: [
-            new google.maps.LatLng({{ ticket.flight.origin.city.latitude }}, {{ ticket.flight.origin.city.longitude }}),
-            new google.maps.LatLng({{ ticket.flight.destination.city.latitude }}, {{ ticket.flight.destination.city.longitude }}),
+            new google.maps.LatLng(lat1, lon1),
+            new google.maps.LatLng(lat2, lon2),
         ],
         strokeColor: "{% cycle '#01004B' '#C70000' %}",
         strokeWeight: 3,
@@ -24,7 +31,7 @@ function draw_polylines(map) {
     });
     {% if ticket.goal %}
         new google.maps.Marker({
-            position: new google.maps.LatLng({{ ticket.flight.destination.city.latitude }}, {{ ticket.flight.destination.city.longitude }}),
+            position: new google.maps.LatLng(lat2, lon2),
             map: map,
             title: "{{ ticket.flight.destination.city }}",
             icon: "{{ gold_star }}" });
