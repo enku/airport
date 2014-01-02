@@ -27,7 +27,7 @@ DEFAULTS = {
         'mustache_js': '//cdn.jsdelivr.net/mustache.js/0.7.3/mustache.js',
         'login_icon': 'http://www.ercmp.nic.in/images/login.png',
         'login_button': 'http://www.iconhot.com/icon/png/i-buttons-3c/64/bright-ball-logoff.png',
-        'register_icon': 'https://help.ess.msu.edu/themes/client_default/063684-green-metallic-orb-icon-people-things-handshake.png',
+        'register_icon': 'http://www.warasports.org/Images/Main%20Images/Icons/Registration.png',
         'background_image': 'http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg',
         'inflight_image': 'http://paysonairport.com/images/AnimatedAirplane.gif',
         'landed_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
