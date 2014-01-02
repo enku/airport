@@ -843,3 +843,36 @@ class AIPlayer(AirportTestBase):
         game = models.Game.objects.get(pk=game_id)
         ai_player = game.players.filter(ai_player=True)
         self.assertFalse(ai_player.exists())
+
+    def test_cannot_buy_full_flight(self):
+        """An AI player cannot attempt to buy a full flight."""
+        self.game.end()
+        # given the game with ai player
+        game = models.Game.objects.create_game(
+            ai_player=True,
+            host=self.user.profile,
+            goals=1,
+            airports=10
+        )
+        ai_player = game.players.get(ai_player=True)
+
+        # When only one flight is outbound
+        game.begin()
+        airport = game.start_airport
+        now = game.timestamp
+        flights_out = airport.next_flights(now, future_only=True,
+                                           auto_create=False)
+        for flight in flights_out[:-1]:
+            flight.cancel(now)
+        last_flight = flights_out[-1]
+
+        # but it's full
+        last_flight.full = True
+        last_flight.save()
+
+        # and the ai_player makes a move
+        ai_player.make_move(game, now)
+
+        # it doesn't try to buy a full flight (it will raise an exception if it
+        # does)
+        self.assertEqual(ai_player.ticket, None)

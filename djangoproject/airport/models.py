@@ -817,7 +817,7 @@ class UserProfile(AirportModel):
             now, future_only=True, auto_create=False)
 
         # If there is only one flight. Take it
-        if len(next_flights) == 1:
+        if len(next_flights) == 1 and next_flights[0].buyable(self, now):
                 self.purchase_flight(next_flights[0], now)
                 return
 
