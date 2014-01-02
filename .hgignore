@@ -1,13 +1,13 @@
-syntax: glob
-bin
-etc
-include
-lib
-src
-lib64
-db.sqlite
-share
-*.pyc
-*.swp
-djangoproject/settings_local.py
-.ropeproject/*
+syntax: regexp
+^bin
+^etc
+^include
+^lib
+^src
+^lib64
+^db\.sqlite
+^share
+\.pyc$
+\.swp$
+settings_local.py$
+\.ropeproject\/
