@@ -119,18 +119,18 @@ def purchase_flight(player, flight, game_time):
 def pause_game(request):
     """Pause/Resume game"""
     game_id = request.GET.get('id', None)
-    game = get_object_or_404(Game, id=game_id)
+    game = get_object_or_404(Game, pk=game_id)
     player = request.user.profile
-    game_time = None
 
-    if game.host == player:
-        if game.state == game.PAUSED:
-            game.resume()
-        elif game.state == game.IN_PROGRESS:
-            game.pause()
-        game_time = airport.take_turn(game, throw_wrench=False)
+    if player != game.host:
+        # only the host can pause/resume the game
+        return player.info(game)
 
-    player_info = player.info(game, game_time)
+    if game.state == game.PAUSED:
+        player_info = airport.game_resume(game)
+    elif game.state == game.IN_PROGRESS:
+        player_info = airport.ame_pause(game)
+
     websocket.IPCHandler.send_message('game_paused', game.pk)
     return json_response(player_info)
 

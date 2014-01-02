@@ -91,6 +91,8 @@ def handle_flights(game, airport, now=None):
 
 def handle_players(game, now, winners_before, arrivals):
     """Update each player in game."""
+    # re-fetch the game in case it's paused
+    game = models.Game.objects.get(pk=game.pk)
     broadcast = models.Message.broadcast
     players = game.players.distinct()
 
@@ -126,6 +128,40 @@ def handle_players(game, now, winners_before, arrivals):
     if game.is_over():
         game.end()
         send_message('game_ended', game.pk)
+
+
+def game_pause(game):
+    from .models import Game
+
+    if game.state == game.PAUSED:
+        return game.host.info(game)
+    game.pause()
+    game = Game.objects.get(pk=game.pk)
+    now = game.time
+    host_info = {}
+    for player in game.players.distinct():
+        player_info = player.info(game, now)
+        if player == game.host:
+            host_info = player_info
+        send_message('info', player_info)
+    return host_info
+
+
+def game_resume(game):
+    from .models import Game
+
+    if game.state != game.PAUSED:
+        return game.host.info(game)
+    game.resume()
+    game = Game.objects.get(pk=game.pk)
+    now = game.time
+    host_info = {}
+    for player in game.players.distinct():
+        player_info = player.info(game, now)
+        if player == game.host:
+            host_info = player_info
+        send_message('info', player_info)
+    return host_info
 
 
 def send_message(message_type, data):

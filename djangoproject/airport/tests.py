@@ -415,8 +415,7 @@ class CurrentGameTest(AirportTestBase):
         game.begin()
         self.assertEqual(user.profile.current_game, game)
 
-        # monkey
-        game.is_over = lambda: True
+        game.end()
         take_turn(game)
 
         # game should be over

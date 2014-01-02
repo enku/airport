@@ -180,7 +180,7 @@ class IPCHandler(WebSocketConnection):
     def handle_game_paused(self, game_id):
         game = Game.objects.get(pk=game_id)
         for player in game.players.distinct():
-            SocketHandler.message(player, 'info', player.info())
+            SocketHandler.message(player, 'info', player.info(game))
         SocketHandler.games_info()
 
     def handle_throw_wrench(self, game_id):
