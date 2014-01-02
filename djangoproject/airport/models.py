@@ -59,7 +59,9 @@ class City(AirportModel):
 
         # using haversine
         lat1, lon1, lat2, lon2 = map(math.radians, [self.latitude,
-                                                    self.longitude, city.latitude, city.longitude])
+                                                    self.longitude,
+                                                    city.latitude,
+                                                    city.longitude])
         dlat = lat2 - lat1
         dlon = lon2 - lon1
         a = (math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) *
@@ -180,7 +182,8 @@ class Airport(AirportModel):
         flight_ids = []
         for destination in self.destinations.distinct():
             flight_time = City.get_flight_time(self.city,
-                                               destination.city, Flight.cruise_speed)
+                                               destination.city,
+                                               Flight.cruise_speed)
 
             if SCALE_FLIGHT_TIMES:
                 flight_time = game.scale_flight_time(flight_time)
@@ -194,28 +197,27 @@ class Airport(AirportModel):
             flight_ids.append(flight.id)
         return Flight.objects.filter(id__in=flight_ids)
 
+    def get_destinations(self, dest_count):
+        """Get the destinations for airport. rules are:
 
-def _get_destinations_for(airport, dest_count):
-    """Get the destinations for airport. rules are:
+        * Can't have more than «dest_count» destinations
+        * destination airports can't add more than «dest_count»
+        * destination can't be in the same city
+        """
+        #if dest_count < 1:
+        #    raise ValueError("Can't have < 1 destinations on an airport")
 
-    * Can't have more than «dest_count» destinations
-    * destination airports can't add more than «dest_count»
-    * destination can't be in the same city
-    """
-    #if dest_count < 1:
-    #    raise ValueError("Can't have < 1 destinations on an airport")
+        queryset = Airport.objects.exclude(city=self.city)
+        queryset = queryset.filter(game=self.game)
+        queryset = queryset.exclude(id=self.id)
+        queryset = queryset.annotate(num_dest=models.Count('destinations'))
+        queryset = queryset.filter(num_dest__lt=dest_count)
 
-    queryset = Airport.objects.exclude(city=airport.city)
-    queryset = queryset.filter(game=airport.game)
-    queryset = queryset.exclude(id=airport.id)
-    queryset = queryset.annotate(num_dest=models.Count('destinations'))
-    queryset = queryset.filter(num_dest__lt=dest_count)
-
-    try:
-        return random.sample(set(queryset), dest_count)
-    except ValueError:
-        # try again
-        return _get_destinations_for(airport, dest_count - 1)
+        try:
+            return random.sample(set(queryset), dest_count)
+        except ValueError:
+            # try again
+            return self.get_destinations(dest_count - 1)
 
 
 class FlightManager(models.Manager):
@@ -751,7 +753,7 @@ class GameManager(models.Manager):
 
         # populate the airports with destinations
         for airport in game.airports.distinct():
-            new_destinations = _get_destinations_for(airport, density)
+            new_destinations = airport.get_destinations(density)
             for destination in new_destinations:
                 if airport.destinations.count() >= density:
                     break

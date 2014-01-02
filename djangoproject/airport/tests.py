@@ -13,8 +13,8 @@ from django.test import TestCase
 from airport import models
 
 
-class AirportTest(TestCase):
-    """Test Airport Model"""
+class AirportTestBase(TestCase):
+    """Base class for airport tests"""
 
     def setUp(self):
         "setup"
@@ -41,14 +41,28 @@ class AirportTest(TestCase):
             users.append(user)
         return tuple(users)
 
-    def _create_game(self, host, goals=1, airports=10):
+    def _create_game(self, host, goals=4, airports=30):
         return models.Game.objects.create_game(
             host=host,
             goals=goals,
             airports=airports)
 
 
-class NextFlights(AirportTest):
+class AirportTest(AirportTestBase):
+
+    """Test the Airport model."""
+    def test_get_destinations(self):
+        # test the "get_destinations()" method
+        airport = self.game.airports.all()[0]
+        destinations = airport.get_destinations(5)
+        destinations = list(destinations)
+
+        self.assertTrue(len(destinations) <= 5)
+        self.assertTrue(airport not in destinations)
+        self.assertTrue(airport.city not in [i.city for i in destinations])
+
+
+class NextFlights(AirportTestBase):
     def runTest(self):
         """Test that we can see next flights"""
         airport = self.game.airports.order_by('?')[0]
@@ -85,7 +99,7 @@ class NextFlights(AirportTest):
         self.assertEqual(len(next_flights), 0)
 
 
-class DistinctAirports(AirportTest):
+class DistinctAirports(AirportTestBase):
     def runTest(self):
         """Ensure games doesn't have duplicate airports"""
         self.game.end()
@@ -100,7 +114,7 @@ class DistinctAirports(AirportTest):
             game.delete()
 
 
-class FlightTest(AirportTest):
+class FlightTest(AirportTestBase):
     def runTest(self):
         """Test the in_flight() and cancel() methods"""
         airports = models.Airport.objects.filter(game=self.game)
@@ -137,7 +151,7 @@ class FlightTest(AirportTest):
         self.assertFalse(flight.in_flight(now))
 
 
-class NextFlightTo(AirportTest):
+class NextFlightTo(AirportTestBase):
     def runTest(self):
         """Test the next_flight_to() method"""
         now = datetime.datetime(2011, 11, 17, 11, 0)
@@ -188,7 +202,7 @@ class NextFlightTo(AirportTest):
         self.assertEqual(airport.next_flight_to(city, now), flight2)
 
 
-class CreateFlights(AirportTest):
+class CreateFlights(AirportTestBase):
     def runTest(self):
         """test the create flights method"""
         airports = models.Airport.objects.filter(game=self.game)
@@ -219,7 +233,7 @@ class CreateFlights(AirportTest):
             self.assertNotEqual(flight.flight_time, 0)
 
 
-class ToDict(AirportTest):
+class ToDict(AirportTestBase):
     def setUp(self):
         super(ToDict, self).setUp()
         airports = models.Airport.objects.filter(game=self.game)
@@ -262,7 +276,7 @@ class ToDict(AirportTest):
         self.assertEqual(d['status'], 'Cancelled')
 
 
-class UserProfileTest(AirportTest):
+class UserProfileTest(AirportTestBase):
     """Test the UserProfile model"""
     def test_location_and_update(self):
         """Test the Flight.location() and Game.update() methods"""
@@ -303,7 +317,7 @@ class UserProfileTest(AirportTest):
         self.assertEqual(x[2], None)
 
 
-class PurchaseFlight(AirportTest):
+class PurchaseFlight(AirportTestBase):
     def runTest(self):
         """Test the purchase_flight() method"""
         profile = self.user.profile
@@ -350,7 +364,7 @@ class PurchaseFlight(AirportTest):
                           profile.purchase_flight, flight3, now)
 
 
-class CurrentGameTest(AirportTest):
+class CurrentGameTest(AirportTestBase):
     """Test the current_game() method in UserProfile"""
     def setUp(self):
         self.users = self._create_users(2)
@@ -402,7 +416,7 @@ class CurrentGameTest(AirportTest):
         self.assertEqual(game.state, game.GAME_OVER)
 
 
-class PerGameAirports(AirportTest):
+class PerGameAirports(AirportTestBase):
     def setUp(self):
         self.user = self._create_users(1)[0]
 
@@ -416,14 +430,15 @@ class PerGameAirports(AirportTest):
         self.assertEqual(game.airports.count(), 10)
 
 
-class Messages(AirportTest):
+class Messages(AirportTestBase):
     """Test the messages model"""
 
     def setUp(self):
         self.user = self._create_users(1)[0]
 
     def test_no_messages(self):
-        """Test that when user is first created there are no messages except the welcome message"""
+        # Test that when user is first created there are no messages except the
+        # welcome message"""
         messages = models.Message.objects.filter(profile=self.user.profile)
         self.assertEqual(messages.count(), 1)
         self.assertTrue(messages[0].text.startswith('Welcome'))
@@ -489,8 +504,8 @@ class Messages(AirportTest):
         self.assertEqual(messages[0].text, 'this is test1')
 
         # finish
-        my_achievement = models.Achievement.objects.get(game=game,
-                                                        profile=player.profile, goal=goal)
+        my_achievement = models.Achievement.objects.get(
+            game=game, profile=player.profile, goal=goal)
         my_achievement.timestamp = game.time
         my_achievement.save()
 
@@ -505,7 +520,7 @@ class Messages(AirportTest):
         self.assertEqual(messages[0].text, 'this is test3')
 
 
-class HomeViewTest(AirportTest):
+class HomeViewTest(AirportTestBase):
     """Test the home view"""
     view = reverse('home')
 
@@ -518,9 +533,9 @@ class HomeViewNotLoggedIn(HomeViewTest):
         """Test that you are redirected to the login page when you are not
         logget in"""
         response = self.client.get(self.view)
-        self.assertRedirects(response,
-                             reverse('django.contrib.auth.views.login') + '?next=%s' %
-                             self.view)
+        url = reverse('django.contrib.auth.views.login')
+        url = url + '?next=%s' % self.view
+        self.assertRedirects(response, url)
 
 
 class HomeViewNoGameRedirect(HomeViewTest):
@@ -555,8 +570,8 @@ class HomeViewFinishedGame(HomeViewTest):
         self.client.login(username=player.username, password='test')
         self.client.get(self.view)
         goal = models.Goal.objects.get(game=game)
-        my_achievement = models.Achievement.objects.get(game=game,
-                                                        profile=player.profile, goal=goal)
+        my_achievement = models.Achievement.objects.get(
+            game=game, profile=player.profile, goal=goal)
         my_achievement.timestamp = game.time
         my_achievement.save()
         response = self.client.get(self.view)
@@ -578,8 +593,8 @@ class FinishedNotWon(HomeViewTest):
         goal = models.Goal.objects.get(game=game)
 
         #finish player 1
-        my_achievement = models.Achievement.objects.get(game=game,
-                                                        profile=player1.profile, goal=goal)
+        my_achievement = models.Achievement.objects.get(
+            game=game, profile=player1.profile, goal=goal)
         my_achievement.timestamp = game.time
         my_achievement.save()
         self.client.login(username=player1.username, password='test')
@@ -592,8 +607,8 @@ class FinishedNotWon(HomeViewTest):
         self.assertEqual(response.status_code, 200)
 
         # finish player 2
-        my_achievement = models.Achievement.objects.get(game=game,
-                                                        profile=player2.profile, goal=goal)
+        my_achievement = models.Achievement.objects.get(
+            game=game, profile=player2.profile, goal=goal)
         my_achievement.timestamp = game.time
         my_achievement.save()
         self.client.login(username=player2.username, password='test')
@@ -601,7 +616,7 @@ class FinishedNotWon(HomeViewTest):
         self.assertRedirects(response, games_view)
 
 
-class Cities(AirportTest):
+class Cities(AirportTestBase):
     """Test the Cities module"""
     def runTest(self):
         """Test that all cities have images"""
@@ -609,7 +624,7 @@ class Cities(AirportTest):
             self.assertNotEqual(city.image, None)
 
 
-class ConstantConnections(AirportTest):
+class ConstantConnections(AirportTestBase):
     def runTest(self):
         """Test that the connection time between two airports is always
         constant (ignoring cancellations/delays and the like"""
@@ -623,7 +638,7 @@ class ConstantConnections(AirportTest):
                 self.assertEqual(s2d, d2s)
 
 
-class GamePause(AirportTest):
+class GamePause(AirportTestBase):
     """Test the pausing/resuming of a game"""
     def setUp(self):
         self.users = self._create_users(2)
@@ -678,8 +693,12 @@ class GamePause(AirportTest):
         flights = airport.next_flights(game.time, future_only=True)
         flight = flights[0]
 
-        self.assertRaises(game.Paused,
-                          self.users[0].profile.purchase_flight, flight, game.time)
+        self.assertRaises(
+            game.Paused,
+            self.users[0].profile.purchase_flight,
+            flight,
+            game.time
+        )
 
     def skip_test_in_flight(self):
         """Test that you are paused in-flight"""
