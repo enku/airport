@@ -92,6 +92,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.contrib.messages.context_processors.messages',
     'airport.context_processors.externals',
+    'airport.context_processors.game_name',
 )
 
 MIDDLEWARE_CLASSES = (

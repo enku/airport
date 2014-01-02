@@ -5,6 +5,7 @@ from django.conf import settings as django_settings
 USER_SETTINGS = getattr(django_settings, 'AIRPORT', None)
 
 DEFAULTS = {
+    'GAME_NAME': 'Airport',
     'MINUTES_BEFORE_BOARDING': 10,
     'MAX_SESSION_MESSAGES': 16,
     'SCALE_FLIGHT_TIMES': True,

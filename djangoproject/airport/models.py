@@ -841,7 +841,7 @@ class UserProfile(AirportModel):
 
         super(UserProfile, self).save(*args, **kwargs)
         if new_user:
-            Message.send(self, 'Welcome to Airport!')
+            Message.send(self, 'Welcome to {}!'.format(settings.GAME_NAME))
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 

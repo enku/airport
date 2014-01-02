@@ -141,7 +141,7 @@ airport.notify = function(message, timeout) {
     timeout = timeout || 20000;
     if (window.webkitNotifications.checkPermission() == 0) {
         var notification = window.webkitNotifications.createNotification(
-            '{{ notification_icon }}', 'Airport', message);
+            '{{ notification_icon }}', '{{ game_name }}', message);
         notification.show();
         setTimeout(function() { notification.cancel();}, timeout);
     }
