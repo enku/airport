@@ -14,8 +14,9 @@
     {{ form.errors }}
     </div>
     {% endif %}
+    <h1 id="game_name">{{ game_name }}</h1>
     <div id="login_widget">
-    <div id="logo">{{ game_name }}</div>
+    <div id="logo">Login</div>
     <form action="" method="post">{% csrf_token %}
         <div id="icon">
             <img id="lock" src="{{ login_icon }}" 

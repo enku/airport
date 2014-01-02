@@ -15,6 +15,7 @@
     </div>
     {% endif %}
 
+    <h1 id="game_name">{{ game_name }}</h1>
     <div id="register_widget">
     <div id="logo">Register</div>
     <form method="post" action="{% url "register" %}">{% csrf_token %}
