@@ -1,6 +1,8 @@
+from concurrent.futures import ThreadPoolExecutor
 import functools
 import json
 import logging
+import multiprocessing
 import os
 import random
 import signal
@@ -11,6 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings as django_settings
+from django.db import connection
 from tornado import websocket
 from tornado.ioloop import IOLoop
 from tornado.web import Application
@@ -21,6 +24,11 @@ from .conf import settings
 
 LOOP_DELAY = settings.GAMESERVER_LOOP_DELAY
 logger = logging.getLogger('airport.lib')
+
+if settings.GAMESERVER_MULTIPROCESSING:
+    GameThreadClass = multiprocessing.Process
+else:
+    GameThreadClass = threading.Thread
 
 
 def start_game(game):
@@ -354,9 +362,11 @@ class IPCHandler(WebSocketConnection):
 
     def handle_start_game_thread(self, game_id):
         """Handler to start a Game thread."""
+        if settings.GAMESERVER_MULTIPROCESSING:
+            connection.close()
 
-        game = models.Game.objects.get(pk=game_id)
-        game_thread = GameThread(game=game)
+        name = 'Game{0}'.format(game_id)
+        game_thread = GameThread(name=name, game_id=game_id)
         game_thread.start()
         SocketHandler.games_info()
 
@@ -397,6 +407,12 @@ class IPCHandler(WebSocketConnection):
         # suicide
         os.kill(os.getpid(), signal.SIGTERM)
         sys.exit(0)
+
+    def handle_player_message(self, data):
+        username = data['player']
+        user = User.objects.get(username=username)
+        message = data['message']
+        SocketHandler.message(user, 'message', message)
 # -----------------------------------------------------------------------------
 
 
@@ -423,65 +439,57 @@ class SocketServer(threading.Thread):
         IOLoop.current().stop()
 
 
-class Messenger(threading.Thread):
-
-    """Don't kill me ;-)"""
-    daemon = True
-    message_event = threading.Event()
-
-    def run(self):
-        while True:
-            self.message_event.wait()
-            msgs_to_send = models.Message.objects.filter(
-                read=False).order_by('profile', 'creation_time')
-            for message in msgs_to_send:
-                user = message.profile.user
-                sent = SocketHandler.message(
-                    user, 'message', message.to_dict())
-                if sent:
-                    message.mark_read()
-            self.message_event.clear()
-
-
-class GameThread(threading.Thread):
+class GameThread(GameThreadClass):
 
     """A threaded loop that runs a game"""
     daemon = False
 
     def __init__(self, **kwargs):
-        self.game = kwargs.pop('game')
-        self.has_ai_player = self.game.players.filter(ai_player=True).exists()
+        self.game_id = kwargs.pop('game_id')
         self.turn_event = threading.Event()
 
         super(GameThread, self).__init__(**kwargs)
 
     def run(self):
-        logger.info('Starting thread for %s', self.game)
+        logger.info('Starting thread for Game %s', self.game_id)
         self.fix_players()
         mw_gen = MonkeyWrenchGenerator()
+        executor = ThreadPoolExecutor(max_workers=4)
 
         now = None
 
         while True:
             threading.Timer(LOOP_DELAY, self.turn_event.set).start()
-            # re-fetch game
-            game = self.game.__class__.objects.get(pk=self.game.pk)
+            game = models.Game.objects.get(pk=self.game_id)
+            has_ai_player = game.players.filter(ai_player=True).exists()
 
             if game.state == game.GAME_OVER:
                 logger.info('%s ended.', game)
                 return
 
-            if self.has_ai_player:
+            if has_ai_player:
                 ai_player = game.players.distinct().get(ai_player=True)
                 ai_player.make_move(game, now)
 
             now = take_turn(game, throw_wrench=next(mw_gen))
 
             # send all messages for this cycle
-            messenger.message_event.set()
+            executor.submit(self.send_messages)
 
             self.turn_event.wait()
             self.turn_event.clear()
+
+    def send_messages(self):
+        # send all player messages (via IPC)
+        msgs_to_send = models.Message.objects.filter(
+            read=False).order_by('profile', 'creation_time')
+        for message in msgs_to_send:
+            user = message.profile.user
+            IPCHandler.send_message(
+                'player_message',
+                {'player': user.username, 'message': message.to_dict()}
+            )
+            message.mark_read()
 
     def fix_players(self):
         """Make sure players are not in a "weird" state."""
@@ -491,17 +499,18 @@ class GameThread(threading.Thread):
         # taken away.  So they end up in limbo... or Texas.
         fixed_players = []
         msg = '%s: Player %s had to be fixed.'
+        game = models.Game.objects.get(pk=self.game_id)
 
-        for player in self.game.players.distinct():
-            if not player.in_limbo(self.game):
+        for player in game.players.distinct():
+            if not player.in_limbo(game):
                 continue
             if player.ticket:
                 player.airport = player.ticket.destination
                 player.ticket = None
             else:
-                player.airport = self.game.start_airport
+                player.airport = game.start_airport
             player.save()
-            logger.info(msg, self.game, player.user.username)
+            logger.info(msg, game, player.user.username)
             fixed_players.append(player)
         return fixed_players
 
@@ -525,6 +534,3 @@ class MonkeyWrenchGenerator(object):
         self.throw_wrench = True
         threading.Timer(random.randint(1, self.max_wait),
                         self._set_throw).start()
-
-
-messenger = Messenger()

@@ -848,6 +848,9 @@ class UserProfile(AirportModel):
             msg = 'Welcome to {}!'.format(settings.GAME_NAME)
             Message.objects.send(self, msg)
 
+    @property
+    def username(self):
+        return self.user.username
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 
 
@@ -1155,7 +1158,7 @@ class Game(AirportModel):
         self.state = self.IN_PROGRESS
         self.timestamp = datetime.now()
         self.save()
-        announce(self.host, '{game} has begun'.format(game=self))
+        announce(self.host, 'Game {0} has begun'.format(self.pk))
 
     def end(self):
         """End the Game"""

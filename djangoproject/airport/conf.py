@@ -21,6 +21,7 @@ DEFAULTS = {
     'MAP_INITIAL_ZOOM': 4,
     'WEBSOCKET_PORT': 8080,
     'GAMESERVER_LOOP_DELAY': 4,
+    'GAMESERVER_MULTIPROCESSING': False,
 
     'EXTERNALS': {
         'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js',
