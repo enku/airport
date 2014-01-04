@@ -294,12 +294,8 @@ class SocketHandler(WebSocketConnection):
             data = {}
             data['games'] = games
 
-            if client.user:
-                player = client.user.player
-                if player.current_game is not None:
-                    # we only care to give this info to users waiting on a game
-                    continue
-                data.update(player.game_info())
+            if client.user and client.user.player.current_game:
+                data.update(client.user.player.game_info())
 
             client.write_message(json.dumps(
                 {
@@ -373,6 +369,7 @@ class IPCHandler(WebSocketConnection):
         game = models.Game.objects.get(pk=game_id)
         for player in game.players.filter(ai_player=False).distinct():
             SocketHandler.message(player.user, 'join_game', {})
+        SocketHandler.games_info()
 
     def handle_game_created(self, game_id):
         """Handler to for creating a game."""
@@ -466,14 +463,12 @@ class GameThread(GameThreadClass):
             timer.start()
             game = models.Game.objects.get(pk=self.game_id)
             ai_player = None
-            has_ai_player = game.players.filter(ai_player=True).exists()
 
             if game.state == game.GAME_OVER:
                 logger.info('Game {0} ended.', game.pk)
                 return
 
-            if has_ai_player:
-                ai_player = game.players.distinct().get(ai_player=True)
+            for ai_player in game.players.distinct().filter(ai_player=True):
                 ai_player.make_move(game, now)
 
             now = take_turn(game, throw_wrench=next(mw_gen))

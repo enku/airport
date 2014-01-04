@@ -1017,3 +1017,49 @@ class GameServerTest(AirportTestBase):
 
         for game in models.Game.objects.exclude(state__gt=0):
             self.assertEqual(game.state, game.IN_PROGRESS)
+
+    @patch('airport.lib.send_message')
+    def test_create_game(self, send_message):
+        """Create a game through the management command"""
+        self.game.end()
+        games = models.Game.objects.filter(host=self.player,
+                                           state=models.Game.IN_PROGRESS)
+        self.assertFalse(games.exists())
+        management.call_command('gameserver', creategame=self.player.username)
+
+        games = models.Game.objects.filter(host=self.player,
+                                           state=models.Game.IN_PROGRESS)
+        self.assertTrue(games.exists())
+
+    @patch('airport.lib.send_message')
+    def test_create_game_with_args(self, send_message):
+        """Create a game using --create user:airports:goals"""
+        self.game.end()
+        num_airports = 19
+        arg = '{0}:{1}'.format(self.player.username, num_airports)
+        management.call_command('gameserver', creategame=arg)
+        games = models.Game.objects.filter(host=self.player,
+                                           state=models.Game.IN_PROGRESS)
+        self.assertTrue(games.exists())
+        game = games[0]
+        self.assertEqual(game.host, self.player)
+        self.assertEqual(game.airports.count(), num_airports)
+        self.assertEqual(game.goals.count(), 3)  # default
+
+        # now try it specifying the goals too
+        game.end()
+        num_airports = 91
+        num_goals = 14
+        arg = '{0}:{1}:{2}'.format(
+            self.player.username,
+            num_airports,
+            num_goals,
+        )
+        management.call_command('gameserver', creategame=arg)
+        games = models.Game.objects.filter(host=self.player,
+                                           state=models.Game.IN_PROGRESS)
+        self.assertTrue(games.exists())
+        game = games[0]
+        self.assertEqual(game.host, self.player)
+        self.assertEqual(game.airports.count(), num_airports)
+        self.assertEqual(game.goals.count(), num_goals)

@@ -527,8 +527,8 @@ class PlayerManager(models.Manager):
 
         # if game already has an AI player, just return that
         try:
-            return game.players.get(ai_player=True)
-        except Player.DoesNotExist:
+            return game.players.filter(ai_player=True).distinct()[0]
+        except IndexError:
             pass
 
         # See if there are any available players

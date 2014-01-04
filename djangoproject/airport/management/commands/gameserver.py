@@ -19,16 +19,27 @@ class Command(BaseCommand):
     help = 'Airport Game Server'
 
     option_list = BaseCommand.option_list + (
-        make_option('--forcequit',
-                    type='int',
-                    default=0,
-                    help='Force a game to quit'),
-        make_option('--pause', '-p',
-                    type='int',
-                    help='Pause a game (use "0" to pause all active games.'),
-        make_option('--resume', '-r',
-                    type='int',
-                    help='Resume a game (use "0" to resume all paused games.'),
+        make_option(
+            '--forcequit',
+            type='int',
+            default=0,
+            help='Force a game to quit'
+        ),
+        make_option(
+            '--pause', '-p',
+            type='int',
+            help='Pause a game (use "0" to pause all active games.'
+        ),
+        make_option(
+            '--resume', '-r',
+            type='int',
+            help='Resume a game (use "0" to resume all paused games.'
+        ),
+        make_option(
+            '--creategame', '-c',
+            type='str',
+            help='Create a game with specified host[:airports[:goals].'
+        ),
     )
 
     def handle(self, *args, **options):
@@ -63,6 +74,31 @@ class Command(BaseCommand):
                 games = [models.Game.objects.get(pk=game_id)]
 
             resume_games(games)
+            return
+
+        if options['creategame'] is not None:
+            num_airports = 15
+            num_goals = 3
+            split = options['creategame'].split(':')
+            host_username = split[0]
+            player = models.Player.objects.get(user__username=host_username)
+
+            try:
+                num_airports = int(split[1])
+                num_goals = int(split[2])
+            except IndexError:
+                pass
+
+            game = models.Game.objects.create_game(
+                host=player,
+                goals=num_goals,
+                airports=num_airports,
+                ai_player=True,
+            )
+
+            lib.send_message('game_created', game.pk)
+            # auto-start the game
+            lib.start_game(game)
             return
 
         logger.info('Game Server Started')
