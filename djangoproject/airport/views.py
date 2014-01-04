@@ -11,15 +11,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.shortcuts import (
-    render, render_to_response, get_object_or_404, redirect)
+from django.shortcuts import (get_object_or_404, redirect, render,
+                              render_to_response)
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 
-from airport import VERSION
-from airport import forms
-from airport import lib
-from airport import models
+from airport import forms, lib, models, VERSION
 from airport.conf import settings
 
 

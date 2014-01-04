@@ -9,9 +9,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
 from mock import patch
 
-from airport import lib
-from airport import models
-from airport import monkeywrench as mw
+from airport import lib, models, monkeywrench
 
 
 class AirportTestBase(TestCase):
@@ -908,7 +906,7 @@ class MonkeyWrenchTest(AirportTestBase):
         crashed = models.Flight.objects.filter(game=self.game)
         crashed.exclude(pk=flight.pk).delete()
 
-        wrench = mw.TailWind(self.game, now)
+        wrench = monkeywrench.TailWind(self.game, now)
         flights_in_air = models.Flight.objects.in_flight(self.game, now)
         self.assertEqual([flight], list(flights_in_air))
 

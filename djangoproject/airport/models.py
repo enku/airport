@@ -1,15 +1,14 @@
 """Models for the airport django app"""
 from datetime import datetime, timedelta
 from logging import getLogger
-from math import asin, cos, sin, radians, sqrt
+from math import asin, cos, radians, sin, sqrt
 from random import randint, sample, shuffle
 
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.db import models
-from django.db import transaction
+from django.db import models, transaction
 from django.template.defaultfilters import date, escape
 
 from .conf import settings

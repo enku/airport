@@ -2,12 +2,10 @@ from logging import getLogger
 from optparse import make_option
 from time import sleep
 
-from django.db import connection
 from django.core.management.base import BaseCommand
+from django.db import connection
 
-from airport import lib
-from airport import models
-
+from airport import lib, models
 
 logger = getLogger('airport.gameserver')
 

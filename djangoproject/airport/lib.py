@@ -1,4 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
 import functools
 import json
 import logging
@@ -8,16 +7,17 @@ import random
 import signal
 import sys
 import threading
+from concurrent.futures import ThreadPoolExecutor
 
+import tornado
+from django.conf import settings as django_settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.core.exceptions import ObjectDoesNotExist
-from django.conf import settings as django_settings
 from django.db import connection
 from tornado import websocket
 from tornado.ioloop import IOLoop
 from tornado.web import Application
-import tornado
 
 from . import models
 from .conf import settings
