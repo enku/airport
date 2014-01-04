@@ -22,6 +22,7 @@ DEFAULTS = {
     'WEBSOCKET_PORT': 8080,
     'GAMESERVER_LOOP_DELAY': 4,
     'GAMESERVER_MULTIPROCESSING': False,
+    'TIMEFACTOR': 60,
 
     'EXTERNALS': {
         'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js',

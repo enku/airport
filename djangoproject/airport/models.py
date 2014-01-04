@@ -1134,7 +1134,7 @@ class Game(AirportModel):
         (1, IN_PROGRESS),
         (2, PAUSED))
 
-    TIMEFACTOR = 60
+    TIMEFACTOR = settings.TIMEFACTOR
 
     host = models.ForeignKey(Player, related_name='+')
     players = models.ManyToManyField(Player, null=True, blank=True,
