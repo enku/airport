@@ -23,22 +23,26 @@ class Command(BaseCommand):
             '--forcequit',
             type='int',
             default=0,
-            help='Force a game to quit'
+            help='Force a game to quit',
+            metavar='GAMEID',
         ),
         make_option(
             '--pause', '-p',
             type='int',
-            help='Pause a game (use "0" to pause all active games.'
+            help='Pause a game (use "0" to pause all active games.',
+            metavar='GAMEID',
         ),
         make_option(
             '--resume', '-r',
             type='int',
-            help='Resume a game (use "0" to resume all paused games.'
+            help='Resume a game (use "0" to resume all paused games.',
+            metavar='GAMEID',
         ),
         make_option(
             '--creategame', '-c',
             type='str',
-            help='Create a game with specified host[:airports[:goals].'
+            help='Create a game with specified host[:airports[:goals]].',
+            metavar='USER[:AIRPORTS[:GOALS]]',
         ),
     )
 
@@ -56,49 +60,15 @@ class Command(BaseCommand):
             return
 
         if options['pause'] is not None:
-            game_id = options['pause']
-            if game_id == 0:
-                games = models.Game.objects.filter(
-                    state=models.Game.IN_PROGRESS)
-            else:
-                games = [models.Game.objects.get(pk=game_id)]
-
-            pause_games(games)
+            pause_games(options['pause'])
             return
 
         if options['resume'] is not None:
-            game_id = options['resume']
-            if game_id == 0:
-                games = models.Game.objects.filter(state=models.Game.PAUSED)
-            else:
-                games = [models.Game.objects.get(pk=game_id)]
-
-            resume_games(games)
+            resume_games(options['resume'])
             return
 
         if options['creategame'] is not None:
-            num_airports = 15
-            num_goals = 3
-            split = options['creategame'].split(':')
-            host_username = split[0]
-            player = models.Player.objects.get(user__username=host_username)
-
-            try:
-                num_airports = int(split[1])
-                num_goals = int(split[2])
-            except IndexError:
-                pass
-
-            game = models.Game.objects.create_game(
-                host=player,
-                goals=num_goals,
-                airports=num_airports,
-                ai_player=True,
-            )
-
-            lib.send_message('game_created', game.pk)
-            # auto-start the game
-            lib.start_game(game)
+            create_game(*options['creategame'].split(':'))
             return
 
         logger.info('Game Server Started')
@@ -120,33 +90,85 @@ def start_thread(thread_class, **kwargs):
     return thread
 
 
-def pause_games(games):
-    """Pause all *game* objects if they are in progress.
+def pause_games(game_id):
+    """Pause all game objects if they are in progress.
 
-    Return the number of games affected."""
-    num_changed = 0
+    *game_id* is a game id or "0" for all games.
+
+    Return the set of games affected."""
+    games_affected = set()
+
+    if game_id == '0':
+        games = models.Game.objects.filter(state=models.Game.IN_PROGRESS)
+    else:
+        games = models.Game.objects.filter(pk=game_id)
+
     for game in games:
-        if game.state == game.IN_PROGRESS:
-            lib.game_pause(game)
-            msg = '{0} paused by administrator.'.format(game)
-            models.Message.objects.broadcast(
-                msg, game=game, finishers=False, message_type='ERROR')
-            lib.send_message('game_paused', game.pk)
-            num_changed = num_changed
-    return num_changed
+        if game.state != game.IN_PROGRESS:
+            continue
+        lib.game_pause(game)
+        msg = '{0} paused by administrator.'.format(game)
+        models.Message.objects.broadcast(
+            msg, game=game, finishers=False, message_type='ERROR')
+        lib.send_message('game_paused', game.pk)
+        games_affected.add(game)
+    return games_affected
 
 
-def resume_games(games):
+def resume_games(game_id):
     """Pause all *game* objects if they are paused.
 
-    Return the number of games affected."""
-    num_changed = 0
+    *game_id* is a game id or "0" for all games.
+
+    Return the set of games affected."""
+    games_affected = set()
+
+    if game_id == 0:
+        games = models.Game.objects.filter(state=models.Game.PAUSED)
+    else:
+        games = models.Game.objects.filter(pk=game_id)
+
     for game in games:
-        if game.state == game.PAUSED:
-            lib.game_resume(game)
-            msg = '{0} resumed by administrator.'.format(game)
-            models.Message.objects.broadcast(
-                msg, game=game, finishers=False, message_type='ERROR')
-            lib.send_message('game_paused', game.pk)
-            num_changed = num_changed
-    return num_changed
+        if game.state != game.PAUSED:
+            continue
+        lib.game_resume(game)
+        msg = '{0} resumed by administrator.'.format(game)
+        models.Message.objects.broadcast(
+            msg, game=game, finishers=False, message_type='ERROR')
+        lib.send_message('game_paused', game.pk)
+        games_affected.add(game)
+    return games_affected
+
+
+def create_game(*args):
+    """Create a game.
+
+    args[0]: (required) is the game host's username
+    args[1]: (optional) is the number of airports (defaults to 15)
+    args[2]: (optional) is the number of goals (defaults to 3)
+
+    Returns the Game object created.
+    """
+    num_airports = 15
+    num_goals = 3
+
+    host_username = args[0]
+    player = models.Player.objects.get(user__username=host_username)
+
+    try:
+        num_airports = int(args[1])
+        num_goals = int(args[2])
+    except IndexError:
+        pass
+
+    game = models.Game.objects.create_game(
+        host=player,
+        goals=num_goals,
+        airports=num_airports,
+        ai_player=True,
+    )
+
+    lib.send_message('game_created', game.pk)
+    # auto-start the game
+    lib.start_game(game)
+    return game
