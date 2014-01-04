@@ -722,13 +722,12 @@ class GamePause(AirportTestBase):
             game.time
         )
 
-    def skip_test_in_flight(self):
+    @patch('airport.lib.send_message')
+    def test_in_flight(self, send_message):
         """Test that you are paused in-flight"""
 
-        now = datetime.datetime.now()
-
-        game = models.Game.objects.create(host=self.players[0].player,
-                                          goals=1, airports=10)
+        game = models.Game.objects.create_game(host=self.players[0],
+                                               goals=1, airports=10)
         game.begin()
 
         airport = game.start_airport
@@ -736,17 +735,13 @@ class GamePause(AirportTestBase):
         flights.sort(key=lambda x: x.depart_time)
         flight = flights[0]
 
-        difference = now - flight.depart_time
-        new_secs = difference.total_seconds() * game.TIMEFACTOR
-        game.timestamp = flight.depart_time - datetime.timedelta(
-            seconds=new_secs)
-        game.save()
-
-        self.assertEqual(game.time, flight.depart_time)
-        self.assertTrue(flight.in_flight(game.time))
+        now1 = lib.take_turn(game, flight.depart_time)
+        self.assertTrue(flight.in_flight(now1))
 
         game.pause()
-        self.assertTrue(flight.in_flight(game.time))
+        now2 = lib.take_turn(game, now1)
+        self.assertTrue(flight.in_flight(now2))
+        self.assertEqual(now1, now2)
 
     def test_game_join(self):
         """Assure that you can still join a game while paused"""
