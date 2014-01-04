@@ -971,3 +971,49 @@ class GameServerTest(AirportTestBase):
         # re-fetch the model
         game = models.Game.objects.get(pk=self.game.pk)
         self.assertEqual(game.state, game.GAME_OVER)
+
+    @patch('airport.lib.send_message')
+    def test_pause_game(self, send_message):
+        """We can pause a game"""
+        # Given the players and games
+        game1 = self.game
+        user2 = User.objects.create_user(username='test2', password='test')
+        player2 = models.Player.objects.create(user=user2)
+        game2 = models.Game.objects.create_game(
+            host=player2,
+            goals=3,
+            airports=15
+        )
+        lib.start_game(game1)
+        lib.start_game(game2)
+
+        # When we pause a game from the managment command
+        management.call_command('gameserver', pause=game1.pk)
+
+        # Then that game is paused
+        # (re-fetch)
+        game1 = models.Game.objects.get(pk=game1.pk)
+        game2 = models.Game.objects.get(pk=game2.pk)
+
+        self.assertEqual(game1.state, game1.PAUSED)
+        self.assertEqual(game2.state, game2.IN_PROGRESS)
+
+        # Calling with "--resume" resumes the game
+        management.call_command('gameserver', resume=game1.pk)
+        # (re-fetch)
+        game1 = models.Game.objects.get(pk=game1.pk)
+        game2 = models.Game.objects.get(pk=game2.pk)
+        self.assertEqual(game1.state, game1.IN_PROGRESS)
+        self.assertEqual(game2.state, game2.IN_PROGRESS)
+
+        # Calling --pause with id=0 pauses all active games
+        management.call_command('gameserver', pause=0)
+
+        for game in models.Game.objects.exclude(state__gt=0):
+            self.assertEqual(game.state, game.PAUSED)
+
+        # Calling --resume with id=0 resumes all active games
+        management.call_command('gameserver', resume=0)
+
+        for game in models.Game.objects.exclude(state__gt=0):
+            self.assertEqual(game.state, game.IN_PROGRESS)

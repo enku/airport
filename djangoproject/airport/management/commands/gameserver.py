@@ -23,6 +23,12 @@ class Command(BaseCommand):
                     type='int',
                     default=0,
                     help='Force a game to quit'),
+        make_option('--pause', '-p',
+                    type='int',
+                    help='Pause a game (use "0" to pause all active games.'),
+        make_option('--resume', '-r',
+                    type='int',
+                    help='Resume a game (use "0" to resume all paused games.'),
     )
 
     def handle(self, *args, **options):
@@ -36,6 +42,27 @@ class Command(BaseCommand):
             sleep(4.0)
             game.end()
             lib.send_message('game_ended', game.pk)
+            return
+
+        if options['pause'] is not None:
+            game_id = options['pause']
+            if game_id == 0:
+                games = models.Game.objects.filter(
+                    state=models.Game.IN_PROGRESS)
+            else:
+                games = [models.Game.objects.get(pk=game_id)]
+
+            pause_games(games)
+            return
+
+        if options['resume'] is not None:
+            game_id = options['resume']
+            if game_id == 0:
+                games = models.Game.objects.filter(state=models.Game.PAUSED)
+            else:
+                games = [models.Game.objects.get(pk=game_id)]
+
+            resume_games(games)
             return
 
         logger.info('Game Server Started')
@@ -55,3 +82,35 @@ def start_thread(thread_class, **kwargs):
     thread.daemon = True
     thread.start()
     return thread
+
+
+def pause_games(games):
+    """Pause all *game* objects if they are in progress.
+
+    Return the number of games affected."""
+    num_changed = 0
+    for game in games:
+        if game.state == game.IN_PROGRESS:
+            lib.game_pause(game)
+            msg = '{0} paused by administrator.'.format(game)
+            models.Message.objects.broadcast(
+                msg, game=game, finishers=False, message_type='ERROR')
+            lib.send_message('game_paused', game.pk)
+            num_changed = num_changed
+    return num_changed
+
+
+def resume_games(games):
+    """Pause all *game* objects if they are paused.
+
+    Return the number of games affected."""
+    num_changed = 0
+    for game in games:
+        if game.state == game.PAUSED:
+            lib.game_resume(game)
+            msg = '{0} resumed by administrator.'.format(game)
+            models.Message.objects.broadcast(
+                msg, game=game, finishers=False, message_type='ERROR')
+            lib.send_message('game_paused', game.pk)
+            num_changed = num_changed
+    return num_changed
