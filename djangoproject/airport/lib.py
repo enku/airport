@@ -310,6 +310,8 @@ class IPCHandler(WebSocketConnection):
     """
     WebSocketHandler for ipc messages.
     """
+    conn = None
+
     def open(self):
         logger.debug('IPC connection opened')
 
@@ -334,15 +336,20 @@ class IPCHandler(WebSocketConnection):
             handler(data)
 
     @staticmethod
-    def send_message(message_type, data):
-        """
-        Create a websocket connection and send a message to the handler.
-        """
+    def get_conn():
         url = 'ws://localhost:%s/ipc' % settings.WEBSOCKET_PORT
         ioloop = tornado.ioloop.IOLoop()
         conn = ioloop.run_sync(functools.partial(
             tornado.websocket.websocket_connect, url))
-        conn.write_message(json.dumps(
+        return conn
+
+    @classmethod
+    def send_message(cls, message_type, data):
+        """
+        Create a websocket connection and send a message to the handler.
+        """
+        cls.conn = cls.conn or cls.get_conn()
+        cls.conn.write_message(json.dumps(
             {
                 'type': message_type,
                 'key': django_settings.SECRET_KEY,
