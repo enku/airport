@@ -338,7 +338,7 @@ class IPCHandler(WebSocketConnection):
     @staticmethod
     def get_conn():
         url = 'ws://localhost:%s/ipc' % settings.WEBSOCKET_PORT
-        ioloop = tornado.ioloop.IOLoop()
+        ioloop = IOLoop.current()
         conn = ioloop.run_sync(functools.partial(
             tornado.websocket.websocket_connect, url))
         return conn
