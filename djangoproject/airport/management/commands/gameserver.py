@@ -42,6 +42,12 @@ class Command(BaseCommand):
             help='Create a game with specified host[:airports[:goals]].',
             metavar='USER[:AIRPORTS[:GOALS]]',
         ),
+        make_option(
+            '--deletegame', '-d',
+            type='int',
+            help='Delete a game.  Use with caution!',
+            metavar='GAMEID',
+        )
     )
 
     def handle(self, *args, **options):
@@ -67,6 +73,10 @@ class Command(BaseCommand):
 
         if options['creategame'] is not None:
             create_game(*options['creategame'].split(':'))
+            return
+
+        if options['deletegame'] is not None:
+            delete_game(options['deletegame'])
             return
 
         logger.info('Game Server Started')
@@ -169,4 +179,16 @@ def create_game(*args):
     lib.send_message('game_created', game.pk)
     # auto-start the game
     lib.start_game(game)
+    return game
+
+
+def delete_game(game_id):
+    """Delete the game assicated with *game_id*.
+
+    Return the deleted game
+
+    Pro-tip: We don't really delete games.  We just end them.
+    """
+    game = models.Game.objects.get(pk=game_id)
+    game.end()
     return game
