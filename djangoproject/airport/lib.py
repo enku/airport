@@ -397,7 +397,7 @@ class IPCHandler(WebSocketConnection):
     def handle_throw_wrench(self, game_id):
         game = models.Game.objects.get(pk=game_id)
         monkey_wrench = game.mwf.create(game)
-        logger.info('Game {0}: throwing {0}.'.format(game, monkey_wrench))
+        logger.info('Game {0}: throwing {1}.'.format(game, monkey_wrench))
         monkey_wrench.throw()
 
     def handle_player_joined_game(self, data):
@@ -474,7 +474,7 @@ class GameThread(GameThreadClass):
             ai_player = None
 
             if game.state == game.GAME_OVER:
-                logger.info('Game {0} ended.', game.pk)
+                logger.info('Game %s ended.', game.pk)
                 return
 
             for ai_player in game.players.distinct().filter(ai_player=True):
