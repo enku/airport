@@ -1,3 +1,5 @@
+var airport = window.airport || {};
+
 airport.websocket_handlers = {
     message: function (data) {
         var icon = airport.message_icons[data.type],
@@ -10,14 +12,14 @@ airport.websocket_handlers = {
     },
 
     info: function (data) {
-        refresh_ui(data);
+        airport.refresh_ui(data);
     },
 
     games_info: function (data) {
-        refresh_ui(data);
+        airport.update_games_menu(data.games);
     },
 
     join_game: function () {
-        window.location.replace('{% url "home" %}');
+        window.location.replace('{% url "main" %}');
     }
 };

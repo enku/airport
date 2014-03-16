@@ -7,63 +7,25 @@
     {% include "airport/favicon.html" %}
 
     <link href='http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono|Droid+Serif|Sofia' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="{{ jquery_ui_css }}"/>
 
     <style type="text/css">
         {% block css %}{% endblock %}
     </style>
-
 </head>
+
 <body data-background="{{ background_image }}">
     {% block content %}Base Template{% endblock %}
 
     {% block scripts %}
     <script type="text/javascript" src="{{ jquery }}"></script>
     <script type="text/javascript" src="{{ jquery_ui }}"></script>
-    <link rel="stylesheet" type="text/css" href="{{ jquery_ui_css }}"/>
     <script type="text/javascript" src="{{ jquery_cookie }}"></script>
     <script type="text/javascript" src="{{ jquery_scrollto }}"></script>
     <script type="text/javascript" src="{{ mustache_js }}"></script>
     <script type="text/javascript">
         {% include "csrf.js" %}
+        {% include "airport/common.js" %}
     </script>
     {% endblock %}
-
 </body>
-
-{% verbatim %}
-<script type="text/template" id="message_template">
-    <li 
-        style="list-style-image: url('{{icon}}')"
-        class="message" 
-        data-id="{{message.id}}"
-    >{{ message.text }}
-    <audio src="{{sound}}" autoplay="autoplay" />
-    <script type="text/javascript">
-        $('li[data-id="{{message.id}}"]').effect("pulsate", { times:3 }, 700);
-        $('#message_box').scrollTo('max', {
-            axis: 'y',
-            duration: 500,
-            margin: true
-            });
-    </script>
-    </li>
-</script>
-
-<script type="text/template" id="schedule_template">
-<tr class="schedule {{odd_or_even}}" id="flight_{{id}}">
-    <td>{{destination.airport}}</td>
-    <td class="flightno">{{number}}</td>
-    <td>{{depart_time}}</td>
-    <td>{{arrival_time}}</td>
-    <td>{{status}}</td>
-    {{#number}}
-    <td class="buy"><input {{^buyable}}disabled="disabled" {{/buyable}}type="submit" value="Buy" name="buy_{{id}}" /></td>
-    {{/number}}
-    {{^number}}
-    <td class="buy">&nbsp;</td>
-    {{/number}}
-</tr>
-</script>
-{% endverbatim %}
-</html>
-

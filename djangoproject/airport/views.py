@@ -21,45 +21,39 @@ from airport.conf import settings
 
 
 @login_required
-def home(request):
+def main(request):
     """Main view"""
     player = request.user.player
     game = player.current_game
-    context = {}
 
-    if not game:
-        return redirect(games_home)
-    if game.state == game.GAME_OVER:
-        return redirect(games_home)
-    if player.finished(game):
-        return redirect(games_home)
-    if game.state == game.NOT_STARTED:
-        if player == game.host:
-            lib.start_game(game)
-        else:
-            msg = 'Waiting for {0} to start the game.'
-            msg = msg.format(game.host.user.username)
-            models.Message.objects.send(player, msg)
-            return redirect(games_home)
+    if game and game.state == game.NOT_STARTED and game.host != player:
+        msg = 'Waiting for {0} to start the game.'
+        msg = msg.format(game.host.user.username)
+        models.Message.objects.send(player, msg)
     websocket_url = get_websocket_url(request)
-    context['game'] = game
-    context['player'] = player
-    context['websocket_url'] = websocket_url
-    return render(request, 'airport/home.html', context)
+    context = {
+        'game': game,
+        'player': player,
+        'websocket_url': websocket_url,
+    }
+    return render(request, 'airport/main.html', context)
 
 
 @login_required
 def info(request):
-    """Used ajax called to be used by the home() view.
+    """Used ajax called to be used by the main() view.
 
-    Returns basically all the info needed by home() but as as json
+    Returns basically all the info needed by main() but as as json
     dictionary.
     """
     user = request.user
     player = user.player
     game = player.current_game
+
     if not game:
-        return json_redirect(reverse(games_home))
+        return games_info(request)
+    if game.state == game.NOT_STARTED:
+        return games_info(request)
     if game.state == game.GAME_OVER or player.finished(game):
         return json_redirect('%s?id=%s' % (reverse(game_summary), game.id))
     now = game.time
@@ -104,13 +98,11 @@ def purchase_flight(player, flight, game_time):
 @login_required
 def pause_game(request):
     """Pause/Resume game"""
-    game_id = request.GET.get('id', None)
-    game = get_object_or_404(models.Game, pk=game_id)
     player = request.user.player
+    game = player.current_game
 
-    if player != game.host:
-        # only the host can pause/resume the game
-        return player.info(game)
+    if not game or game.host != player:
+        return info(request)
 
     if game.state == game.PAUSED:
         player_info = lib.game_resume(game)
@@ -125,10 +117,11 @@ def pause_game(request):
 @login_required
 def rage_quit(request):
     """Bail out of the game because you are a big wuss"""
-    game_id = request.GET.get('id', None)
-    game = get_object_or_404(models.Game, id=game_id)
     player = request.user.player
+    game = player.current_game
 
+    if not game:
+        return info(request)
     # If we call player.info() *after* we've removed them from the game, it
     # gets confused because the player is not in the game and it tries to add
     # them.  And then if they were the only player in the game it can't add
@@ -139,7 +132,7 @@ def rage_quit(request):
     if game.state != game.GAME_OVER:
         models.Message.objects.send(player, 'You have quit %s. Wuss!' % game)
     lib.send_message('player_left_game', (player.pk, game.pk))
-    return json_redirect(reverse(games_home))
+    return info(request)
 
 
 @login_required
@@ -164,28 +157,6 @@ def messages(request):
 
 
 @login_required
-def games_home(request):
-    """Main games view"""
-    player = request.user.player
-    open_game = player.current_game
-
-    if open_game and (open_game.state == open_game.GAME_OVER or player in
-                      models.Player.objects.winners(open_game)):
-        open_game = None
-
-    airport_count = models.AirportMaster.objects.all().count()
-
-    context = {
-        'user': request.user.username,
-        'open_game': open_game,
-        'airport_count': airport_count,
-        'websocket_url': get_websocket_url(request),
-    }
-
-    return render(request, 'airport/games.html', context)
-
-
-@login_required
 def games_info(request):
     """Just another json view"""
     player = request.user.player
@@ -194,7 +165,7 @@ def games_info(request):
     # if user is in an open game and it has started, redirect to that game
     if (game and game.state in (game.IN_PROGRESS, game.PAUSED)
             and request.user.player.finished(game)):
-        return json_redirect(reverse(home))
+        return json_redirect(reverse(main))
 
     data = player.game_info()
     data['games'] = models.Game.games_info()
@@ -213,10 +184,10 @@ def games_create(request):
 
     form = forms.CreateGameForm(request.POST)
     if not form.is_valid():
-        text = 'Error creating game: {0}'
-        text = text.format(form.errors)
+        text = 'Error creating game.'
+        text = text.format(form.errors.values())
         models.Message.objects.send(player, text)
-        return redirect(games_home)
+        return games_info(request)
 
     data = form.cleaned_data
     num_goals = data['goals']
@@ -242,13 +213,14 @@ def games_create(request):
 
 
 @login_required
+@require_http_methods(['POST'])
 def games_join(request):
     """Join a game.  Game must exist and have not ended (you can join a
     game that is in progress
     """
     player = request.user.player
 
-    game_id = request.GET.get('id', None)
+    game_id = request.POST.get('id', None)
     game = get_object_or_404(models.Game, id=game_id)
     if game.state == game.GAME_OVER:
         msg = 'Could not join you to {0} because it is over.'
@@ -261,7 +233,7 @@ def games_join(request):
             models.Message.objects.send(player, msg)
         else:
             if game.state > game.GAME_OVER:
-                return json_redirect(reverse(home))
+                return json_redirect(reverse(main))
             else:
                 msg = 'You have already joined {0}.'
                 msg = msg.format(game)
@@ -272,7 +244,24 @@ def games_join(request):
         models.Message.objects.announce(player, msg, game, 'PLAYERACTION')
         lib.send_message('player_joined_game', (player.pk, game.pk))
 
-    return games_info(request)
+    return info(request)
+
+
+@require_http_methods(['POST'])
+@login_required
+def games_start(request):
+    """Start the game hosted by the user.
+
+    If user doesn't host a game this will 404.
+    """
+    player = request.user.player
+    game = get_object_or_404(
+        models.Game,
+        host=player,
+        state=models.Game.NOT_STARTED
+    )
+    lib.start_game(game)
+    return json_response(game.info())
 
 
 @login_required
@@ -350,7 +339,7 @@ def game_summary(request):
         player = request.user.player
 
     if not player.is_playing(game):
-        return redirect(games_home)
+        return redirect(main)
 
     goals = list(models.Goal.objects.filter(game=game).order_by('order'))
     tickets = models.Purchase.objects.filter(
@@ -434,7 +423,7 @@ def register(request):
                 django_messages.add_message(
                     request, django_messages.INFO,
                     'Account activated. Please sign in.')
-                return redirect(home)
+                return redirect(main)
         else:
             context['error'] = form._errors
 

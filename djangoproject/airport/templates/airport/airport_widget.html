@@ -1,0 +1,33 @@
+<div id="airport_widget">
+    <form id="frm" action="">
+        <input type="hidden" id="selected" name="selected" value="" />
+        <table id="flight_schedule">
+            <thead id="flight_schedule_header">
+                <tr><td id="game" colspan="6">{{ game }}, {{ game.airports.count }} Airports</td></tr>
+                <tr><td id="airportname" colspan="6"></td></tr>
+                <tr class="schedule header">
+                    <td>DEST</td>
+                    <td>FLIGHT</td>
+                    <td>DEPART</td>
+                    <td>ARRIVE</td>
+                    <td>STATUS</td>
+                    <td>&nbsp;</td> <!-- "Buy" button -->
+                </tr>
+            </thead>
+            <tbody id="flights"></tbody>
+            <tfoot id="cpanel">
+                <tr>
+                    <td colspan="3">
+                        <a id="ragequit" href="{% url "rage_quit" %}">✗ quit</a> 
+                        {% if user.player == game.host %}
+                        • <a id="pause" href="{% url "pause_game" %}">Ⅱ pause</a>
+                        {% endif %}
+                    </td>
+                    <td id="clt" colspan="3">
+                        Current Local Time: <span class="time"></span>
+                    </td>
+                </tr>
+        </tfoot>
+        </table>
+    </form>
+</div><!-- airport_widget -->

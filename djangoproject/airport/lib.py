@@ -136,7 +136,11 @@ def handle_players(game, now, winners_before, arrivals):
         if player.pk in arrivals:
             notify = 'You have arrived at {0}.'.format(arrivals[player.pk])
             player_info['notify'] = notify
-        send_message('info', player_info)
+
+        # Send player info, but only if this player is still in the game. New
+        # arrivals counts as "still in the game".
+        if not player_info['finished'] or player.pk in arrivals:
+            send_message('info', player_info)
 
     winners = models.Player.objects.winners(game)
     if not winners_before and winners:
@@ -290,8 +294,6 @@ class SocketHandler(WebSocketConnection):
     def games_info(cls):
         games = models.Game.games_info()
         for client in cls.clients:
-            if client.page != 'games_menu':
-                continue
             data = {}
             data['games'] = games
 

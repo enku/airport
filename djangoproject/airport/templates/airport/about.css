@@ -1,3 +1,7 @@
+* {
+    padding: 3px;
+}
+
 body {
     width: 70%;
     margin: auto;

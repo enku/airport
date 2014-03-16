@@ -1,0 +1,540 @@
+* {
+	text-decoration: none;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+}
+
+
+html, body, #screen, .screen {
+	width: 100%;
+	height: 100%;
+    font-family: "Droid Sans", sans-serif;
+}
+
+body {
+    background-image: url({{ background_image }});
+}
+
+input[type="submit"] {
+    box-shadow: inset 0 2px 6px white, 0 3px 3px rgba(0,0,0,0.6);
+    background-color: #B6D3F4;
+    border: 1px solid #9AC9FF;
+    font-size: 10px;
+    /* color: white; */
+    font-weight: 600;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
+    -webkit-border-radius: 18px;
+    border-radius: 18px;
+    -moz-border-radius: 18px;
+    vertical-align: top;
+    padding: 1px 6px;
+}
+
+input[type="submit"]:active {
+    box-shadow: inset 0 2px 6px black, 0 -2px 6px rgba(0,0,0,0.8) inset, 0 0 40px 15px #FDE910;
+}
+
+input[type="submit"]:disabled {
+    box-shadow: none;
+    text-shadow: white 1px 1px;
+    /* background-color: rgba(182, 211, 244, 0.7); */
+    box-shadow: 0 2px 6px black inset, 0 3px 3px rgba(0,0,0,0.6);
+}
+
+.screen {
+	position: fixed;
+	top: 0;
+    display: none;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+
+
+#flight_screen {
+    background-image: url({{ background_image }});
+}
+
+
+#flying {
+    width: 350px;
+    height: 240px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -120px;
+    margin-left: -175px;
+}
+
+a {
+    color: #01004B;
+    text-decoration: none;
+    font-size: smaller;
+}
+
+table {
+    border-spacing: 0;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
+}
+
+#flight_schedule,
+#games_widget {
+    width: 600px;
+    margin: auto;
+    margin-top: 10px;
+}
+
+#flight_schedule td,
+#games_widget td {
+    text-shadow: rgba(0, 0, 0, 0.65) 1px 1px;
+}
+
+/*
+#airplane_widget {
+    display: none;
+}
+*/
+
+#flight_status {
+    border-radius: 0 0 4px 4px;
+    box-shadow: inset 0 2px 6px white, 
+        inset 2px -2px 6px rgba(255, 255, 255,0.8);
+    color: yellow;
+    background-color: rgba(0, 0, 0, 0.65);
+    padding: 8px;
+    font-weight: bold;
+}
+
+#airportname {
+    border: 1px solid black;
+}
+
+td {
+    padding: 0;
+}
+
+.handle, 
+.titlebar,
+td#game, 
+td#username {
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    background: #C70000;
+    padding: 5px 0;
+    border: 1px solid black;
+    box-shadow: inset 0 2px 6px white, 0 3px 3px rgba(0,0,0,0.6);
+}
+
+td#airportname {
+    text-align: center;
+    font-weight: bold;
+    font-size: larger;
+    color: white;
+    background: DarkBlue;
+    padding: 7px;
+}
+
+tr.schedule td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 2px 5px;
+    color: yellow;
+}
+
+tr.odd td {
+    background: #01004B;
+}
+
+tr.even td {
+    background: #151BB9;
+}
+
+td.flightno {
+    text-align: left;
+}
+
+td.buy,
+td.play_game {
+    text-align: center;
+}
+
+tr.header td {
+    text-align: center;
+    font-weight: bold;
+    font-size: smaller;
+    background-color: black;
+}
+
+.time {
+    font-family: "Monospace", fixed;
+    font-weight: bold;
+    letter-spacing: -1px;
+}
+
+#clock, 
+#sign-out {
+    text-align: center;
+    padding: 0;
+    border: 3px solid #7FC57F;
+    color: yellow;
+    background-color: #035702;
+    margin: 5px 0;
+    box-shadow: 0 0 0 black, 2px 1px 1px rgba(0, 0, 0, 0.53);
+}
+
+a #sign-out {
+    color: yellow;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#ticket_widget {
+    width: 270px; 
+    /*height: 110px; */
+    overflow: hidden; 
+    font-size: 12px;
+    font-family: "Monospace", fixed;
+    font-weight: bold;
+    color: black;
+    background: #F5F5DC;
+    padding: 8px; 
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    box-shadow: 2px 1px 1px #888888; 
+    position: absolute;
+    left: 470px;
+    bottom: 5px; 
+    display: none;
+    /*border-collapse: separate;
+    border-spacing: 0; */
+}
+
+#ticket_widget tr td {
+    /* padding: 0 10px 0 1ex; */
+    margin: 1px 0;
+}
+
+#ticket_widget td.ticket_label {
+    font-family: "Monospace", fixed;
+    font-size: 8px;
+    font-weight: normal;
+    padding: 2px 0 0 2px;
+    color: #666;
+    background: transparent;
+}
+
+#ticket_widget tr.odd  td {
+    background: #90EE90;
+}
+
+#ticket_widget tr.even td {
+    background: transparent;
+}
+
+#panel {
+    position: absolute;
+    left: 5px;
+    top: 40px;
+}
+
+#goal_widget {
+    border: 1px solid #035702;
+    background: #7FC57F;
+    color: #035702;
+    padding: 2px 5px;
+    box-shadow: 0 0 0 black, 2px 1px 1px rgba(0, 0, 0, 0.53);
+}
+
+.panel_topic {
+    color: yellow;
+    background: #035702;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+table.panel_body {
+    box-shadow: none;
+}
+
+.panel_body td {
+    padding: 3px;
+}
+
+#goals {
+    width: 100%;
+    margin: 0;
+    padding: 0 2px 0 20px;
+    box-shadow: none;
+}
+
+#goals li {
+    list-style-type: circle;
+    font-weight: normal;
+}
+
+li.goal_city {
+    width: 130px;
+}
+
+#goals li.achieved {
+    list-style-image: url('{{ gold_star }}');
+}
+
+#goals li.current {
+    color: #8B0000;
+    font-weight: bold;
+}
+
+.panel_widget {
+    border: 1px solid #035702;
+    background: #7FC57F;
+    color: #035702;
+    padding: 2px 5px;
+    box-shadow: 0 0 0 black, 2px 1px 1px rgba(0, 0, 0, 0.53);
+    margin-top: 5px;
+}
+
+#stats_box {
+    width: 100%;
+    box-shadow: none;
+}
+
+.notes {
+    font-size: 13px;
+    background: #ffea97;
+    color: #000000;
+    background-image: linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+    background-image: -o-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+    background-image: -moz-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+    background-image: -webkit-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+    background-image: -ms-linear-gradient(left top, #FFEA97 2%, #FFE47A 51%, #FFDD56 76%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        right bottom,
+        color-stop(0.02, #FFEA97),
+        color-stop(0.51, #FFE47A),
+        color-stop(0.76, #FFDD56)
+    );
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
+}
+
+#notepad {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    width: 212px; 
+    overflow: hidden;
+    height: 200px;
+}
+
+#notepad:hover {
+    cursor: url({{ notepad_cursor }}), auto;
+}
+
+.notes .header {
+    color: #ffea97;
+    background: #807240;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+    padding: 2px;
+    margin: 2px;
+    cursor: auto;
+}
+
+#notepad ul {
+    margin: 0;
+    padding: 0 5px;
+    list-style-position: inside;
+    /*list-style-type: none; */
+}
+
+#notepad li {
+    margin: 0;
+    border-bottom: 1px solid #807240;
+    font-family: "Sofia", cursive;
+}
+
+.fsb {
+    color: #BFBFBF;
+    font-size: 10px;
+    font-weight: normal;
+    letter-spacing: 0;
+    margin-left: 10px;
+    padding: 1px 3px;
+    vertical-align: middle;
+}
+
+#cpanel,
+#no_games {
+    color: #FFFFFF;
+    background: black;
+    text-align: left;
+}
+
+#cpanel td {
+    padding: 0 5px 2px 5px;
+}
+
+#cpanel a {
+    color: yellow;
+    font-weight: bold;
+}
+
+#clt {
+    font-size: smaller;
+    text-align: right;
+}
+
+#lightbox_content,
+#finished_content {
+    display: none;
+    width: 33.3%;
+    text-align: center;
+    background: #0C4D97;
+    background: rgba(0, 0, 64, 0.6);
+    box-shadow: inset 0 2px 6px white, 0 3px 3px rgba(0,0,0,0.6);
+}
+
+#lightbox_content div,
+#finished_content div {
+    font-weight: bold;
+    color: white;
+    background: #C70000;
+    font-size: medium;
+    padding: 3px 7px;
+    box-shadow: inset 0 0 6px white, 0 3px 3px rgba(0,0,0,0.6);
+}
+
+#finished_content {
+    height: 350px;
+}
+
+#qqq_lightbox_bg {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1001;
+    background: #000000;
+    color: #FFFFFF;
+    overflow: clip;
+    -moz-opacity: 0.6;
+    opacity: 0.60;
+    filter: alpha(opacity=60);
+}
+
+.scrollable {
+    overflow-y: scroll;
+}
+
+#progress {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.ui-progressbar {
+    height: 32px !important;
+    border: 0 !important;
+}
+
+.ui-progressbar-value {
+    background-image: linear-gradient(left , rgba(137,105,224,0.65) 32%, rgba(189,0,189,0.65) 66%) !important;
+    background-image: -o-linear-gradient(left , rgba(137,105,224,0.65) 32%, rgba(189,0,189,0.65) 66%) !important;
+    background-image: -moz-linear-gradient(left , rgba(137,105,224,0.65) 32%, rgba(189,0,189,0.65) 66%) !important;
+    background-image: -webkit-linear-gradient(left , rgba(137,105,224,0.65) 32%, rgba(189,0,189,0.65) 66%) !important;
+    background-image: -ms-linear-gradient(left , rgba(137,105,224,0.65) 32%, rgba(189,0,189,0.65) 66%) !important;
+
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        color-stop(0.32, rgba(137,105,224, 0.65)),
+        color-stop(0.66, rgba(189,0,189, 0.65))
+    ) !important;
+    border: none;
+    box-shadow: inset 0 2px 6px white, 
+        inset 2px -2px 6px rgba(255, 255, 255,0.8);
+    border-radius: 4px;
+    height: 100%;
+}
+
+a.games_join {
+    color: #FFF;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#exit {
+    background: rgba(191, 191, 191, 0.4);
+    box-shadow: 2px 2px 3px 5px rgba(191, 191, 191, 0.4);
+    border-radius: 6px;
+    position: fixed;
+    right: 7px;
+    top: 3px;
+    z-index: 2000;
+}
+
+#exit a, #notification_permission {
+    text-shadow: 1px 1px #ACACAC;
+    font-size: 12px;
+}
+
+#create_widget table:first-child {
+    background-image: linear-gradient(top, rgb(151,151,151) 36%, rgb(162,162,162) 68%, rgb(171,171,171) 84%);
+    background-image: -o-linear-gradient(top, rgb(151,151,151) 36%, rgb(162,162,162) 68%, rgb(171,171,171) 84%);
+    background-image: -moz-linear-gradient(top, rgb(151,151,151) 36%, rgb(162,162,162) 68%, rgb(171,171,171) 84%);
+    background-image: -webkit-linear-gradient(top, rgb(151,151,151) 36%, rgb(162,162,162) 68%, rgb(171,171,171) 84%);
+    background-image: -ms-linear-gradient(top, rgb(151,151,151) 36%, rgb(162,162,162) 68%, rgb(171,171,171) 84%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        color-stop(0.36, rgb(151,151,151)),
+        color-stop(0.68, rgb(162,162,162)),
+        color-stop(0.84, rgb(171,171,171))
+    );
+    padding: 5px;
+}
+
+#create_form input[type="range"] {
+    max-width: 80px;
+}
+
+.left {
+    text-align: left;
+}
+
+
+.middle {
+    text-align: center;
+}
+
+
+.right {
+    text-align: right;
+}
+
+.smaller {
+    font-size: 14px;
+}
+
+#my_stats_widget {
+    position: absolute;
+    right: 5px;
+    bottom: 5px; 
+}

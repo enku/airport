@@ -1,0 +1,67 @@
+{% verbatim %}
+
+<script type="text/template" id="message_template">
+    <li 
+        style="list-style-image: url('{{icon}}')"
+        class="message" 
+        data-id="{{message.id}}"
+    >{{ message.text }}
+    <audio src="{{sound}}" autoplay="autoplay" />
+    <script type="text/javascript">
+        $('li[data-id="{{message.id}}"]').effect("pulsate", { times:3 }, 700);
+        $('#message_box').scrollTo('max', {
+            axis: 'y',
+            duration: 500,
+            margin: true
+            });
+    </script>
+    </li>
+</script>
+
+<script type="text/template" id="schedule_template">
+<tr class="schedule {{odd_or_even}}" id="flight_{{id}}">
+    <td>{{destination.airport}}</td>
+    <td class="flightno">{{number}}</td>
+    <td>{{depart_time}}</td>
+    <td>{{arrival_time}}</td>
+    <td>{{status}}</td>
+    {{#number}}
+    <td class="buy"><input {{^buyable}}disabled="disabled" {{/buyable}}type="submit" value="Buy" name="buy_{{id}}" /></td>
+    {{/number}}
+    {{^number}}
+    <td class="buy">&nbsp;</td>
+    {{/number}}
+</tr>
+</script>
+
+<script type="text/template" id="start_game">
+<a href="{{{url}}}" id="start_game_link">
+    <div>You are hosting Game {{game_id}}</div>
+    <img src="{{{image}}}"/>
+    <div>Start Game</div>
+</a>
+<script type="text/javascript">
+$('#start_game_link').click(function (e) {
+    e.preventDefault();
+    $.post('{{{url}}}', {}, airport.refresh_ui);
+});
+</script>
+</script>
+
+<script type="text/template" id="wait_for_game">
+<img src="{{{image}}}"/>
+<div>Waiting for host to start Game {{game_id}}</div>
+</script>
+
+<script type="text/template" id="game_row_template">
+<tr class="schedule {{ odd_or_even}}">
+    <td class="play_game"><input type="submit" value="{{ id }}" name="play_{{id}}" /></td>
+    <td>{{goals}}</td>'
+    <td>{{airports}}</td>
+    <td>{{players}}</td>
+    <td>{{host}}</td>
+    <td>{{status}}</td>
+    <td>{{created}}</td>
+</tr>
+</script>
+{% endverbatim %}

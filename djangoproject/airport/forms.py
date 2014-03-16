@@ -6,7 +6,20 @@ from airport import models
 class CreateGameForm(forms.Form):
     goals = forms.IntegerField(min_value=1, max_value=5, initial=1)
     airports = forms.IntegerField(min_value=1, initial=1)
-    ai_player = forms.BooleanField(required=False, initial=True)
+    ai_player = forms.ChoiceField(
+        initial='Yes',
+        choices=(('Yes', 'Yes'), ('No', 'No')),
+    )
+
+    def clean_ai_player(self):
+        ai_player = self.cleaned_data['ai_player']
+        if ai_player == 'Yes':
+            return True
+
+        if ai_player == 'No':
+            return False
+
+        raise forms.ValidationError('Must be "Yes" or "No"')
 
     def clean_airports(self):
         num_airports = models.AirportMaster.objects.count()

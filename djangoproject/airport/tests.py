@@ -537,7 +537,7 @@ class Messages(AirportTestBase):
 
 class HomeViewTest(AirportTestBase):
     """Test the home view"""
-    view = reverse('home')
+    view = reverse('main')
 
     def setUp(self):
         self.player, self.player2 = self._create_players(2)
@@ -554,14 +554,16 @@ class HomeViewNotLoggedIn(HomeViewTest):
 
 
 class HomeViewNoGameRedirect(HomeViewTest):
+    view = reverse('info')
+
     def runTest(self):
-        """test that when you are not in a game, you are redirected to the
-        games page"""
+        """When we are not in a game, the JSON response is games_info"""
         player = self.player
-        games_view = reverse('games')
         self.client.login(username=player.username, password='test')
         response = self.client.get(self.view)
-        self.assertRedirects(response, games_view)
+        json_response = json.loads(response.content.decode(response._charset))
+        self.assertTrue('current_game' in json_response)
+        self.assertEqual(json_response['current_game'], None)
 
 
 class HomeViewNewGame(HomeViewTest):
@@ -577,11 +579,13 @@ class HomeViewNewGame(HomeViewTest):
 
 
 class HomeViewFinishedGame(HomeViewTest):
+    view = reverse('info')
+
     @patch('airport.lib.send_message')
     def runTest(self, send_message):
-        """Test that when you have finished a game, you are redirected"""
+        """Test that when you have finished a game, Instead of getting the
+        game json you get the games json"""
         player = self.player
-        games_view = reverse('games')
         game = models.Game.objects.create_game(host=player, goals=1,
                                                airports=4, density=1)
         self.client.login(username=player.username, password='test')
@@ -592,16 +596,18 @@ class HomeViewFinishedGame(HomeViewTest):
         my_achievement.timestamp = game.time
         my_achievement.save()
         response = self.client.get(self.view)
-        self.assertRedirects(response, games_view)
+        json_response = json.loads(response.content.decode(response._charset))
+        self.assertEqual(json_response['current_game'], None)
 
 
 class FinishedNotWon(HomeViewTest):
+    view = reverse('info')
+
     def runTest(self):
         """Like above test, but should apply even if the user isn't the
         winner"""
         player1 = self.player
         player2 = self.player2
-        games_view = reverse('games')
 
         game = models.Game.objects.create_game(host=player1, goals=1,
                                                airports=4, density=1)
@@ -616,12 +622,14 @@ class FinishedNotWon(HomeViewTest):
         my_achievement.save()
         self.client.login(username=player1.username, password='test')
         response = self.client.get(self.view)
-        self.assertRedirects(response, games_view)
+        json_response = json.loads(response.content.decode(response._charset))
+        self.assertEqual(json_response['current_game'], None)
 
         #player 2 still in the game
         self.client.login(username=player2.username, password='test')
         response = self.client.get(self.view)
-        self.assertEqual(response.status_code, 200)
+        json_response = json.loads(response.content.decode(response._charset))
+        self.assertEqual(json_response['game'], game.pk)
 
         # finish player 2
         my_achievement = models.Achievement.objects.get(
@@ -630,7 +638,8 @@ class FinishedNotWon(HomeViewTest):
         my_achievement.save()
         self.client.login(username=player2.username, password='test')
         response = self.client.get(self.view)
-        self.assertRedirects(response, games_view)
+        json_response = json.loads(response.content.decode(response._charset))
+        self.assertEqual(json_response['current_game'], None)
 
 
 class Cities(AirportTestBase):
@@ -820,7 +829,7 @@ class AIPlayerTest(AirportTestBase):
         form = {
             'goals': 1,
             'airports': 20,
-            'ai_player': True
+            'ai_player': 'Yes'
         }
 
         self.client.post(url, form)
@@ -838,7 +847,7 @@ class AIPlayerTest(AirportTestBase):
         form = {
             'goals': 1,
             'airports': 20,
-            'ai_player': False
+            'ai_player': 'No'
         }
 
         self.client.post(url, form)

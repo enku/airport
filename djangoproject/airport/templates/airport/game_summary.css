@@ -1,11 +1,12 @@
 body {
-    overflow: auto;
+    height: auto;
 }
 
 #flight_schedule {
     width: 650px;
     z-index: 1;
     font-size: 14px;
+    overflow: auto;
 }
 
 #medal {

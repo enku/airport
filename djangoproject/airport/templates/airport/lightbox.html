@@ -1,0 +1,15 @@
+<div id="lightbox_content">
+    {% if game.host.user.username  == user.username %}<a data-role="ajax" href="{% url 'pause_game' %}" id="resume">{% endif %}
+    <div>Game Paused</div>
+    <img src="{{pause_icon}}" />
+    {% if game.host.user.username  == user.username %}<div>Resume</div></a>{% endif %}
+</div>
+
+<div id="finished_content">
+    <a href="{% url "airport.views.main" %}">
+        <div>Finished!</div>
+        <img src="{{ medal }}" />
+        <div>Click to continue</div>
+    </a>
+</div>
+

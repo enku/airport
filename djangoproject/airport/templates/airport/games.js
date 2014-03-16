@@ -14,7 +14,7 @@ function update_games_list(data) {
 
 function join_game_link(data) {
     if (data['current_game'] && !data['finished_current']) {
-        $('#start_game').attr('href', '{% url "home" %}');
+        $('#start_game').attr('href', '{% url "main" %}');
         $('#start_game').html('Play game ' + data['current_game'] 
                 + ' (current game)');
     }
@@ -33,7 +33,7 @@ function refresh_ui(data) {
     if (data['current_state'] == 'hosting') {
         hide_create_widget();
         lightbox.content.data('creating', 'false');
-        lightbox.content.html('<a href="{% url "home" %}"><img src="{{ inflight_image }}"><div>Start Game ' + data['current_game'] + '</div></a>');
+        lightbox.content.html('<a href="{% url "main" %}"><img src="{{ inflight_image }}"><div>Start Game ' + data['current_game'] + '</div></a>');
         lightbox.show();
     } 
     else if (data['current_state'] == 'waiting') {

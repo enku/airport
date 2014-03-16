@@ -5,9 +5,8 @@
 {% block title %}{{ game_name }} - {{ game }} Summary{% endblock %}
 
 {% block css %}
-    {% include "airport/common.css" %}
+    {% include "airport/main.css" %}
     {% include "airport/messages.css" %}
-    {% include "airport/home.css" %}
     {% include "airport/game_summary.css" %}
 {% endblock %}
 
@@ -71,7 +70,7 @@
 </div>
 
 <div id="exit">
-    <a href="{% url "games" %}">Exit</a>
+    <a href="{% url "airport.views.main" %}">Exit</a>
 </div>
 {% endif %}
 
@@ -86,6 +85,7 @@
     <script type="text/javascript">
         {% include "airport/common.js" %}
         {% include "airport/messages.js" %}
+        {% include "airport/lightbox.js" %}
         {% include "airport/game_summary.js" %}
 
     </script>

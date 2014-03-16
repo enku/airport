@@ -36,11 +36,10 @@ airport.messages = function(widget) {
     }
 
     var append = function(data) {
-        if (typeof data !== 'undefined') {
+        if (data !== undefined) {
             widget.append(data);
             last_message = widget.data('last_message');
         }
-        /* setTimeout(update, 5000); */
     }
 
     var last_message = '0';

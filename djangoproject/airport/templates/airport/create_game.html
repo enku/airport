@@ -1,0 +1,50 @@
+<div id="create_widget" class="out_game panel_widget">
+<form method="post" id="create_form" action="{% url 'games_create' %}">
+    {% csrf_token %}
+    <div class="panel_topic">Start a new game</div>
+    <table class="panel_body smaller">
+        <tr>
+            <td class="left">Goals</td>
+            <td class="middle"><input
+                type="range"
+                id="goals_range"
+                name="goals"
+                min="1"
+                max="5"
+                value="1"
+                step="1"
+            /></td>
+            <td class="right" id="goals_count">1</td>
+        </tr>
+
+        <tr>
+            <td class="left">Airports</td>
+            <td class="middle"><input
+                type="range"
+                id="airports_range"
+                name="airports"
+                min="10"
+                max="{{ airport_count }}"
+                value="15"
+            /></td>
+            <td class="right" id="airports_count">15</td>
+        </tr>
+
+        <tr>
+            <td class="left">AI Player</td>
+            <td class="left" colspan="2">
+                <input type="radio" name="ai_player" id="ai_player_yes" value="Yes" checked="checked" />
+                <label for="ai_player_yes">Yes</label>
+                &nbsp;&nbsp;
+                <input type="radio" name="ai_player" id="ai_player_no" value="No" />
+                <label for="ai_player_no">No</label>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="middle" colspan="3"><input type="submit" value="Create" /></td>
+        </td>
+    </div>
+</form>
+</table>
+</div>
