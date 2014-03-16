@@ -339,7 +339,7 @@ class IPCHandler(WebSocketConnection):
     def get_conn():
         url = 'ws://%s:%s/ipc' % (settings.GAMESERVER_HOST,
                                   settings.WEBSOCKET_PORT)
-        ioloop = IOLoop.current()
+        ioloop = tornado.ioloop.IOLoop()
         conn = ioloop.run_sync(functools.partial(
             tornado.websocket.websocket_connect, url))
         return conn
