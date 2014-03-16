@@ -228,16 +228,19 @@ class WebSocketConnection(websocket.WebSocketHandler):
 
 class SocketHandler(WebSocketConnection):
     clients = []
+    lock = threading.Lock()
 
     def open(self):
         logger.debug('WebSocket connection opened')
-        self.clients.append(self)
+        with self.lock:
+            self.clients.append(self)
         self.broadcast('new_connection', self.user.username, exclude=[self])
         self.page = 'games_menu'
 
     def on_close(self):
         logger.debug('WebSocket connection closed')
-        self.clients.remove(self)
+        with self.lock:
+            self.clients.remove(self)
 
     def on_pong(self, message):
         pass
