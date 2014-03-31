@@ -1642,7 +1642,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "41.25", 
-            "image": "http://blog.timesunion.com/realestate/files/2011/06/OmahaSkyline3.jpg", 
+            "image": "http://upload.wikimedia.org/wikipedia/commons/0/0f/Gene_Leahy_Mall.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Omaha", 
             "longitude": "-95.93"
