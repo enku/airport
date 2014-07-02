@@ -34,7 +34,7 @@ DEFAULTS = {
         'mustache_js': '//cdn.jsdelivr.net/mustache.js/0.7.3/mustache.js',
         'login_icon': 'http://www.ercmp.nic.in/images/login.png',
         'login_button': 'http://www.iconhot.com/icon/png/i-buttons-3c/64/bright-ball-logoff.png',
-        'register_icon': 'http://www.warasports.org/Images/Main%20Images/Icons/Registration.png',
+        'register_icon': 'http://www.shs.rcs.k12.tn.us/registrationIcon.png',
         'background_image': 'http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg',
         'inflight_image': 'http://paysonairport.com/images/AnimatedAirplane.gif',
         'landed_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
@@ -59,9 +59,9 @@ DEFAULTS = {
         'message_NEWGAME_sound': 'http://soundbible.com/mp3/flyby-Conor-1500306612.mp3',
 
         # message icons
-        'message_DEFAULT_icon': 'http://starsvet.com/templates/tmpl_ae4/images_ae4/write_message.gif',
-        'message_MONKEYWRENCH_icon': 'http://sourceforge.net/apps/trac/xoops/export/1811/XoopsModules/newbb/trunk/templates/images/icon/topic_hot_new.gif',
-        'message_ERROR_icon': 'http://sourceforge.net/apps/trac/xoops/export/1811/XoopsModules/newbb/trunk/templates/images/icon/topic_hot_new.gif',
+        'message_DEFAULT_icon': 'http://i.imgur.com/weyIX.png',
+        'message_MONKEYWRENCH_icon': 'http://i.imgur.com/lmbJs.png',
+        'message_ERROR_icon': 'http://i.imgur.com/lmbJs.png',
         'message_PLAYERACTION_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
         'message_GOAL_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
         'message_NEWGAME_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
