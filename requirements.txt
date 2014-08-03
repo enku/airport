@@ -1,2 +1,2 @@
 Django>=1.6,<1.7
-tornado
+tornado>=3.2,<4.0
