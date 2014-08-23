@@ -5,6 +5,7 @@ import time
 
 from django.contrib.auth.models import User
 from django.core import management
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.test import TestCase, TransactionTestCase
 from mock import patch
@@ -47,6 +48,20 @@ class AirportTestBase(TestCase):
             airports=airports)
 
 
+class AirportMaterTest(AirportTestBase):
+    """Tests for the AirportMaster model"""
+    def test_str(self):
+        """str()"""
+        # Given the master airport
+        airport = models.AirportMaster.objects.get(code='MIA')
+
+        # When we call str() on it
+        result = str(airport)
+
+        # Then we get the expected result
+        self.assertEqual(result, 'Master Airport: Miami International')
+
+
 class AirportTest(AirportTestBase):
 
     """Test the Airport model."""
@@ -59,6 +74,46 @@ class AirportTest(AirportTestBase):
         self.assertTrue(len(destinations) <= 5)
         self.assertTrue(airport not in destinations)
         self.assertTrue(airport.city not in [i.city for i in destinations])
+
+    def test_str(self):
+        """str()"""
+        # Given the airport
+        rdu_master = models.AirportMaster.objects.get(code='RDU')
+        rdu = models.Airport.copy_from_master(self.game, rdu_master)
+
+        # Then when we call str() on it
+        result = str(rdu)
+
+        # Then we get the expected result
+        self.assertEqual(result, 'Raleigh')
+
+    def test_str_airports_per_city(self):
+        # Given the airports within a city with more than one airport
+        jfk_master = models.AirportMaster.objects.get(code='JFK')
+        jfk = models.Airport.copy_from_master(self.game, jfk_master)
+        lga_master = models.AirportMaster.objects.get(code='LGA')
+        lga = models.Airport.copy_from_master(self.game, lga_master)
+
+        # Then when we call str() on them
+        str_jfk = str(jfk)
+        str_lga = str(lga)
+
+        # Then we get the expected result
+        self.assertEqual(str_jfk, 'New York City JFK')
+        self.assertEqual(str_lga, 'New York City LGA')
+
+    def test_cannot_have_self_as_destination(self):
+        # Given the airports within a city with more than one airport
+        jfk_master = models.AirportMaster.objects.get(code='JFK')
+        jfk = models.Airport.copy_from_master(self.game, jfk_master)
+        lga_master = models.AirportMaster.objects.get(code='LGA')
+        lga = models.Airport.copy_from_master(self.game, lga_master)
+
+        # When we make one a destination of the other
+        # Then we get a ValidationError
+        with self.assertRaises(ValidationError):
+            lga.destinations.add(jfk)
+            lga.save()
 
 
 class NextFlights(AirportTestBase):
@@ -120,7 +175,7 @@ class DistinctAirports(TransactionTestCase):
 
 
 class FlightTest(AirportTestBase):
-    def runTest(self):
+    def test_in_flight(self):
         """Test the in_flight() and cancel() methods"""
         airports = models.Airport.objects.filter(game=self.game)
         airport = random.choice(airports)
@@ -154,6 +209,80 @@ class FlightTest(AirportTestBase):
         flight.cancel(now)
         now = datetime.datetime(2011, 11, 18, 5, 0)
         self.assertFalse(flight.in_flight(now))
+
+    def test_cancelled_has_landed(self):
+        # Given flight
+        airport = models.Airport.objects.filter(game=self.game)[0]
+        now = self.game.time
+        flight = airport.next_flights(now)[0]
+
+        # When we cancel it
+        flight.cancel(now)
+
+        # Then it is has not landed
+        self.assertFalse(flight.has_landed(now))
+
+    def test_cancel_with_ticketed_passenger(self):
+        # Given flight
+        airport = self.game.start_airport
+        now = self.game.time
+        flight = airport.next_flights(now, True)[0]
+
+        # And the player that's on that flight
+        self.player.purchase_flight(flight, now)
+        self.assertNotEqual(self.player.ticket, None)
+
+        # When the flight gets cancelled
+        flight.cancel(self.game.time)
+
+        # Then the player's ticket is revoked
+        # (we need to re-fetch the player)
+        player = models.Player.objects.get(pk=self.player.pk)
+        self.assertEqual(player.ticket, None)
+
+    def test_delay(self):
+        # Given the flight
+        airport = self.game.start_airport
+        now = self.game.time
+        flight = airport.next_flights(now, True)[0]
+
+        # When we delay the flight
+        orig_depart_time = flight.depart_time
+        delay = datetime.timedelta(minutes=30)
+        flight.delay(delay, now)
+
+        # Then the flight is delayed
+        self.assertEqual(flight.state, 'Delayed')
+        self.assertEqual(flight.depart_time, orig_depart_time + delay)
+
+    def test_delay_cancelled_flight(self):
+        # Given the cancelled flight
+        airport = self.game.start_airport
+        now = self.game.time
+        flight = airport.next_flights(now, True)[0]
+        flight.cancel(now)
+
+        # When we try to delay it
+        # Then it raises the Finished exception
+        with self.assertRaises(flight.Finished):
+            delay = datetime.timedelta(minutes=30)
+            flight.delay(delay)
+
+    def test_delay_departed_flight(self):
+        """delay() departed flight"""
+        # Given the depareted flight
+        airport = self.game.start_airport
+        now = self.game.time
+        flight = airport.next_flights(now)[0]
+        if flight.depart_time > now:  # ensure we're departed
+            flight.depart_time = now
+            flight.save()
+
+        # When we try to delay it
+        # Then it raises the AlreadyDeparted exception
+        with self.assertRaises(flight.AlreadyDeparted):
+            delay = datetime.timedelta(minutes=30)
+            flight.delay(delay)
 
 
 class NextFlightTo(AirportTestBase):
@@ -615,7 +744,7 @@ class FinishedNotWon(HomeViewTest):
         game.begin()
         goal = models.Goal.objects.get(game=game)
 
-        #finish player 1
+        # finish player 1
         my_achievement = models.Achievement.objects.get(
             game=game, player=player1, goal=goal)
         my_achievement.timestamp = game.time
@@ -625,7 +754,7 @@ class FinishedNotWon(HomeViewTest):
         json_response = json.loads(response.content.decode(response._charset))
         self.assertEqual(json_response['current_game'], None)
 
-        #player 2 still in the game
+        # player 2 still in the game
         self.client.login(username=player2.username, password='test')
         response = self.client.get(self.view)
         json_response = json.loads(response.content.decode(response._charset))
@@ -644,10 +773,57 @@ class FinishedNotWon(HomeViewTest):
 
 class Cities(AirportTestBase):
     """Test the Cities module"""
-    def runTest(self):
+    def test_images(self):
         """Test that all cities have images"""
         for city in models.City.objects.all():
             self.assertNotEqual(city.image, None)
+
+    def test_str(self):
+        """str()"""
+        # Given the City
+        city = models.City.objects.all()[0]
+
+        # When we call str() on it
+        result = str(city)
+
+        # Then we get the city name
+        self.assertEqual(result, city.name)
+
+    def test_get_flight_time(self):
+        """get_flight_time()"""
+        # Given the 2 cities
+        dallas = models.City.objects.get(name='Dallas')
+        raleigh = models.City.objects.get(name='Raleigh')
+
+        # And the speed
+        speed = 1  # i'm lazy
+
+        # Then when we calculate get_flight_time()
+        result = models.City.get_flight_time(dallas, raleigh, speed)
+
+        # Then we get the time (in minutes) it takes to fligh from the two
+        # cities
+        self.assertEqual(result, dallas.distance_from(raleigh))
+
+    def test_get_flight_time_with_airports(self):
+        # Given the 2 airports
+        dfw = models.AirportMaster.objects.get(code='DFW')
+        rdu = models.AirportMaster.objects.get(code='RDU')
+
+        # And the speed
+        speed = 28
+
+        # Then when we calculate get_flight_time()
+        result = models.City.get_flight_time(dfw, rdu, speed)
+
+        # Then we get the time (in minutes) it takes to fligh from the two
+        # cities
+        expected = models.City.get_flight_time(
+            models.City.objects.get(name='Dallas'),
+            models.City.objects.get(name='Raleigh'),
+            speed
+        )
+        self.assertEqual(result, expected)
 
 
 class ConstantConnections(AirportTestBase):
@@ -894,41 +1070,6 @@ class AIPlayerTest(AirportTestBase):
         self.assertEqual(ai_player.ticket, None)
 
 
-class MonkeyWrenchTest(AirportTestBase):
-
-    """Tests for Monkey wrenches."""
-    @patch('airport.lib.send_message')
-    def test_TailWind(self, send_message):
-        """HeadWind wrench."""
-        # let's make sure at least one flight is in the air
-        self.game.begin()
-        now = lib.take_turn(self.game, throw_wrench=False)
-        airport = self.game.start_airport
-        flights_out = airport.next_flights(now, future_only=True,
-                                           auto_create=False)
-
-        flights_out.sort(key=lambda x: x.depart_time)
-        flight = flights_out[0]
-        now = flight.depart_time + datetime.timedelta(minutes=1)
-
-        # crash all the other flights
-        crashed = models.Flight.objects.filter(game=self.game)
-        crashed.exclude(pk=flight.pk).delete()
-
-        wrench = monkeywrench.TailWind(self.game, now)
-        flights_in_air = models.Flight.objects.in_flight(self.game, now)
-        self.assertEqual([flight], list(flights_in_air))
-
-        # when the wrench is thrown
-        original_time = flight.arrival_time
-        wrench.throw()
-        self.assertTrue(wrench.thrown)
-
-        # then the flight's arrival_time changed
-        flight = models.Flight.objects.get(pk=flight.pk)
-        self.assertGreater(original_time, flight.arrival_time)
-
-
 class GameServerTest(AirportTestBase):
     def setUp(self):
         super(GameServerTest, self).setUp()
@@ -1070,3 +1211,238 @@ class GameServerTest(AirportTestBase):
         self.assertEqual(game.host, self.player)
         self.assertEqual(game.airports.count(), num_airports)
         self.assertEqual(game.goals.count(), num_goals)
+
+
+################################################################################
+# MonkeyWrenches                                                               #
+################################################################################
+class MonkeyWrenchTestBase(AirportTestBase):
+    def setUp(self):
+        super(MonkeyWrenchTestBase, self).setUp()
+
+        # Fill in the flights
+        self.now = self.game.time
+        for airport in self.game.airports.all():
+            airport.next_flights(self.now, future_only=True, auto_create=True)
+
+
+class MonkeyWrenchTest(MonkeyWrenchTestBase):
+    def test_str(self):
+        # Given the MonkeyWrench
+        now = self.game.time
+        mw = monkeywrench.MonkeyWrench(self.game, now)
+
+        # When we call str() on it
+        result = str(mw)
+
+        # Then we get the expected result
+        self.assertEqual(result, 'MonkeyWrench: MonkeyWrench')
+
+    def test_throw(self):
+        now = self.game.time
+        mw = monkeywrench.MonkeyWrench(self.game, now)
+
+        # When we throw() it
+        mw.throw()
+
+        # Then it gets thrown
+        self.assertTrue(mw.thrown)
+
+    def test_now_property(self):
+        now = self.game.time
+        mw = monkeywrench.MonkeyWrench(self.game, now)
+
+        # When we access the now property
+        mw_now = mw.now
+
+        # Then we get the game time
+        self.assertEqual(mw_now, now)
+
+
+class CancelledFlightMonkeyWrenchTest(MonkeyWrenchTestBase):
+    def test_throw(self):
+        # Given the CancelledFlight monkeywrench
+        mw = monkeywrench.CancelledFlight(self.game)
+
+        # When it's thrown
+        mw.throw()
+
+        # Then a flight gets cancelled
+        cancelled = models.Flight.objects.filter(game=self.game,
+                                                 state='Cancelled')
+        self.assertTrue(mw.thrown)
+        self.assertTrue(cancelled.exists())
+
+
+class DelayedFlightMonkeyWrenchTest(MonkeyWrenchTestBase):
+    def test_throw(self):
+        # given the monkeywrench
+        mw = monkeywrench.DelayedFlight(self.game)
+
+        # when it's thrown
+        mw.throw()
+
+        # then a flight gets delayed
+        delayed = models.Flight.objects.filter(game=self.game, state='Delayed')
+        self.assertEqual(delayed.count(), 1)
+        self.assertTrue(mw.thrown)
+
+
+class AllFlightsFromAirportDelayedMonkeyWrenchTest(MonkeyWrenchTestBase):
+    def test_throw(self):
+        # given the monkeywrench
+        mw = monkeywrench.AllFlightsFromAirportDelayed(self.game, self.now)
+
+        # when it's thrown
+        mw.throw()
+
+        # Then all flights from an airport are delayed
+        self.assertTrue(mw.thrown)
+        delayed_flights = models.Flight.objects.filter(
+            depart_time__gt=self.now,
+            state='Delayed',
+            game=self.game
+        )
+        airport = delayed_flights[0].origin
+        airport_flights = models.Flight.objects.filter(
+            depart_time__gt=self.now,
+            game=self.game,
+            origin=airport
+        )
+
+        for flight in airport_flights:
+            self.assertEqual(flight.state, 'Delayed')
+
+
+class AllFlightsFromAirportCancelledMonkeyWrenchTest(MonkeyWrenchTestBase):
+    def test_throw(self):
+        # given the monkeywrench
+        mw = monkeywrench.AllFlightsFromAirportCancelled(self.game, self.now)
+
+        # when it's thrown
+        mw.throw()
+
+        # Then all flights from an airport are cancelled
+        self.assertTrue(mw.thrown)
+        delayed_flights = models.Flight.objects.filter(
+            depart_time__gt=self.now,
+            state='Cancelled',
+            game=self.game
+        )
+        airport = delayed_flights[0].origin
+        airport_flights = models.Flight.objects.filter(
+            depart_time__gt=self.now,
+            game=self.game,
+            origin=airport
+        )
+
+        for flight in airport_flights:
+            self.assertEqual(flight.state, 'Cancelled')
+
+
+class HintMonkeyWrenchTest(MonkeyWrenchTestBase):
+    """Hint MonkeyWrench"""
+    def test_throw(self):
+        # given the monkeywrench
+        mw = monkeywrench.Hint(self.game)
+
+        # when it's thrown
+        models.Message.objects.all().delete()
+        mw.throw()
+
+        # Then the player gets a hint
+        self.assertTrue(mw.thrown)
+        messages = models.Message.objects.order_by('-creation_time')
+        last_message = messages[0]
+        text = last_message.text
+        self.assertTrue(text.startswith('Hint: '))
+
+
+class FullFlightMonkeyWrenchTest(MonkeyWrenchTestBase):
+    """FullFlight MonkeyWrench()"""
+    def test_throw(self):
+        # given the FullFlight monkeywrench
+        mw = monkeywrench.FullFlight(self.game, self.now)
+
+        # when we throw it
+        mw.throw()
+
+        # then a flight fills
+        self.assertTrue(mw.thrown)
+        flights = models.Flight.objects.filter(
+            game=self.game,
+            depart_time__gt=self.now,
+            full=True
+        )
+        self.assertEqual(flights.count(), 1)
+
+
+class TSAMonkeyWrenchTest(MonkeyWrenchTestBase):
+    """TSA MonkeyWrench"""
+    def test_trow(self):
+        # Given the monkeywrench
+        mw = monkeywrench.TSA(self.game, self.now)
+        mw.minutes_before_departure = 60
+
+        # and the flight taking off within 60 minutes
+        flight = models.Flight.objects.filter(
+            game=self.game,
+            depart_time__gt=self.now,
+            depart_time__lte=self.now + datetime.timedelta(minutes=60),
+            origin=self.game.start_airport
+        )[0]
+
+        # when a player purches the flight
+        self.player.purchase_flight(flight, self.now)
+        self.assertTrue(self.player.ticket)
+
+        # and the wrench is thrown
+        models.Message.objects.all().delete()
+        mw.throw()
+
+        # then said player gets booted
+        self.assertTrue(mw.thrown)
+
+        player = models.Player.objects.get(pk=self.player.pk)
+        self.assertEqual(player.ticket, None)
+
+        message = models.Message.objects.all()[0]
+        message = message.text
+        self.assertEqual(
+            message,
+            ('Someone reported you as suspicious and you have been removed'
+             ' from the plane.')
+        )
+
+
+class TailWindMonkeyWrenchTest(AirportTestBase):
+    """HeadWind wrench."""
+    @patch('airport.lib.send_message')
+    def test_TailWind(self, send_message):
+        # let's make sure at least one flight is in the air
+        self.game.begin()
+        now = lib.take_turn(self.game, throw_wrench=False)
+        airport = self.game.start_airport
+        flights_out = airport.next_flights(now, future_only=True,
+                                           auto_create=False)
+
+        flights_out.sort(key=lambda x: x.depart_time)
+        flight = flights_out[0]
+        now = flight.depart_time + datetime.timedelta(minutes=1)
+
+        # crash all the other flights
+        crashed = models.Flight.objects.filter(game=self.game)
+        crashed.exclude(pk=flight.pk).delete()
+
+        wrench = monkeywrench.TailWind(self.game, now)
+        flights_in_air = models.Flight.objects.in_flight(self.game, now)
+        self.assertEqual([flight], list(flights_in_air))
+
+        # when the wrench is thrown
+        original_time = flight.arrival_time
+        wrench.throw()
+        self.assertTrue(wrench.thrown)
+
+        # then the flight's arrival_time changed
+        flight = models.Flight.objects.get(pk=flight.pk)
+        self.assertGreater(original_time, flight.arrival_time)

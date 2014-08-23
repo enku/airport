@@ -261,7 +261,7 @@ class TSA(MonkeyWrench):
         passenger = random.choice(list(flight.passengers.all()))
 
         # kick him off!
-        msg = ('Somone reported you as suspicious and you have been removed'
+        msg = ('Someone reported you as suspicious and you have been removed'
                ' from the plane.')
         models.Message.objects.send(passenger, msg,
                                     message_type='MONKEYWRENCH')

@@ -79,7 +79,7 @@ class AirportMaster(AirportModel):
     city = models.ForeignKey(City)
 
     def __str__(self):
-        return 'Master Ariprot: {name}'.format(name=self.name)
+        return 'Master Airport: {name}'.format(name=self.name)
 
 
 class Airport(AirportModel):
@@ -210,6 +210,10 @@ class Airport(AirportModel):
         except ValueError:
             # try again
             return self.get_destinations(dest_count - 1)
+
+    def save(self, *args, **kwargs):
+        super(Airport, self).save(*args, **kwargs)
+        self.clean()
 
 
 class FlightManager(models.Manager):
