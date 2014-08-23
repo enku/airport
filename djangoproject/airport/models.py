@@ -22,18 +22,6 @@ class AirportModel(models.Model):
     """Base class for airport models"""
     creation_time = models.DateTimeField(auto_now_add=True)
 
-    @classmethod
-    def touch(cls, objects, time=None):
-        """Re-touch object (list of qs) and set creation_time to *time* or
-        current time if *time* is None"""
-        if not objects:
-            return 0
-
-        time = time or datetime.now()
-
-        ids = [i.id for i in objects]
-        return cls.objects.filter(id__in=ids).update(creation_time=time)
-
     class Meta:
         abstract = True
 
