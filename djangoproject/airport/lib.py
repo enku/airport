@@ -249,6 +249,9 @@ class SocketHandler(WebSocketConnection):
     def on_pong(self, message):
         pass
 
+    def check_origin(self, origin):
+        return True
+
     def get_current_user(self):
         if 'sessionid' not in self.request.cookies:
             return None
