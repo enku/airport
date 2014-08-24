@@ -78,14 +78,23 @@ class AirportTest(AirportTestBase):
     def test_str(self):
         """str()"""
         # Given the airport
-        rdu_master = models.AirportMaster.objects.get(code='RDU')
-        rdu = models.Airport.copy_from_master(self.game, rdu_master)
+        # Note we have to do it this complex way because we want to ensure that
+        # the "random" airport we pick is not already used in the game or the
+        # airport's city already used
+        used_cities = models.Airport.objects.filter(game=self.game)
+        used_cities = used_cities.values_list('city', flat=True)
+
+        available_airports = models.AirportMaster.objects.exclude(
+            city__in=used_cities)
+
+        airport_master = available_airports[0]
+        airport = models.Airport.copy_from_master(self.game, airport_master)
 
         # Then when we call str() on it
-        result = str(rdu)
+        result = str(airport)
 
         # Then we get the expected result
-        self.assertEqual(result, 'Raleigh')
+        self.assertEqual(result, airport.city.name)
 
     def test_str_airports_per_city(self):
         # Given the airports within a city with more than one airport
@@ -664,7 +673,7 @@ class Messages(AirportTestBase):
         self.assertEqual(messages[0].text, 'this is test3')
 
 
-class HomeViewTest(AirportTestBase):
+class ViewTest(AirportTestBase):
     """Test the home view"""
     view = reverse('main')
 
@@ -672,32 +681,38 @@ class HomeViewTest(AirportTestBase):
         self.player, self.player2 = self._create_players(2)
 
 
-class HomeViewNotLoggedIn(HomeViewTest):
-    def runTest(self):
+class HomeView(ViewTest):
+    def test_not_logged_in(self):
         """Test that you are redirected to the login page when you are not
-        logget in"""
+        logged in
+        """
         response = self.client.get(self.view)
         url = reverse('django.contrib.auth.views.login')
         url = url + '?next=%s' % self.view
         self.assertRedirects(response, url)
 
+    def test_game_not_started(self):
+        # given the game that has yet to start
+        game = models.Game.objects.create_game(
+            host=self.player,
+            goals=1,
+            airports=4,
+            density=1
+        )
+        game.add_player(self.player2)
 
-class HomeViewNoGameRedirect(HomeViewTest):
-    view = reverse('info')
+        # when player2 logs in and goes to the main view
+        self.client.login(username=self.player2.username, password='test')
+        models.Message.objects.all().delete()
+        self.client.get(self.view)
 
-    def runTest(self):
-        """When we are not in a game, the JSON response is games_info"""
-        player = self.player
-        self.client.login(username=player.username, password='test')
-        response = self.client.get(self.view)
-        json_response = json.loads(response.content.decode(response._charset))
-        self.assertTrue('current_game' in json_response)
-        self.assertEqual(json_response['current_game'], None)
+        # Then we get a message saying that the host hasn't started the game yet
+        message = models.Message.objects.all()[0]
+        message = message.text
+        self.assertEqual(message, 'Waiting for user1 to start the game.')
 
-
-class HomeViewNewGame(HomeViewTest):
     @patch('airport.lib.send_message')
-    def runTest(self, send_message):
+    def test_new_game(self, send_message):
         """Test that there's no redirect when you're in a new game"""
         player = self.player
         models.Game.objects.create_game(host=player, goals=1,
@@ -707,13 +722,23 @@ class HomeViewNewGame(HomeViewTest):
         self.assertEqual(response.status_code, 200)
 
 
-class HomeViewFinishedGame(HomeViewTest):
+class InfoViewTestCase(ViewTest):
     view = reverse('info')
 
+    def test_no_game_redrect(self):
+        """When we are not in a game, the JSON response is games_info"""
+        player = self.player
+        self.client.login(username=player.username, password='test')
+        response = self.client.get(self.view)
+        json_response = decode_response(response)
+        self.assertTrue('current_game' in json_response)
+        self.assertEqual(json_response['current_game'], None)
+
     @patch('airport.lib.send_message')
-    def runTest(self, send_message):
+    def test_finished_game(self, send_message):
         """Test that when you have finished a game, Instead of getting the
-        game json you get the games json"""
+        game json you get the games json
+        """
         player = self.player
         game = models.Game.objects.create_game(host=player, goals=1,
                                                airports=4, density=1)
@@ -725,16 +750,13 @@ class HomeViewFinishedGame(HomeViewTest):
         my_achievement.timestamp = game.time
         my_achievement.save()
         response = self.client.get(self.view)
-        json_response = json.loads(response.content.decode(response._charset))
+        json_response = decode_response(response)
         self.assertEqual(json_response['current_game'], None)
 
-
-class FinishedNotWon(HomeViewTest):
-    view = reverse('info')
-
-    def runTest(self):
+    def test_finished_not_won(self):
         """Like above test, but should apply even if the user isn't the
-        winner"""
+        winner
+        """
         player1 = self.player
         player2 = self.player2
 
@@ -751,13 +773,13 @@ class FinishedNotWon(HomeViewTest):
         my_achievement.save()
         self.client.login(username=player1.username, password='test')
         response = self.client.get(self.view)
-        json_response = json.loads(response.content.decode(response._charset))
+        json_response = decode_response(response)
         self.assertEqual(json_response['current_game'], None)
 
         # player 2 still in the game
         self.client.login(username=player2.username, password='test')
         response = self.client.get(self.view)
-        json_response = json.loads(response.content.decode(response._charset))
+        json_response = decode_response(response)
         self.assertEqual(json_response['game'], game.pk)
 
         # finish player 2
@@ -767,8 +789,116 @@ class FinishedNotWon(HomeViewTest):
         my_achievement.save()
         self.client.login(username=player2.username, password='test')
         response = self.client.get(self.view)
-        json_response = json.loads(response.content.decode(response._charset))
+        json_response = decode_response(response)
         self.assertEqual(json_response['current_game'], None)
+
+    def test_game_over(self):
+        # given the game that has ended
+        game = models.Game.objects.create_game(
+            host=self.player,
+            goals=1,
+            airports=4,
+            density=1
+        )
+        game.end()
+
+        # when the player goes to the info view
+        self.client.login(username=self.player.username, password='test')
+        response = self.client.get(self.view)
+
+        # then he is "redirected" to the game summary view
+        json_response = decode_response(response)
+        self.assertEqual(
+            json_response,
+            {'redirect': '/game_summary/?id={0}'.format(game.pk)}
+        )
+
+    @patch('airport.views.lib.send_message')
+    def test_purchase_flight(self, send_message):
+        # given the game that has started
+        game = models.Game.objects.create_game(
+            host=self.player,
+            goals=1,
+            airports=4,
+            density=1
+        )
+        game.begin()
+
+        # when the player POSTs to purchase a ticket
+        airport = game.start_airport
+        flight = airport.next_flights(
+            game.time,
+            future_only=True,
+            auto_create=True
+        )[0]
+        self.client.login(username=self.player.username, password='test')
+        response = self.client.post(self.view, {'selected': flight.pk})
+
+        # Then the ticket gets purchased
+        json_response = decode_response(response)
+        self.assertEqual(json_response['ticket']['id'], flight.id)
+
+        # And the gameserver is told to throw a wrench
+        send_message.assert_called_with('throw_wrench', game.pk)
+
+
+class RageQuitViewTestCase(ViewTest):
+    view = reverse('rage_quit')
+
+    @patch('airport.views.lib.send_message')
+    def test_quit(self, send_message):
+        # given the game that has started
+        game = models.Game.objects.create_game(
+            host=self.player,
+            goals=1,
+            airports=4,
+            density=1
+        )
+        game.begin()
+
+        # when the player POSTs to quit the game
+        self.client.login(username=self.player.username, password='test')
+        models.Message.objects.all().delete()
+        self.client.post(self.view)
+
+        # then we get a message that we left the game
+        message = models.Message.objects.all()[0]
+        self.assertEqual(
+            message.text,
+            'You have quit {0}. Wuss!'.format(game)
+        )
+
+        # and we are no longer in the game
+        game = models.Game.objects.get(pk=game.pk)
+        player = game.players.filter(pk=self.player.pk)
+        self.assertFalse(player.exists())
+
+
+class GamesStartViewTestCase(ViewTest):
+
+    view = reverse('start_game')
+
+    @patch('airport.views.lib.send_message')
+    def test_host_starts_game(self, send_message):
+        # given the game that has not yet started
+        host = self.player
+        game = models.Game.objects.create_game(
+            host=host,
+            goals=1,
+            airports=4,
+            density=1
+        )
+
+        # when the host posts to start the game
+        self.client.login(username=host.username, password='test')
+        response = self.client.post(self.view)
+
+        # then the game starts
+        json_response = decode_response(response)
+        self.assertEqual(json_response['status'], 'Started')
+        game = models.Game.objects.get(pk=game.pk)
+        self.assertEqual(game.state, game.IN_PROGRESS)
+        send_message.assert_called_with('start_game_thread', game.pk)
 
 
 class Cities(AirportTestBase):
@@ -1347,12 +1477,17 @@ class HintMonkeyWrenchTest(MonkeyWrenchTestBase):
         mw = monkeywrench.Hint(self.game)
 
         # when it's thrown
+        # First, we remove the ai player because if he get's the MW then the
+        # message is not sent
+        ai_player = self.game.players.get(ai_player=True)
+        self.game.remove_player(ai_player)
+
         models.Message.objects.all().delete()
         mw.throw()
 
         # Then the player gets a hint
         self.assertTrue(mw.thrown)
-        messages = models.Message.objects.order_by('-creation_time')
+        messages = models.Message.objects.all()
         last_message = messages[0]
         text = last_message.text
         self.assertTrue(text.startswith('Hint: '))
@@ -1446,3 +1581,12 @@ class TailWindMonkeyWrenchTest(AirportTestBase):
         # then the flight's arrival_time changed
         flight = models.Flight.objects.get(pk=flight.pk)
         self.assertGreater(original_time, flight.arrival_time)
+
+
+def decode_response(response):
+    """Take a response object and return the json-decoded content"""
+    assert response.status_code == 200
+    assert response['content-type'] == 'application/json'
+    content = response.content
+    content = content.decode(response._charset)
+    return json.loads(content)
