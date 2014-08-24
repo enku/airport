@@ -521,7 +521,14 @@ class GameThread(GameThreadClass):
                 player.airport = player.ticket.destination
                 player.ticket = None
             else:
-                player.airport = game.start_airport
+                airports = models.Airport.objects.filter(
+                    game=game,
+                    code__in=TEXAS_AIRPORTS
+                )
+                if airports.exists():
+                    player.airport = airports[0]
+                else:
+                    player.airport = game.start_airport
             player.save()
             logger.info(msg.format(game.pk, player.username))
             fixed_players.append(player)
@@ -547,3 +554,5 @@ class MonkeyWrenchGenerator(object):
         self.throw_wrench = True
         threading.Timer(random.randint(1, self.max_wait),
                         self._set_throw).start()
+
+TEXAS_AIRPORTS = ('DFW', 'IAH', 'AUS', 'HOU', 'SAT', 'DAL', 'ELP')
