@@ -1400,7 +1400,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "36.17", 
-            "image": "http://www.tnexpresstours.com/assets/images/Rolling_on_the_River___GJSB_Heavenly_Perspectives.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/d/db/Nashville_panorama_Kaldari_01.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Nashville", 
             "longitude": "-86.78"
