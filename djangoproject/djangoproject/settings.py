@@ -145,6 +145,7 @@ LOGGING = {
     }
 }
 
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 AUTH_PROFILE_MODULE = 'airport.UserProfile'
 
 
