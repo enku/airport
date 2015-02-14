@@ -996,6 +996,16 @@ class Cities(AirportTestBase):
         self.assertAlmostEqual(distance, 1699, delta=15)
         # according to Wolfram|Alpha
 
+    def test_closest_to(self):
+        # given the coordinates
+        coords = (38.806389, -75.59)
+
+        # when we call City.closest_to() on it
+        city = models.City.closest_to(coords)
+
+        # Then we get the expected result
+        self.assertEqual(city.name, 'Baltimore')
+
 
 class ConstantConnections(AirportTestBase):
     def runTest(self):

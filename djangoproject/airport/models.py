@@ -61,6 +61,17 @@ class City(AirportModel):
         return km
 
     @classmethod
+    def closest_to(cls, coordinates):
+        """Return the City closest to coordinates"""
+        # I should be using the db's geo stuff for this, but I'm keeping it
+        # database-agnostic
+        cities = cls.objects.all()
+        cities = list(cities)
+
+        cities.sort(key=lambda x: x.distance_from_coordinates(coordinates))
+        return cities[0] if cities else None
+
+    @classmethod
     def get_flight_time(cls, source, destination, speed):
         """Return the time, in minutes, it takes to fly from *source* to
         *destination* at speed *speed*"""
