@@ -49,7 +49,7 @@ class AirportTestBase(TestCase):
             airports=airports)
 
 
-class AirportMaterTest(AirportTestBase):
+class AirportMasterTest(AirportTestBase):
     """Tests for the AirportMaster model"""
     def test_str(self):
         """str()"""
