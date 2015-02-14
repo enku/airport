@@ -1379,6 +1379,62 @@ class CreateGameTest(AirportTestBase):
         # Then it starts there
         self.assertEqual(game.start_airport.code, start_airport.code)
 
+    @patch('airport.views.lib.send_message')
+    def test_with_view(self, mock_send_message):
+        self.game.end()
+
+        # given the url to create a game
+        url = reverse('airport.views.games_create')
+
+        # the originating city
+        start = 'Raleigh'
+
+        # And relevant POST data
+        post = {
+            'goals': 1,
+            'airports': 10,
+            'ai_player': 'No',
+            'start_city': start,
+        }
+
+        # when we create a game through the view
+        self.client.login(username='user1', password='test')
+        response = self.client.post(url, post)
+
+        # Then we're given a game starting at the requested airport
+        response = json.loads(response.content.decode('utf-8'))
+        game_id = response['current_game']
+        game = models.Game.objects.get(pk=game_id)
+        self.assertEqual(game.start_airport.city.name, start)
+
+    @patch('airport.views.lib.send_message')
+    def test_with_view_with_bogus_city(self, mock_send_message):
+        self.game.end()
+
+        # given the url to create a game
+        url = reverse('airport.views.games_create')
+
+        # the originating with we dont' have
+        start = 'Bogus City'
+
+        # And relevant POST data
+        post = {
+            'goals': 1,
+            'airports': 10,
+            'ai_player': 'No',
+            'start_city': start,
+        }
+
+        # when we create a game through the view
+        self.client.login(username='user1', password='test')
+        response = self.client.post(url, post)
+
+        # Then we're still given a game, but not at the airport (obviously)
+        response = json.loads(response.content.decode('utf-8'))
+        game_id = response['current_game']
+        game = models.Game.objects.get(pk=game_id)
+        self.assertNotEqual(game.start_airport.city.name, start)
+
 
 ################################################################################
 # MonkeyWrenches                                                               #

@@ -193,6 +193,7 @@ def games_create(request):
     num_goals = data['goals']
     num_airports = data['airports']
     ai_player = data['ai_player']
+    start_city = data['start_city']
 
     games = models.Game.objects.exclude(state=models.Game.GAME_OVER)
     games = games.filter(players=player)
@@ -201,11 +202,20 @@ def games_create(request):
         m = 'Cannot create a game since you are already playing an open game.'
         models.Message.objects.send(player, m)
     else:
+        start_airport = None
+        if start_city:
+            try:
+                start_city = models.City.objects.get(name=start_city)
+                start_airport = start_city.airports()[0]
+            except models.City.DoesNotExist:
+                pass
+
         game = models.Game.objects.create_game(
             host=player,
             goals=num_goals,
             airports=num_airports,
             ai_player=ai_player,
+            start=start_airport,
         )
         lib.send_message('game_created', game.pk)
 
