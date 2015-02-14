@@ -17,6 +17,7 @@ function main($) {
 
     airport.messages('#message_box');
     airport.websocket_connect('home');
+    airport.get_geography();
     setInterval(airport.games_screen_interval_cb, 30000);
 
     $.ajax({

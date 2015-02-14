@@ -1,6 +1,7 @@
 <div id="create_widget" class="out_game panel_widget">
 <form method="post" id="create_form" action="{% url 'games_create' %}">
     {% csrf_token %}
+    <input type="hidden" id="start_city" name="start_city" value="" />
     <div class="panel_topic">Start a new game</div>
     <table class="panel_body smaller">
         <tr>

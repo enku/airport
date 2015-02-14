@@ -5,6 +5,8 @@ airport.current_goal = null;
 airport.goldstar = "{{ gold_star }}";
 airport.last_ticket = null;
 airport.paused = null;
+airport.geography = null;
+
 
 // XXX: Clean up!
 airport.refresh_ui = function (data)
@@ -501,4 +503,20 @@ airport.websocket_connect = function (page) {
             airport.websocket_handlers[message.type](message.data);
         }
     };
+};
+
+
+airport.get_geography = function () {
+    "use strict";
+
+    $.ajax(
+
+        "http://freegeoip.net/json/",
+        {
+            success: function (data) {
+                airport.geography = data;
+                $('#start_city').val(data.city);
+            }
+        }
+    );
 };
