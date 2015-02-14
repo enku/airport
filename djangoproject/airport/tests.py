@@ -970,6 +970,32 @@ class Cities(AirportTestBase):
              models.AirportMaster.objects.get(code='DAL')}
         )
 
+    def test_distance_from_coordinates(self):
+        # given the city
+        city = models.City.objects.get(name='Dallas')
+
+        # and the coordinates
+        coordinates = (35.780556, -78.638889)  # Raleigh
+
+        # when we call .distance_from_coordinates()
+        distance = city.distance_from_coordinates(coordinates)
+
+        # Then we get the expected value
+        self.assertAlmostEqual(distance, 1699, delta=15)
+        # according to Wolfram|Alpha
+
+    def test_distance_from(self):
+        # given the 2 cities
+        city1 = models.City.objects.get(name='Dallas')
+        city2 = models.City.objects.get(name='Raleigh')
+
+        # when we calculate the distance from them
+        distance = city1.distance_from(city2)
+
+        # Then we get the expected value
+        self.assertAlmostEqual(distance, 1699, delta=15)
+        # according to Wolfram|Alpha
+
 
 class ConstantConnections(AirportTestBase):
     def runTest(self):

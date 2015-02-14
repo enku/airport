@@ -39,12 +39,19 @@ class City(AirportModel):
 
     def distance_from(self, city):
         """Return the distance (km) from *self* to *city*"""
+        return self.distance_from_coordinates((city.latitude, city.longitude))
 
+    def distance_from_coordinates(self, coordinates):
+        """Return the distance (km) from *self* to *coordinates*)
+
+        *coordinates shall be a 2-tuple
+        """
+        latitude, longitude = coordinates
         # using haversine
         lat1, lon1, lat2, lon2 = map(radians, [self.latitude,
                                                self.longitude,
-                                               city.latitude,
-                                               city.longitude])
+                                               latitude,
+                                               longitude])
         dlat = lat2 - lat1
         dlon = lon2 - lon1
         a = (sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) *
