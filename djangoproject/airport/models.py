@@ -1003,7 +1003,8 @@ class GameManager(models.Manager):
 
     """We manage Games"""
 
-    def create_game(self, host, goals, airports, density=5, ai_player=True):
+    def create_game(self, host, goals, airports, density=5, ai_player=True,
+                    start=None):
         """Create a new *Game*"""
         master_airports = list(AirportMaster.objects.distinct())
         shuffle(master_airports)
@@ -1017,7 +1018,10 @@ class GameManager(models.Manager):
         game.save()
 
         # start airport
-        master = master_airports[0]
+        if start is None:
+            master = master_airports[0]
+        else:
+            master = start
         start_airport = Airport()
         start_airport.name = master.name
         start_airport.code = master.code

@@ -1,3 +1,4 @@
+# XXX: These tests are totally disorganized.  Need to fix
 import datetime
 import json
 import random
@@ -1341,6 +1342,28 @@ class GameServerTest(AirportTestBase):
         self.assertEqual(game.host, self.player)
         self.assertEqual(game.airports.count(), num_airports)
         self.assertEqual(game.goals.count(), num_goals)
+
+
+class CreateGameTest(AirportTestBase):
+    """Tests for the create_game() method"""
+    def test_with_start_airport(self):
+        self.game.end()
+
+        # given the start airport
+        masters = models.AirportMaster.objects.all().order_by('?')
+        start_airport = masters[0]
+
+        # When we call create_airport telling it to start there
+        game = models.Game.objects.create_game(
+            self.player,
+            1,
+            10,
+            ai_player=False,
+            start=start_airport
+        )
+
+        # Then it starts there
+        self.assertEqual(game.start_airport.code, start_airport.code)
 
 
 ################################################################################
