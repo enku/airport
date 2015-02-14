@@ -65,6 +65,11 @@ class City(AirportModel):
         flight_time = distance / speed
         return flight_time
 
+    def airports(self):
+        """Return a qs of AirportMasters in this city"""
+        a = AirportMaster.objects.filter(city=self)
+        return a
+
     class Meta:
 
         """metadata"""

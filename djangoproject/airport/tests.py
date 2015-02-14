@@ -956,6 +956,20 @@ class Cities(AirportTestBase):
         )
         self.assertEqual(result, expected)
 
+    def test_airports(self):
+        # given the city
+        city = models.City.objects.get(name='Dallas')
+
+        # when we call .airports()
+        airports = city.airports()
+
+        # then we get the airports for that city
+        self.assertEqual(
+            set(airports),
+            {models.AirportMaster.objects.get(code='DFW'),
+             models.AirportMaster.objects.get(code='DAL')}
+        )
+
 
 class ConstantConnections(AirportTestBase):
     def runTest(self):
