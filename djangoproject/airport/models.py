@@ -1,6 +1,5 @@
 """Models for the airport django app"""
 from datetime import datetime, timedelta
-from logging import getLogger
 from math import asin, cos, radians, sin, sqrt
 from random import randint, sample, shuffle
 
@@ -11,10 +10,10 @@ from django.core.urlresolvers import reverse
 from django.db import models, transaction
 from django.template.defaultfilters import date, escape
 
+from . import logger
 from .conf import settings
 
 BOARDING = timedelta(minutes=settings.MINUTES_BEFORE_BOARDING)
-logger = getLogger('airport.models')
 
 
 class AirportModel(models.Model):

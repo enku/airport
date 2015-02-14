@@ -13,15 +13,12 @@ when it's create() method is called, picks one at random, instantiates it
 and returns it to the caller
 """
 import datetime
-import logging
 import os
 import random
 
-from django.db.models import Count, F
+from django.db.models import F, Count
 
-from airport import models
-
-logger = logging.getLogger()
+from airport import logger, models
 
 
 class MonkeyWrench(object):

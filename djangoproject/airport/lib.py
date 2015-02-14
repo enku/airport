@@ -1,6 +1,5 @@
 import functools
 import json
-import logging
 import multiprocessing
 import os
 import random
@@ -19,11 +18,10 @@ from tornado import websocket
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 
-from . import models
+from . import logger, models
 from .conf import settings
 
 LOOP_DELAY = settings.GAMESERVER_LOOP_DELAY
-logger = logging.getLogger('airport.lib')
 
 if settings.GAMESERVER_MULTIPROCESSING:
     GameThreadClass = multiprocessing.Process
