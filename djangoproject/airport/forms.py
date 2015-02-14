@@ -10,7 +10,8 @@ class CreateGameForm(forms.Form):
         initial='Yes',
         choices=(('Yes', 'Yes'), ('No', 'No')),
     )
-    start_city = forms.CharField(required=False)
+    start_lat = forms.FloatField(required=False)
+    start_lon = forms.FloatField(required=False)
 
     def clean_ai_player(self):
         ai_player = self.cleaned_data['ai_player']

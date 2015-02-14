@@ -515,7 +515,8 @@ airport.get_geography = function () {
         {
             success: function (data) {
                 airport.geography = data;
-                $('#start_city').val(data.city);
+                $('#start_lat').val(data.latitude);
+                $('#start_lon').val(data.longitude);
             }
         }
     );

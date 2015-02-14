@@ -3,6 +3,7 @@ Django views for the airport app
 """
 import datetime
 import json
+from random import choice
 
 from django import get_version
 from django.contrib import messages as django_messages
@@ -193,7 +194,8 @@ def games_create(request):
     num_goals = data['goals']
     num_airports = data['airports']
     ai_player = data['ai_player']
-    start_city = data['start_city']
+    start_lat = data['start_lat']
+    start_lon = data['start_lon']
 
     games = models.Game.objects.exclude(state=models.Game.GAME_OVER)
     games = games.filter(players=player)
@@ -203,12 +205,11 @@ def games_create(request):
         models.Message.objects.send(player, m)
     else:
         start_airport = None
-        if start_city:
-            try:
-                start_city = models.City.objects.get(name=start_city)
-                start_airport = start_city.airports()[0]
-            except models.City.DoesNotExist:
-                pass
+        if start_lat and start_lon:
+            coords = (start_lat, start_lon)
+            start_city = models.City.closest_to(coords)
+            start_airport = choice(start_city.airports()) \
+                if start_city else None
 
         game = models.Game.objects.create_game(
             host=player,

@@ -1423,14 +1423,17 @@ class CreateGameTest(AirportTestBase):
         url = reverse('airport.views.games_create')
 
         # the originating city
-        start = 'Raleigh'
+        start = models.City.objects.get(name='Raleigh')
+        start_lat = start.latitude
+        start_lon = start.longitude
 
         # And relevant POST data
         post = {
             'goals': 1,
             'airports': 10,
             'ai_player': 'No',
-            'start_city': start,
+            'start_lat': start_lat,
+            'start_lon': start_lon,
         }
 
         # when we create a game through the view
@@ -1441,7 +1444,7 @@ class CreateGameTest(AirportTestBase):
         response = json.loads(response.content.decode('utf-8'))
         game_id = response['current_game']
         game = models.Game.objects.get(pk=game_id)
-        self.assertEqual(game.start_airport.city.name, start)
+        self.assertEqual(game.start_airport.city, start)
 
     @patch('airport.views.lib.send_message')
     def test_with_view_with_bogus_city(self, mock_send_message):
