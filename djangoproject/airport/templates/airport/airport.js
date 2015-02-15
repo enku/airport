@@ -94,8 +94,7 @@ airport.flight_screen = function (data)
         airport.paused = airport.paused || new airport.LightBox('#lightbox_content');
         airport.paused.show();
     } else if (airport.paused) {
-        airport.paused.hide();
-        airport.paused = null;
+        airport.paused.hide(400, function () {airport.paused = null});
     }
 };
 
@@ -143,8 +142,7 @@ airport.airport_screen = function (data)
         airport.paused = airport.paused || new airport.LightBox('#lightbox_content');
         airport.paused.show();
     } else if (airport.paused) {
-        airport.paused.hide();
-        airport.paused = null;
+        airport.paused.hide(400, function () {airport.paused = null});
     }
 };
 
@@ -456,7 +454,6 @@ airport.post_link = function (e)
     $.ajax({
         type: 'POST',
         url: href,
-        success: airport.refresh_ui
     });
 };
 

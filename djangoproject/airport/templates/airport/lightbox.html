@@ -1,5 +1,5 @@
 <div id="lightbox_content">
-    {% if game.host.user.username  == user.username %}<a data-role="ajax" href="{% url 'pause_game' %}" id="resume">{% endif %}
+    {% if game.host.user.username  == user.username %}<a href="{% url 'pause_game' %}" id="resume">{% endif %}
     <div>Game Paused</div>
     <img src="{{pause_icon}}" />
     {% if game.host.user.username  == user.username %}<div>Resume</div></a>{% endif %}
