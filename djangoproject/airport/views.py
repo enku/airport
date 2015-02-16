@@ -208,8 +208,12 @@ def games_create(request):
         if start_lat and start_lon:
             coords = (start_lat, start_lon)
             start_city = models.City.closest_to(coords)
-            start_airport = choice(start_city.airports()) \
-                if start_city else None
+            start_airport = (
+                choice(start_city.airports())
+                if start_city
+                and start_city.distance_from_coordinates(coords) < 482
+                else None
+            )
 
         game = models.Game.objects.create_game(
             host=player,
