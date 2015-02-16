@@ -1478,6 +1478,11 @@ class Goal(AirportModel):
         text = 'Goal {0}/{1}'
         return text.format(self.order, self.game.goals.count())
 
+    def stars(self):
+        gold_star = settings.EXTERNALS['gold_star']
+        gold_star = '<img src="{0}"/>'.format(gold_star)
+        return gold_star * self.order
+
     def was_achieved_by(self, player):
         """Return True iff player has achieved goal"""
         return Achievement.objects.filter(

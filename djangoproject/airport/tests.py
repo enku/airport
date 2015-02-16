@@ -12,6 +12,7 @@ from django.test import TestCase, TransactionTestCase
 from mock import patch
 
 from airport import lib, models, monkeywrench
+from airport.conf import settings
 
 
 class AirportTestBase(TestCase):
@@ -1473,6 +1474,24 @@ class CreateGameTest(AirportTestBase):
         game_id = response['current_game']
         game = models.Game.objects.get(pk=game_id)
         self.assertNotEqual(game.start_airport.city.name, start)
+
+
+class GoalTest(AirportTest):
+    def test_stars(self):
+        self.game.end()
+
+        # given the game with 3 goals
+        game = models.Game.objects.create_game(self.player, 3, 15)
+
+        # and the last goal for that game
+        goal = models.Goal.objects.filter(game=game).order_by('-order')[0]
+
+        # when we call goal.stars()
+        stars = goal.stars()
+
+        # then we get 3 cold stars
+        gold_star = settings.EXTERNALS['gold_star']
+        self.assertEqual(stars.count(gold_star), 3)
 
 
 ################################################################################
