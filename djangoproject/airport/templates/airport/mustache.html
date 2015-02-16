@@ -5,7 +5,7 @@
         style="list-style-image: url('{{icon}}')"
         class="message" 
         data-id="{{message.id}}"
-    >{{ message.text }}
+    >{{{ message.text }}}
     <audio src="{{sound}}" autoplay="autoplay" />
     <script type="text/javascript">
         $('li[data-id="{{message.id}}"]').effect("pulsate", { times:3 }, 700);

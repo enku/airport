@@ -5,7 +5,7 @@
         style="list-style-image: url('{{ message|icon }}')"
         class="message{% if not message.new %} old{% endif %}" 
         data-id="{{ message.id }}"
-    >{{ message.text }}
+    >{{ message.text|safe }}
     {% if message.new %}
     <audio src="{{ message|sound}}" autoplay="autoplay" />
     <script type="text/javascript">

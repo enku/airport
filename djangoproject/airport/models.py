@@ -1538,8 +1538,8 @@ class Achievement(AirportModel):
             old_ach = Achievement.objects.get(id=self.id)
             if old_ach.timestamp is None:
                 # send out a message
-                msg = '{0} has achieved {1}.'
-                msg = msg.format(self.player.user.username, self.goal)
+                msg = '{0} has achieved a goal: {1}'
+                msg = msg.format(self.player.user.username, self.goal.stars())
                 broadcast(msg, self.game, message_type='GOAL')
 
         super(Achievement, self).save(*args, **kwargs)
