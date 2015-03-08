@@ -94,7 +94,7 @@ class AirportTest(BaseTestCase):
         # grab a random airport, but exclude the game's starting airport
         # because game.begin() would have already populated it with flights
         airports = self.game.airports.exclude(pk=self.game.start_airport.pk)
-        airport = models.choice(airports)
+        airport = models.random_choice(airports)
         now = datetime.datetime(2011, 11, 17, 11, 0)
         time1 = datetime.datetime(2011, 11, 17, 11, 30)
         dest1 = random.choice(airport.destinations.all())
@@ -129,7 +129,7 @@ class AirportTest(BaseTestCase):
 
     def test_next_flight_to(self):
         now = datetime.datetime(2011, 11, 17, 11, 0)
-        airport = models.choice(self.game.airports.all())
+        airport = models.random_choice(self.game.airports.all())
         city_ids = (self.game.airports
                     .exclude(city=airport.city)
                     .values_list('city', flat=True))
@@ -363,7 +363,7 @@ class CreateGameTest(BaseTestCase):
 
         # given the start airport
         masters = models.AirportMaster.objects.all()
-        start_airport = models.choice(masters)
+        start_airport = models.random_choice(masters)
 
         # When we call create_airport telling it to start there
         game = models.Game.objects.create_game(
@@ -1062,7 +1062,7 @@ class ChoiceTest(TestCase):
         queryset = models.Goal.objects.none()
 
         # when we call choice() on the queryset
-        result = models.choice(queryset)
+        result = models.random_choice(queryset)
 
         # then we get None
         self.assertEqual(result, None)
@@ -1073,7 +1073,7 @@ class ChoiceTest(TestCase):
         queryset = User.objects.filter(username='testtest')
 
         # when we call choice() on the queryset
-        result = models.choice(queryset)
+        result = models.random_choice(queryset)
 
         # then we get the single entry
         self.assertEqual(result, user)
@@ -1085,7 +1085,7 @@ class ChoiceTest(TestCase):
         queryset = User.objects.all()
 
         # when we call choice() on the queryset
-        result = models.choice(queryset)
+        result = models.random_choice(queryset)
 
         # then we get an entry in the queryset
         self.assertTrue(result in queryset)
@@ -1097,7 +1097,7 @@ class ChoiceTest(TestCase):
         queryset = User.objects.exclude(username='excluded')
 
         # when we call choice() on the queryset
-        result = models.choice(queryset)
+        result = models.random_choice(queryset)
 
         # then we don't get the excluded item
         self.assertEqual(result, other)

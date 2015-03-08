@@ -50,7 +50,7 @@ class CancelledFlight(MonkeyWrench):
     def throw(self):
         now = self.now
         flights = self.game.flights.filter(depart_time__gt=now)
-        flight = models.choice(flights)
+        flight = models.random_choice(flights)
         if not flight:
             return
         flight.cancel(now)
@@ -67,7 +67,7 @@ class DelayedFlight(MonkeyWrench):
     def throw(self):
         now = self.now
         flights = self.game.flights.filter(depart_time__gt=now)
-        flight = models.choice(flights)
+        flight = models.random_choice(flights)
         if not flight:
             return
         minutes = random.randint(20, 60)
@@ -92,7 +92,7 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
     def throw(self):
         now = self.now
         airports = self.game.airports.all()
-        airport = models.choice(airports)
+        airport = models.random_choice(airports)
         flights = self.game.flights.filter(origin=airport,
                                            depart_time__gt=now)
         minutes = random.randint(20, 60)
@@ -114,7 +114,7 @@ class AllFlightsFromAirportCancelled(MonkeyWrench):
     def throw(self):
         now = self.now
         airports = self.game.airports.all()
-        airport = models.choice(airports)
+        airport = models.random_choice(airports)
         flights = self.game.flights.filter(origin=airport,
                                            depart_time__gt=now)
         for flight in flights:
@@ -135,12 +135,12 @@ class DivertedFlight(MonkeyWrench):
 
     def throw(self):
         flights = models.Flight.objects.in_flight(self.game, self.now)
-        flight = models.choice(flights)
+        flight = models.random_choice(flights)
         if not flight:
             return
         diverted_to = models.Airport.objects.filter(game=self.game)
         diverted_to = diverted_to.exclude(pk=flight.destination.pk)
-        flight.destination = models.choice(diverted_to)
+        flight.destination = models.random_choice(diverted_to)
         flight.flight_time = models.City.get_flight_time(
             flight.origin,
             flight.destination,
@@ -161,7 +161,7 @@ class MechanicalProblem(MonkeyWrench):
     def throw(self):
         flights = models.Flight.objects.in_flight(self.game, self.now)
         flights = flights.exclude(destination=F('origin'))
-        flight = models.choice(flights)
+        flight = models.random_choice(flights)
         if not flight:
             return
         flight.destination = flight.origin
@@ -187,7 +187,7 @@ class LateFlight(MonkeyWrench):
 
     def throw(self):
         flights = models.Flight.objects.in_flight(self.game, self.now)
-        flight = models.choice(flights)
+        flight = models.random_choice(flights)
         if not flight:
             return
         minutes = random.randint(self.MIN_LATENESS, self.MAX_LATENESS)
@@ -210,7 +210,7 @@ class Hint(MonkeyWrench):
     message telling them what (random) airport goes to that goal"""
     def throw(self):
         players = self.game.players.all()
-        player = models.choice(players)
+        player = models.random_choice(players)
         if not player:
             return
 
@@ -223,7 +223,7 @@ class Hint(MonkeyWrench):
             return
 
         airports = self.game.airports.filter(destinations__city=current_goal)
-        airport = models.choice(airports)
+        airport = models.random_choice(airports)
 
         if airport.city == current_goal:
             return
@@ -271,7 +271,7 @@ class FullFlight(MonkeyWrench):
         flights = self.game.flights.filter(
             depart_time__gt=now).filter(full=False)
 
-        flight = models.choice(flights)
+        flight = models.random_choice(flights)
         if not flight:
             return
 
@@ -293,7 +293,7 @@ class TailWind(MonkeyWrench):
             minutes=self.minimum_minutes)
         flights = models.Flight.objects.in_flight(self.game, now)
         flights = flights.filter(arrival_time__gt=min_arrival_time)
-        flight = models.choice(flights)
+        flight = models.random_choice(flights)
         if not flight:
             return
 
