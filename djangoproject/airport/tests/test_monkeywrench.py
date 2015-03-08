@@ -1,47 +1,8 @@
 import datetime
 from unittest.mock import patch
 
-from django.contrib.auth.models import User
-from django.test import TestCase
-
 from airport import lib, models, monkeywrench
-
-
-class BaseTestCase(TestCase):
-    """Base class for airport tests"""
-
-    def setUp(self):
-        "setup"
-
-        # create user and game
-        self.player = self.create_players(1)[0]
-
-        # create a game
-        self.game = self.create_game(host=self.player)
-
-    @staticmethod
-    def create_players(num_players):
-        """create num_players  users and Players, return a tuple of the
-        players created"""
-        players = []
-        for i in range(1, num_players + 1):
-            user = User.objects.create_user(
-                username='user%s' % i,
-                email='user%s@test.com' % i,
-                password='test'
-            )
-            player = models.Player()
-            player.user = user
-            player.save()
-            players.append(player)
-        return tuple(players)
-
-    @staticmethod
-    def create_game(host, goals=1, airports=10):
-        return models.Game.objects.create_game(
-            host=host,
-            goals=goals,
-            airports=airports)
+from airport.tests import BaseTestCase
 
 
 ################################################################################
