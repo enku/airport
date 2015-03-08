@@ -994,7 +994,7 @@ class MessageManager(models.Manager):
 class Message(AirportModel):
 
     """Messages for players"""
-    text = models.CharField(max_length=255)
+    text = models.TextField()
     player = models.ForeignKey(Player, related_name='messages')
     read = models.BooleanField(default=False)
     message_type = models.CharField(max_length=32, default='DEFAULT')
