@@ -93,8 +93,8 @@ class AirportTest(BaseTestCase):
     def test_next_flights(self):
         # grab a random airport, but exclude the game's starting airport
         # because game.begin() would have already populated it with flights
-        airport = self.game.airports.exclude(pk=self.game.start_airport.pk)
-        airport = airport.order_by('?')[0]
+        airports = self.game.airports.exclude(pk=self.game.start_airport.pk)
+        airport = models.choice(airports)
         now = datetime.datetime(2011, 11, 17, 11, 0)
         time1 = datetime.datetime(2011, 11, 17, 11, 30)
         dest1 = random.choice(airport.destinations.all())
@@ -129,11 +129,11 @@ class AirportTest(BaseTestCase):
 
     def test_next_flight_to(self):
         now = datetime.datetime(2011, 11, 17, 11, 0)
-        airport = self.game.airports.order_by('?')[0]
-        city_id = (self.game.airports
-                   .exclude(city=airport.city)
-                   .values_list('city', flat=True)
-                   .order_by('?')[0])
+        airport = models.choice(self.game.airports.all())
+        city_ids = (self.game.airports
+                    .exclude(city=airport.city)
+                    .values_list('city', flat=True))
+        city_id = random.choice(city_ids)
         city = models.City.objects.get(id=city_id)
 
         dest = models.Airport.objects.filter(game=self.game, city=city)[0]
@@ -153,10 +153,7 @@ class AirportTest(BaseTestCase):
             depart_time=time2,
             flight_time=200)
 
-        city_id = (self.game.airports
-                   .exclude(city=airport.city)
-                   .values_list('city', flat=True)
-                   .order_by('?')[0])
+        city_id = random.choice(city_ids)
         city2 = models.City.objects.get(id=city_id)
         dest2 = models.Airport.objects.filter(game=self.game, city=city2)[0]
         flight3 = models.Flight.objects.create(
@@ -365,8 +362,8 @@ class CreateGameTest(BaseTestCase):
         self.game.end()
 
         # given the start airport
-        masters = models.AirportMaster.objects.all().order_by('?')
-        start_airport = masters[0]
+        masters = models.AirportMaster.objects.all()
+        start_airport = models.choice(masters)
 
         # When we call create_airport telling it to start there
         game = models.Game.objects.create_game(
