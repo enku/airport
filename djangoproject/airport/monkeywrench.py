@@ -49,10 +49,10 @@ class CancelledFlight(MonkeyWrench):
     """Randomly Cancel a flight"""
     def throw(self):
         now = self.now
-        flight = self.game.flights.filter(depart_time__gt=now).order_by('?')
-        if not flight.exists():
+        flights = self.game.flights.filter(depart_time__gt=now)
+        flight = models.choice(flights)
+        if not flight:
             return
-        flight = flight[0]
         flight.cancel(now)
         broadcast('Flight {num} from {origin} to {dest} is cancelled'.format(
             num=flight.number, origin=flight.origin.city.name,
@@ -66,10 +66,10 @@ class DelayedFlight(MonkeyWrench):
     """Delay a flight that hasn't departed yet"""
     def throw(self):
         now = self.now
-        flight = self.game.flights.filter(depart_time__gt=now).order_by('?')
-        if not flight.exists():
+        flights = self.game.flights.filter(depart_time__gt=now)
+        flight = models.choice(flights)
+        if not flight:
             return
-        flight = flight[0]
         minutes = random.randint(20, 60)
         timedelta = datetime.timedelta(minutes=minutes)
         try:
@@ -91,7 +91,8 @@ class AllFlightsFromAirportDelayed(MonkeyWrench):
     number of minutes"""
     def throw(self):
         now = self.now
-        airport = self.game.airports.order_by('?')[0]
+        airports = self.game.airports.all()
+        airport = models.choice(airports)
         flights = self.game.flights.filter(origin=airport,
                                            depart_time__gt=now)
         minutes = random.randint(20, 60)
@@ -112,7 +113,8 @@ class AllFlightsFromAirportCancelled(MonkeyWrench):
     """Cancel all future flights from a random airport"""
     def throw(self):
         now = self.now
-        airport = self.game.airports.order_by('?')[0]
+        airports = self.game.airports.all()
+        airport = models.choice(airports)
         flights = self.game.flights.filter(origin=airport,
                                            depart_time__gt=now)
         for flight in flights:
@@ -133,13 +135,12 @@ class DivertedFlight(MonkeyWrench):
 
     def throw(self):
         flights = models.Flight.objects.in_flight(self.game, self.now)
-        if not flights.count():
+        flight = models.choice(flights)
+        if not flight:
             return
-        flight = flights.order_by('?')[0]
         diverted_to = models.Airport.objects.filter(game=self.game)
         diverted_to = diverted_to.exclude(pk=flight.destination.pk)
-        diverted_to = diverted_to.order_by('?')[0]
-        flight.destination = diverted_to
+        flight.destination = models.choice(diverted_to)
         flight.flight_time = models.City.get_flight_time(
             flight.origin,
             flight.destination,
@@ -159,10 +160,9 @@ class MechanicalProblem(MonkeyWrench):
     """
     def throw(self):
         flights = models.Flight.objects.in_flight(self.game, self.now)
-        flights = flights.exclude(destination=F('origin')).order_by('?')
-        try:
-            flight = flights[0]
-        except IndexError:
+        flights = flights.exclude(destination=F('origin'))
+        flight = models.choice(flights)
+        if not flight:
             return
         flight.destination = flight.origin
         time_travelled = self.game.time - flight.depart_time
@@ -187,10 +187,8 @@ class LateFlight(MonkeyWrench):
 
     def throw(self):
         flights = models.Flight.objects.in_flight(self.game, self.now)
-        flights = flights.order_by('?')
-        try:
-            flight = flights[0]
-        except IndexError:
+        flight = models.choice(flights)
+        if not flight:
             return
         minutes = random.randint(self.MIN_LATENESS, self.MAX_LATENESS)
         flight.flight_time = flight.flight_time + minutes
@@ -211,9 +209,9 @@ class Hint(MonkeyWrench):
     picks a random player of the game, finds their current goal, and sends a
     message telling them what (random) airport goes to that goal"""
     def throw(self):
-        try:
-            player = self.game.players.order_by('?')[0]
-        except IndexError:
+        players = self.game.players.all()
+        player = models.choice(players)
+        if not player:
             return
 
         try:
@@ -224,15 +222,14 @@ class Hint(MonkeyWrench):
         except IndexError:
             return
 
-        airport_to_goal = (self.game.airports.filter(
-            destinations__city=current_goal)
-            .order_by('?')[0])
+        airports = self.game.airports.filter(destinations__city=current_goal)
+        airport = models.choice(airports)
 
-        if airport_to_goal.city == current_goal:
+        if airport.city == current_goal:
             return
 
         msg = 'Hint: {0} goes to {1} ;-)'
-        msg = msg.format(airport_to_goal, current_goal.name)
+        msg = msg.format(airport, current_goal.name)
         models.Message.objects.send(player, msg)
         self.thrown = True
         return
@@ -271,11 +268,13 @@ class FullFlight(MonkeyWrench):
     """Make a flight full so tickets can no longer be purchased"""
     def throw(self):
         now = self.now
-        flight = self.game.flights.filter(
-            depart_time__gt=now).filter(full=False).order_by('?')
-        if not flight.exists():
+        flights = self.game.flights.filter(
+            depart_time__gt=now).filter(full=False)
+
+        flight = models.choice(flights)
+        if not flight:
             return
-        flight = flight[0]
+
         flight.full = True
         flight.save()
         # no need to send a message
@@ -294,10 +293,8 @@ class TailWind(MonkeyWrench):
             minutes=self.minimum_minutes)
         flights = models.Flight.objects.in_flight(self.game, now)
         flights = flights.filter(arrival_time__gt=min_arrival_time)
-        flights = flights.order_by('?')
-        try:
-            flight = flights[0]
-        except IndexError:
+        flight = models.choice(flights)
+        if not flight:
             return
 
         orig_arrival_time = int((flight.arrival_time - now).total_seconds())
