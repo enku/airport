@@ -7,7 +7,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.test import TransactionTestCase
+from django.test import TestCase, TransactionTestCase
 
 from airport import lib, models
 from airport.conf import settings
@@ -1057,3 +1057,50 @@ class GoalTest(AirportTest):
         # then we get 3 cold stars
         gold_star = settings.EXTERNALS['gold_star']
         self.assertEqual(stars.count(gold_star), 3)
+
+
+class ChoiceTest(TestCase):
+    def test_empty(self):
+        # given the empty queryset
+        queryset = models.Goal.objects.none()
+
+        # when we call choice() on the queryset
+        result = models.choice(queryset)
+
+        # then we get None
+        self.assertEqual(result, None)
+
+    def test_single_item(self):
+        # given the queryset with a single item
+        user = User.objects.create_user(username='testtest', password='***')
+        queryset = User.objects.filter(username='testtest')
+
+        # when we call choice() on the queryset
+        result = models.choice(queryset)
+
+        # then we get the single entry
+        self.assertEqual(result, user)
+
+    def test_multiple_items(self):
+        # given the queryset with multiple items
+        for i in range(10):
+            User.objects.create_user(username='test%s' % i, password='***')
+        queryset = User.objects.all()
+
+        # when we call choice() on the queryset
+        result = models.choice(queryset)
+
+        # then we get an entry in the queryset
+        self.assertTrue(result in queryset)
+
+    def test_item_not_in_queryset(self):
+        # given the queryset with an item filtered out
+        User.objects.create_user(username='excluded', password='***')
+        other = User.objects.create_user(username='other', password='***')
+        queryset = User.objects.exclude(username='excluded')
+
+        # when we call choice() on the queryset
+        result = models.choice(queryset)
+
+        # then we don't get the excluded item
+        self.assertEqual(result, other)

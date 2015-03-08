@@ -1561,3 +1561,18 @@ class Purchase(AirportModel):
             origin=self.flight.origin.code,
             dest=self.flight.destination.code
         )
+
+
+def choice(queryset):
+    """Return an random item from *queryset*
+
+    return None if queryset is empty.
+
+    This is an alternative (better) method than order_by('?')[0]
+    """
+    count = queryset.count()
+    if count == 0:
+        return None
+
+    index = randint(0, count - 1)
+    return queryset[index]
