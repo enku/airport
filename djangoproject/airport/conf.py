@@ -26,7 +26,7 @@ DEFAULTS = {
     'TIMEFACTOR': 60,
 
     'EXTERNALS': {
-        'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js',
+        'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js',
         'jquery_ui': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js',
         'jquery_ui_css': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css',
         'jquery_scrollto': 'http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js',
