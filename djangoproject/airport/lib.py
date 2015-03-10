@@ -409,9 +409,13 @@ class IPCHandler(WebSocketConnection):
     def handle_player_left_game(self, data):
         player_id, game_id = data
         player = models.Player.objects.get(pk=player_id)
-        data = {'games': models.Game.games_info()}
+        data = {
+            'games': models.Game.games_info(),
+            'current_game': None,
+            'current_state': 'open'
+        }
 
-        SocketHandler.message(player.user, 'quit_game', data)
+        SocketHandler.message(player.user, 'info', data)
         SocketHandler.games_info()
 
     def handle_wall(self, message):
