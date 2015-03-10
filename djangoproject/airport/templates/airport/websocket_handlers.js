@@ -21,5 +21,11 @@ airport.websocket_handlers = {
 
     join_game: function () {
         window.location.replace('{% url "main" %}');
+    },
+
+    quit_game: function(data) {
+	data.current_game = null;
+	data.current_state = 'open';
+        airport.refresh_ui(data);
     }
 };
