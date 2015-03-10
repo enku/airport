@@ -140,7 +140,8 @@ class DivertedFlight(MonkeyWrench):
             return
         diverted_to = models.Airport.objects.filter(game=self.game)
         diverted_to = diverted_to.exclude(pk=flight.destination.pk)
-        flight.destination = models.random_choice(diverted_to)
+        diverted_to = models.random_choice(diverted_to)
+        flight.destination = diverted_to
         flight.flight_time = models.City.get_flight_time(
             flight.origin,
             flight.destination,
