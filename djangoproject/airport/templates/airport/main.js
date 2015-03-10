@@ -2,8 +2,8 @@
 function main($) {
     /* document.ready function */
 	//$('#airport_screen').toggle('slide', {direction: 'down'});
-    $('#goals_range').change(airport.update_goals_slider);
-    $('#airports_range').change(airport.update_airports_slider);
+    $('#goals_range')[0].oninput = airport.update_goals_slider;
+    $('#airports_range')[0].oninput = airport.update_airports_slider;
 
     $('#progress').progressbar({value: 0});
 
