@@ -595,8 +595,8 @@ class FlightTest(BaseTestCase):
             for flight in source.create_flights(self.game.time):
                 destination = flight.destination
                 s2d = flight.flight_time
-                d2s = destination.create_flights(self.game.time).filter(
-                    destination=source)[0].flight_time
+                d2s = [i for i in destination.create_flights(self.game.time)
+                       if i.destination == source][0].flight_time
 
                 # We use assertAlmostEqual to compensate for rounding (integer
                 # division)

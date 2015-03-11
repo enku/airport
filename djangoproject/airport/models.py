@@ -184,7 +184,7 @@ class Airport(AirportModel):
         game = self.game
         cushion = 20  # minutes
 
-        flight_ids = []
+        flights = []
         for destination in self.destinations.distinct():
             flight_time = City.get_flight_time(self.city,
                                                destination.city,
@@ -198,15 +198,19 @@ class Airport(AirportModel):
                 if settings.MAX_FLIGHT_TIME is not None:
                     flight_time = min(flight_time, settings.MAX_FLIGHT_TIME)
 
-            flight = Flight.objects.create(
+            depart_time = timedelta(minutes=cushion) + random_time(now)
+            arrival_time = depart_time + timedelta(minutes=flight_time)
+            flight = Flight(
                 game=game,
                 origin=self,
                 destination=destination,
-                depart_time=(timedelta(minutes=cushion) +
-                             random_time(now)),
-                flight_time=flight_time)
-            flight_ids.append(flight.id)
-        return Flight.objects.filter(id__in=flight_ids)
+                depart_time=depart_time,
+                arrival_time=arrival_time,
+                flight_time=flight_time
+            )
+            flight.get_flight_number()
+            flights.append(flight)
+        return Flight.objects.bulk_create(flights)
 
     def get_destinations(self, dest_count):
         """Get the destinations for airport. rules are:
