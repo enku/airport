@@ -990,8 +990,12 @@ class IPCHandlerTest(WebSocketBaseTestCase, TestCase):
     @patch('airport.lib.SocketHandler.games_info')
     @gen_test
     def test_handle_player_left_game(self, mock_ws_games_info):
+        # given the player and game
+        player = self.player
+        game = BaseTestCase.create_game(player)
+
         # when we send a player_left_game message to the ipc
-        message = self.message('player_left_game', {})
+        message = self.message('player_left_game', (player.pk, game.pk))
         ws = yield self.ws_connect('/ipc')
         ws.write_message(message)
         yield self.close(ws)
