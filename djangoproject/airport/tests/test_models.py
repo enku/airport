@@ -48,13 +48,14 @@ class AirportTest(BaseTestCase):
         # the "random" airport we pick is not already used in the game or the
         # airport's city already used
         used_cities = models.Airport.objects.filter(game=self.game)
-        used_cities = used_cities.values_list('city', flat=True)
+        used_cities = used_cities.values_list('master__city', flat=True)
 
         available_airports = models.AirportMaster.objects.exclude(
             city__in=used_cities)
 
         airport_master = available_airports[0]
-        airport = models.Airport.copy_from_master(self.game, airport_master)
+        airport = models.Airport.objects.create(game=self.game,
+                                                master=airport_master)
 
         # Then when we call str() on it
         result = str(airport)
@@ -65,9 +66,9 @@ class AirportTest(BaseTestCase):
     def test_str_airports_per_city(self):
         # Given the airports within a city with more than one airport
         jfk_master = models.AirportMaster.objects.get(code='JFK')
-        jfk = models.Airport.copy_from_master(self.game, jfk_master)
+        jfk = models.Airport.objects.create(game=self.game, master=jfk_master)
         lga_master = models.AirportMaster.objects.get(code='LGA')
-        lga = models.Airport.copy_from_master(self.game, lga_master)
+        lga = models.Airport.objects.create(game=self.game, master=lga_master)
 
         # Then when we call str() on them
         str_jfk = str(jfk)
@@ -80,9 +81,9 @@ class AirportTest(BaseTestCase):
     def test_cannot_have_self_as_destination(self):
         # Given the airports within a city with more than one airport
         jfk_master = models.AirportMaster.objects.get(code='JFK')
-        jfk = models.Airport.copy_from_master(self.game, jfk_master)
+        jfk = models.Airport.objects.create(game=self.game, master=jfk_master)
         lga_master = models.AirportMaster.objects.get(code='LGA')
-        lga = models.Airport.copy_from_master(self.game, lga_master)
+        lga = models.Airport.objects.create(game=self.game, master=lga_master)
 
         # When we make one a destination of the other
         # Then we get a ValidationError
@@ -131,12 +132,13 @@ class AirportTest(BaseTestCase):
         now = datetime.datetime(2011, 11, 17, 11, 0)
         airport = models.random_choice(self.game.airports.all())
         city_ids = (self.game.airports
-                    .exclude(city=airport.city)
-                    .values_list('city', flat=True))
+                    .exclude(master__city=airport.city)
+                    .values_list('master__city', flat=True))
         city_id = random.choice(city_ids)
         city = models.City.objects.get(id=city_id)
 
-        dest = models.Airport.objects.filter(game=self.game, city=city)[0]
+        dest = models.Airport.objects.filter(game=self.game,
+                                             master__city=city)[0]
         time1 = datetime.datetime(2011, 11, 17, 11, 30)
         flight1 = models.Flight.objects.create(
             game=self.game,
@@ -155,7 +157,8 @@ class AirportTest(BaseTestCase):
 
         city_id = random.choice(city_ids)
         city2 = models.City.objects.get(id=city_id)
-        dest2 = models.Airport.objects.filter(game=self.game, city=city2)[0]
+        dest2 = models.Airport.objects.filter(game=self.game,
+                                              master__city=city2)[0]
         flight3 = models.Flight.objects.create(
             game=self.game,
             origin=airport,
@@ -164,7 +167,7 @@ class AirportTest(BaseTestCase):
             flight_time=200)
 
         self.assertEqual(airport.next_flight_to(city, now), flight1)
-        airport2 = models.Airport.objects.filter(city=city)[0]
+        airport2 = models.Airport.objects.filter(master__city=city)[0]
         self.assertEqual(airport.next_flight_to(airport2, now), flight1)
         self.assertEqual(airport.next_flight_to(city2, now), flight3)
 
@@ -215,7 +218,7 @@ class GameManagerTest(TransactionTestCase):
                 goals=1,
                 airports=random.randint(10, 50)
             )
-            codes = game.airports.values_list('code', flat=True)
+            codes = game.airports.values_list('master__code', flat=True)
             self.assertEqual(len(set(codes)), len(codes))
 
     def test_game_has_subset_of_airports(self):

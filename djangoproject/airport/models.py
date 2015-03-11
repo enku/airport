@@ -107,32 +107,29 @@ class AirportMaster(AirportModel):
 class Airport(AirportModel):
 
     """Airports associated with a particular game"""
-    name = models.CharField(max_length=255)
-    code = models.CharField(max_length=4)
-    city = models.ForeignKey(City)
+    master = models.ForeignKey(AirportMaster)
     game = models.ForeignKey('Game', related_name='airports')
     destinations = models.ManyToManyField('self', null=True, blank=True,
                                           symmetrical=True)
 
+    @property
+    def city(self):
+        return self.master.city
+
+    @property
+    def code(self):
+        return self.master.code
+
+    @property
+    def name(self):
+        return self.master.name
+
     def __str__(self):
-        aiports_per_city = Airport.objects.filter(game=self.game,
-                                                  city=self.city).count()
+        aiports_per_city = Airport.objects.filter(
+            game=self.game, master__city=self.city).count()
         if aiports_per_city > 1:
             return '{city} {code}'.format(city=self.city, code=self.code)
         return self.city.name
-
-    @classmethod
-    def copy_from_master(cls, game, master):
-        """Copy airport from the AirportMaster into *game* and populate it
-        with destinations"""
-        airport = cls()
-        airport.name = master.name
-        airport.code = master.code
-        airport.game = game
-        airport.city = master.city
-        airport.save()
-
-        return airport
 
     def next_flights(self, now, future_only=False, auto_create=True):
         """Return next Flights out from *self*, creating new flights if
@@ -164,7 +161,7 @@ class Airport(AirportModel):
     def clean(self):
         """validation"""
         # airport destinations can't be in the same city
-        if self.destinations.filter(city=self.city).exists():
+        if self.destinations.filter(master__city=self.master.city).exists():
             raise ValidationError(
                 'Airport cannot have itself as a destination.')
 
@@ -221,7 +218,7 @@ class Airport(AirportModel):
         # if dest_count < 1:
         #    raise ValueError("Can't have < 1 destinations on an airport")
 
-        queryset = Airport.objects.exclude(city=self.city)
+        queryset = Airport.objects.exclude(master__city=self.city)
         queryset = queryset.filter(game=self.game)
         queryset = queryset.exclude(id=self.id)
         queryset = queryset.annotate(num_dest=models.Count('destinations'))
@@ -1041,13 +1038,10 @@ class GameManager(models.Manager):
 
         # start airport
         if start is None:
-            master = master_airports[0]
+            master = master_airports.pop(0)
         else:
             master = start
-        start_airport = Airport()
-        start_airport.name = master.name
-        start_airport.code = master.code
-        start_airport.city = master.city
+        start_airport = Airport.objects.create(game=game, master=master)
         start_airport.game = game
         start_airport.save()
 
@@ -1055,9 +1049,8 @@ class GameManager(models.Manager):
         game.save()
 
         # add other airports
-        for i in range(1, airports):
-            master = master_airports[i]
-            airport = Airport.copy_from_master(game, master)
+        for master in master_airports[:airports - 1]:
+            airport = Airport.objects.create(game=game, master=master)
 
         # populate the airports with destinations
         for airport in game.airports.distinct():
@@ -1078,7 +1071,8 @@ class GameManager(models.Manager):
             direct_flights = current_airport.destinations.distinct()
             dest = Airport.objects.filter(game=game)
             dest = dest.exclude(id=current_airport.id)
-            dest = dest.exclude(city__in=[j.city for j in goal_airports])
+            dest = dest.exclude(
+                master__city__in=[j.city for j in goal_airports])
             dest = dest.exclude(id__in=[j.id for j in direct_flights])
             dest = random_choice(dest)
 

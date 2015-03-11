@@ -300,7 +300,8 @@ class HandleFlightsTestCase(BaseTestCase):
         # when the player is at an airport that has a flight to her first goal
         # (warning: lots of voodoo here)
         goal_city = game.goals.all()[0]
-        goal_city_airport = db.Airport.objects.get(game=game, city=goal_city)
+        goal_city_airport = db.Airport.objects.get(
+            game=game, master__city=goal_city)
         origin_airport = db.Airport.objects.filter(
             destinations=goal_city_airport)[0]
 
@@ -393,7 +394,8 @@ class HandlePlayersTestCase(BaseTestCase):
             # when we call handle_players
             winners_before = []
             goal = game.goals.all()[0]
-            goal_airport = db.Airport.objects.filter(game=game, city=goal)[0]
+            goal_airport = db.Airport.objects.filter(
+                game=game, master__city=goal)[0]
             arrivals = {player.pk: goal_airport}
             lib.handle_players(game, game.time, winners_before, arrivals)
 
@@ -418,7 +420,8 @@ class HandlePlayersTestCase(BaseTestCase):
             # when we call handle_players
             winners_before = []
             goal = game.goals.all()[0]
-            goal_airport = db.Airport.objects.filter(game=game, city=goal)[0]
+            goal_airport = db.Airport.objects.filter(
+                game=game, master__city=goal)[0]
             arrivals = {player.pk: goal_airport for player in players}
             lib.handle_players(game, game.time, winners_before, arrivals)
 

@@ -223,7 +223,8 @@ class Hint(MonkeyWrench):
         except IndexError:
             return
 
-        airports = self.game.airports.filter(destinations__city=current_goal)
+        airports = self.game.airports.filter(
+            destinations__master__city=current_goal)
         airport = models.random_choice(airports)
 
         if airport.city == current_goal:
