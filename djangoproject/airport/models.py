@@ -946,9 +946,13 @@ class MessageManager(models.Manager):
             players = Player.objects.exclude(ai_player=True)
 
         for player in players.exclude(id=announcer.id).distinct():
-            messages.append(self.create(player=player, text=text,
-                                        message_type=message_type))
-        return messages
+            messages.append(Message(
+                player=player,
+                text=text,
+                message_type=message_type
+            ))
+
+        return self.bulk_create(messages)
 
     def send(self, player, text, message_type='DEFAULT'):
         """Send a unicast message to *player* return the Message object"""
