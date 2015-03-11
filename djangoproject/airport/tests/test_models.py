@@ -602,6 +602,37 @@ class FlightTest(BaseTestCase):
                 # division)
                 self.assertAlmostEqual(s2d, d2s, delta=1)
 
+    def test_get_flight_number(self):
+        # given the flight created without a number
+        flight = models.Flight(
+            game=self.game,
+            origin=self.game.start_airport,
+            destination=self.game.start_airport.destinations.all()[0],
+            depart_time=self.game.time
+        )
+
+        # when we call .get_flight_number()
+        number = flight.get_flight_number()
+
+        # then the flight gets a number
+        self.assertNotEqual(flight.number, None)
+        self.assertEqual(flight.number, number)
+
+    def test_get_flight_number_already_has_number(self):
+        # given the flight that already has a number
+        airport = self.game.start_airport
+        flights = airport.create_flights(self.game.time)
+        flight = flights[0]
+        orig_number = flight.number
+        assert orig_number
+
+        # when we call .get_flight_number()
+        result = flight.get_flight_number()
+
+        # then nothing changes because that flight already had a number
+        self.assertEqual(flight.number, orig_number)
+        self.assertEqual(result, orig_number)
+
 
 class PlayerTest(BaseTestCase):
     """Test the Player model"""

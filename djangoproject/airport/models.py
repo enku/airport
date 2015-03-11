@@ -430,6 +430,22 @@ class Flight(AirportModel):
         """Return a qs of passengers (Player) on this *Flight*"""
         return Player.objects.filter(ticket=self)
 
+    def get_flight_number(self):
+        """set/return a flight number for the flight
+
+        Presumably, the flight has not been saved but has the endpoints and
+        times
+        """
+        if self.number:
+            return self.number
+
+        src = self.origin
+        dst = self.destination
+        hour = self.depart_time.hour
+        self.number = (hour * 100 + src.pk * 10 + dst.pk) % 9900 + 100
+
+        return self.number
+
     def save(self, *args, **kwargs):
         """Overriden .save() method for Flights"""
         # we need a unique fligth # for this game
