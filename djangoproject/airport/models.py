@@ -238,12 +238,6 @@ class Airport(AirportModel):
 class FlightManager(models.Manager):
 
     """we manage flights"""
-
-    def random_flight_number(self, game):
-        """return a random number, not already a flight number for *game*"""
-        flights = self.filter(game=game).count()
-        return flights % 9900 + 100
-
     def arrived_but_not_flagged(self, game, now=None):
         """Return a qs of Flights that (should have) arrived but do not have
         their state set to 'Arrived'
