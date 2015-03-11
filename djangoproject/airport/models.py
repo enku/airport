@@ -1071,8 +1071,10 @@ class GameManager(models.Manager):
         game.save()
 
         # add other airports
+        airport_lst = []
         for master in master_airports[:airports - 1]:
-            airport = Airport.objects.create(game=game, master=master)
+            airport_lst.append(Airport(game=game, master=master))
+        Airport.objects.bulk_create(airport_lst)
 
         # populate the airports with destinations
         for airport in game.airports.distinct():
