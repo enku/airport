@@ -450,7 +450,7 @@ class Flight(AirportModel):
         """Overriden .save() method for Flights"""
         # we need a unique fligth # for this game
         if not self.number:
-            self.number = Flight.objects.random_flight_number(self.game)
+            self.get_flight_number()
 
         self.arrival_time = (self.depart_time
                              + timedelta(minutes=self.flight_time))
