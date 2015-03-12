@@ -98,7 +98,7 @@ class AirportMaster(AirportModel):
     """An Airport"""
     name = models.CharField(max_length=255, unique=True)
     code = models.CharField(max_length=4, unique=True)
-    city = models.ForeignKey(City)
+    city = models.ForeignKey(City, db_index=True)
 
     def __str__(self):
         return 'Master Airport: {name}'.format(name=self.name)
@@ -107,8 +107,8 @@ class AirportMaster(AirportModel):
 class Airport(AirportModel):
 
     """Airports associated with a particular game"""
-    master = models.ForeignKey(AirportMaster)
-    game = models.ForeignKey('Game', related_name='airports')
+    master = models.ForeignKey(AirportMaster, db_index=True)
+    game = models.ForeignKey('Game', related_name='airports', db_index=True)
     destinations = models.ManyToManyField('self', null=True, blank=True,
                                           symmetrical=True)
 
@@ -287,11 +287,12 @@ class Flight(AirportModel):
 
     """a flight from one airport to another"""
     # fields ###
-    game = models.ForeignKey('Game', null=False, related_name='flights')
+    game = models.ForeignKey('Game', null=False, related_name='flights',
+                             db_index=True)
     number = models.IntegerField(editable=False)
-    origin = models.ForeignKey(Airport, related_name='flights')
-    destination = models.ForeignKey(Airport, related_name='+')
-    depart_time = models.DateTimeField()
+    origin = models.ForeignKey(Airport, related_name='flights', db_index=True)
+    destination = models.ForeignKey(Airport, related_name='+', db_index=True)
+    depart_time = models.DateTimeField(db_index=True)
     flight_time = models.IntegerField()
     arrival_time = models.DateTimeField()  # caculated field
     state = models.CharField(max_length=20, default='On Time')
@@ -524,6 +525,9 @@ class Flight(AirportModel):
 
         """metadata"""
         ordering = ['depart_time']
+        index_together = [
+            ['destination', 'origin', 'game']
+        ]
 
 
 def random_time(now, maximum=40):
@@ -597,7 +601,7 @@ class Player(AirportModel):
     user = models.ForeignKey(User, related_name='player')
     airport = models.ForeignKey(Airport, null=True, blank=True)
     ticket = models.ForeignKey(Flight, null=True, blank=True,
-                               related_name='passengers')
+                               related_name='passengers', db_index=True)
     ai_player = models.BooleanField(default=False)
     objects = PlayerManager()
 
@@ -1033,8 +1037,8 @@ class Message(AirportModel):
 
     """Messages for players"""
     text = models.TextField()
-    player = models.ForeignKey(Player, related_name='messages')
-    read = models.BooleanField(default=False)
+    player = models.ForeignKey(Player, related_name='messages', db_index=True)
+    read = models.BooleanField(default=False, db_index=True)
     message_type = models.CharField(max_length=32, default='DEFAULT')
     objects = MessageManager()
 
@@ -1506,8 +1510,8 @@ class Goal(AirportModel):
 
     """Goal cities for a game"""
     city = models.ForeignKey(City)
-    game = models.ForeignKey(Game)
-    order = models.IntegerField()
+    game = models.ForeignKey(Game, db_index=True)
+    order = models.IntegerField(db_index=True)
     achievers = models.ManyToManyField(Player, through='Achievement')
 
     def __str__(self):
@@ -1555,10 +1559,15 @@ class Goal(AirportModel):
 class Achievement(AirportModel):
 
     """Player who have achieved a goal"""
-    player = models.ForeignKey(Player)
-    goal = models.ForeignKey(Goal)
-    game = models.ForeignKey(Game)
+    player = models.ForeignKey(Player, db_index=True)
+    goal = models.ForeignKey(Goal, db_index=True)
+    game = models.ForeignKey(Game, db_index=True)
     timestamp = models.DateTimeField(null=True)
+
+    class Meta:
+        index_together = [
+            ['goal', 'game']
+        ]
 
     def fulfill(self, timestamp):
         self.timestamp = timestamp
@@ -1589,6 +1598,11 @@ class Purchase(AirportModel):
     flight = models.ForeignKey(Flight, related_name='+')
 
     str = '{player} purchased flight {num} from {origin} to {dest}'
+
+    class Meta:
+        index_together = [
+            ['player', 'game']
+        ]
 
     def __str__(self):
         return self.str.format(
