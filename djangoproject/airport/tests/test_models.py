@@ -591,11 +591,12 @@ class FlightTest(BaseTestCase):
         """Test that the connection time between two airports is always
         constant (ignoring cancellations/delays and the like"""
 
+        now = self.game.time
         for source in self.game.airports.all():
-            for flight in source.create_flights(self.game.time):
+            for flight in source.next_flights(now):
                 destination = flight.destination
                 s2d = flight.flight_time
-                d2s = [i for i in destination.create_flights(self.game.time)
+                d2s = [i for i in destination.next_flights(now)
                        if i.destination == source][0].flight_time
 
                 # We use assertAlmostEqual to compensate for rounding (integer

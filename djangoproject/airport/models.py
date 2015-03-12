@@ -145,9 +145,8 @@ class Airport(AirportModel):
         flights
         """
         game = self.game
-        future_flights = self.flights.filter(game=game, depart_time__gt=now)
 
-        if not future_flights.exists() and auto_create:
+        if auto_create:
             self.create_flights(now)
 
         flights = game.flights.filter(origin=self)
@@ -182,10 +181,16 @@ class Airport(AirportModel):
     def create_flights(self, now):
         """Create some flights starting from *now*"""
         game = self.game
-        cushion = 20  # minutes
+        next_hour = now + timedelta(seconds=3600)
+        next_hour = next_hour.replace(minute=0, second=0, microsecond=0)
 
         flights = []
         for destination in self.destinations.distinct():
+            filters = dict(game=game, origin=self, destination=destination,
+                           depart_time__gt=now)
+            if Flight.objects.filter(**filters).exists():
+                continue
+
             flight_time = City.get_flight_time(self.city,
                                                destination.city,
                                                Flight.cruise_speed)
@@ -198,7 +203,7 @@ class Airport(AirportModel):
                 if settings.MAX_FLIGHT_TIME is not None:
                     flight_time = min(flight_time, settings.MAX_FLIGHT_TIME)
 
-            depart_time = timedelta(minutes=cushion) + random_time(now)
+            depart_time = random_time(next_hour, 59)
             arrival_time = depart_time + timedelta(minutes=flight_time)
             flight = Flight(
                 game=game,
