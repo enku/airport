@@ -598,7 +598,6 @@ class FlightTest(BaseTestCase):
                 s2d = flight.flight_time
                 d2s = [i for i in destination.next_flights(now)
                        if i.destination == source][0].flight_time
-
                 # We use assertAlmostEqual to compensate for rounding (integer
                 # division)
                 self.assertAlmostEqual(s2d, d2s, delta=1)

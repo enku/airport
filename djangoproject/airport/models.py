@@ -152,9 +152,9 @@ class Airport(AirportModel):
         flights = game.flights.filter(origin=self)
         if future_only:
             flights = flights.filter(depart_time__gt=now)
-        flights = list(flights.order_by('-depart_time')[:10])
+        flights = list(flights.order_by('-depart_time')[:14])
 
-        flights.sort(key=lambda x: x.destination.city.name)
+        flights.sort(key=lambda x: (x.destination.city.name, x.number))
         return flights
 
     def clean(self):
