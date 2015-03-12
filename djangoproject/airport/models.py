@@ -181,6 +181,7 @@ class Airport(AirportModel):
     def create_flights(self, now):
         """Create some flights starting from *now*"""
         game = self.game
+        cushion = timedelta(minutes=20)
         next_hour = now + timedelta(seconds=3600)
         next_hour = next_hour.replace(minute=0, second=0, microsecond=0)
 
@@ -202,6 +203,19 @@ class Airport(AirportModel):
                     flight_time = max(flight_time, settings.MIN_FLIGHT_TIME)
                 if settings.MAX_FLIGHT_TIME is not None:
                     flight_time = min(flight_time, settings.MAX_FLIGHT_TIME)
+
+            # Don't allow the next flight to go for at least 20 mins past the
+            # previous
+            qs = Flight.objects.filter(
+                game=game,
+                origin=self,
+                destination=destination)
+            qs = qs.order_by('-depart_time')
+
+            if qs.exists():
+                previous_flight = qs[0]
+                if next_hour - previous_flight.depart_time < cushion:
+                    next_hour = previous_flight.depart_time + cushion
 
             depart_time = random_time(next_hour, 59)
             arrival_time = depart_time + timedelta(minutes=flight_time)

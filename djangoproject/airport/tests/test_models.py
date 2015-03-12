@@ -2,7 +2,7 @@ import datetime
 import json
 import random
 import time
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -202,6 +202,47 @@ class AirportTest(BaseTestCase):
             self.assertTrue(flight.destination in destinations)
             self.assertTrue(flight.depart_time > now)
             self.assertNotEqual(flight.flight_time, 0)
+
+    @patch('airport.models.random_time')
+    def test_create_flights_cushion(self, mock_random_time):
+        # given the airport
+        airport = self.game.start_airport
+
+        # and a flight that departs at 9:50
+        destination = airport.destinations.all()[0]
+        depart_time = datetime.datetime(
+            year=2015, month=3, day=12, hour=9, minute=50)
+        models.Flight.objects.create(
+            game=self.game,
+            origin=airport,
+            destination=destination,
+            number=666,
+            depart_time=depart_time,
+            arrival_time=depart_time + datetime.timedelta(minutes=120),
+            flight_time=120
+        )
+
+        # when the time is 9:45 (i.e. the flight has departed)
+        now = depart_time + datetime.timedelta(minutes=5)
+
+        # when when we call create_flights
+        # you'll see why i'm mocking this later
+        mock_random_time.return_value = depart_time + datetime.timedelta(
+            minutes=30)
+        flights = airport.create_flights(now)
+
+        # then the next flight to the destination will not depart before 10:10
+        # (20 minute cushion)
+        # If we didn't mock random_time and just check for the depart_time then
+        # most of the time this test would pass.  So instead we mock it and
+        # assert that it was called with the expected starting time
+        flight = [i for i in flights if i.destination == destination][0]
+        start_time = depart_time + datetime.timedelta(minutes=20)
+        expected_call = call(start_time, 59)
+
+        self.assertTrue(expected_call in mock_random_time.mock_calls)
+        msg = 'The next flight was created < 20 mins from the previous'
+        self.assertTrue(flight.depart_time >= start_time, msg)
 
 
 class GameManagerTest(TransactionTestCase):
