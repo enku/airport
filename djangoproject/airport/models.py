@@ -457,8 +457,8 @@ class Flight(AirportModel):
         if self.number:
             return self.number
 
-        src = self.origin
-        dst = self.destination
+        src = self.origin.master
+        dst = self.destination.master
         hour = self.depart_time.hour
         self.number = (hour * 100 + src.pk * 10 + dst.pk) % 9900 + 100
 
