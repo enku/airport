@@ -129,51 +129,48 @@ class AirportTest(BaseTestCase):
         self.assertEqual(len(next_flights), 0)
 
     def test_next_flight_to(self):
-        now = datetime.datetime(2011, 11, 17, 11, 0)
-        airport = models.random_choice(self.game.airports.all())
-        city_ids = (self.game.airports
-                    .exclude(master__city=airport.city)
-                    .values_list('master__city', flat=True))
-        city_id = random.choice(city_ids)
-        city = models.City.objects.get(id=city_id)
+        # given the origin
+        origin = self.game.start_airport
 
-        dest = models.Airport.objects.filter(game=self.game,
-                                             master__city=city)[0]
-        time1 = datetime.datetime(2011, 11, 17, 11, 30)
-        flight1 = models.Flight.objects.create(
+        # and a destination
+        dest = origin.destinations.distinct()[0]
+        city = dest.city
+
+        # when we create 2 flights to the destination at different times
+        now = datetime.datetime.fromtimestamp(0)
+        flt1 = models.Flight.objects.create(
             game=self.game,
-            origin=airport,
+            origin=origin,
             destination=dest,
-            depart_time=time1,
-            flight_time=200)
+            depart_time=now + datetime.timedelta(hours=1),
+            flight_time=120,
+            arrival_time=now + datetime.timedelta(hours=3)
+        )
 
-        time2 = datetime.datetime(2011, 11, 17, 12, 0)
-        flight2 = models.Flight.objects.create(
+        # second flight starts an hour past the first
+        flt2 = models.Flight.objects.create(
             game=self.game,
-            origin=airport,
+            origin=origin,
             destination=dest,
-            depart_time=time2,
-            flight_time=200)
+            depart_time=now + datetime.timedelta(hours=2),
+            flight_time=120,
+            arrival_time=now + datetime.timedelta(hours=4)
+        )
 
-        city_id = random.choice(city_ids)
-        city2 = models.City.objects.get(id=city_id)
-        dest2 = models.Airport.objects.filter(game=self.game,
-                                              master__city=city2)[0]
-        flight3 = models.Flight.objects.create(
-            game=self.game,
-            origin=airport,
-            destination=dest2,
-            depart_time=time2,
-            flight_time=200)
+        # when we call next_flight_to() the city
+        result = origin.next_flight_to(city, now)
 
-        self.assertEqual(airport.next_flight_to(city, now), flight1)
-        airport2 = models.Airport.objects.filter(master__city=city)[0]
-        self.assertEqual(airport.next_flight_to(airport2, now), flight1)
-        self.assertEqual(airport.next_flight_to(city2, now), flight3)
+        # then we get the first flight
+        self.assertEqual(result, flt1)
 
-        # delay flight1
-        flight1.delay(datetime.timedelta(minutes=450), now)
-        self.assertEqual(airport.next_flight_to(city, now), flight2)
+        # and if we delay that flight 90 mins
+        flt1.delay(datetime.timedelta(minutes=90), now)
+
+        # when we call next_flight_to() the city
+        result = origin.next_flight_to(city, now)
+
+        # then we get the second flight
+        self.assertEqual(result, flt2)
 
     def test_create_flights(self):
         airports = models.Airport.objects.filter(game=self.game)
