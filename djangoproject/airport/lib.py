@@ -140,11 +140,12 @@ def handle_players(game, now, winners_before, arrivals):
         if not player_info['finished'] or player.pk in arrivals:
             send_message('info', player_info)
 
-    winners = models.Player.objects.winners(game)
+    winners = models.Player.objects.winners(game).values_list('user__username',
+                                                              flat=True)
     if not winners_before and winners:
         if len(winners) == 1:
             msg = '{0} has won {1}.'
-            msg = msg.format(winners[0].user.username, game)
+            msg = msg.format(winners[0], game)
             broadcast(msg, game, message_type='WINNER', finishers=True)
         else:
             msg = '{0}: {1}-way tie for 1st place.'
@@ -152,7 +153,7 @@ def handle_players(game, now, winners_before, arrivals):
             broadcast(msg, game, message_type='WINNER', finishers=True)
             for winner in winners:
                 msg = '{0} is a winner!'
-                msg = msg.format(winner.user.username)
+                msg = msg.format(winner)
                 broadcast(msg, game, message_type='WINNER', finishers=True)
 
     # if all players have achieved all goals, end the game

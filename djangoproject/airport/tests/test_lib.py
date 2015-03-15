@@ -389,7 +389,7 @@ class HandlePlayersTestCase(BaseTestCase):
         # basically I'm going to mock winning the game, because I'm too lazy to
         # set up all the pieces:
         with patch('airport.lib.models.Player.objects.winners') as m_winners:
-            m_winners.return_value = [player]
+            m_winners.return_value = db.Player.objects.filter(pk=player.pk)
 
             # when we call handle_players
             winners_before = []
@@ -413,7 +413,7 @@ class HandlePlayersTestCase(BaseTestCase):
         game.begin()
 
         # and a both players have tied the game
-        players = list(game.players.distinct())
+        players = game.players.distinct()
         with patch('airport.lib.models.Player.objects.winners') as m_winners:
             m_winners.return_value = players
 
