@@ -70,14 +70,15 @@ def handle_flights(game, airport, now=None):
             continue
 
         ticket_holders = flight.passengers.filter(airport__isnull=False)
+        game.record_ticket_purchase(ticket_holders, flight)
         for player in ticket_holders:
             # player has taken off
             player.airport = None
             player.save()
-            game.record_ticket_purchase(player, flight)
             msg = '{0} has departed {1}.'
             msg = msg.format(player.user.username, airport)
             announce(player, msg, game, message_type='PLAYERACTION')
+        ticket_holders.update(airport=None)
 
     # Arriving flights
     flights = models.Flight.objects.arrived_but_not_flagged(game, now)

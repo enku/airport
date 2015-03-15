@@ -1449,10 +1449,13 @@ class Game(AirportModel):
             ((max_flight_time - min_flight_time) * (flight_time - min_))
             / (max_ - min_)) + min_flight_time
 
-    def record_ticket_purchase(self, player, flight):
-        """Add entry to Purchase table"""
-        return Purchase.objects.get_or_create(
-            player=player, game=self, flight=flight)
+    def record_ticket_purchase(self, players, flight):
+        """Add entries to Purchase table"""
+        purchases = []
+        for player in players:
+            purchase = Purchase(player=player, game=self, flight=flight)
+            purchases.append(purchase)
+        return Purchase.objects.bulk_create(purchases)
 
     def info(self):
         """Return a json-able dict about the current info of the game.
