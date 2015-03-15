@@ -69,6 +69,7 @@ def handle_flights(game, airport, now=None):
         if not flight.in_flight(now):
             continue
 
+        ticket_holders = flight.passengers.filter(airport__isnull=False)
         for player in ticket_holders:
             # player has taken off
             player.airport = None
