@@ -66,13 +66,10 @@ def handle_flights(game, airport, now=None):
     # Departing flights
     flights = set(airport.next_flights(now, auto_create=False))
     for flight in flights:
-        in_flight = flight.in_flight(now)
-        ticket_holders = flight.passengers.distinct()
+        if not flight.in_flight(now):
+            continue
 
         for player in ticket_holders:
-            if not (in_flight and player.airport):
-                continue
-
             # player has taken off
             player.airport = None
             player.save()
