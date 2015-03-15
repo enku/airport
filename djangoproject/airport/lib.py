@@ -40,7 +40,7 @@ def take_turn(game, now=None, throw_wrench=True):
     if game.state in (game.GAME_OVER, game.NOT_STARTED, game.PAUSED):
         return now
 
-    winners_before = models.Player.objects.winners(game)
+    winners_before = models.Player.objects.winners(game).exists()
     arrivals = {}
 
     if not hasattr(game, '_airports'):
