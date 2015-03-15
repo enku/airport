@@ -73,8 +73,6 @@ def handle_flights(game, airport, now=None):
         game.record_ticket_purchase(ticket_holders, flight)
         for player in ticket_holders:
             # player has taken off
-            player.airport = None
-            player.save()
             msg = '{0} has departed {1}.'
             msg = msg.format(player.user.username, airport)
             announce(player, msg, game, message_type='PLAYERACTION')
