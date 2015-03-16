@@ -176,7 +176,7 @@ class FullFlightMonkeyWrenchTest(MonkeyWrenchTestBase):
 
 class TSAMonkeyWrenchTest(MonkeyWrenchTestBase):
     """TSA MonkeyWrench"""
-    def test_trow(self):
+    def test_throw(self):
         # Given the monkeywrench
         mw = monkeywrench.TSA(self.game, self.now)
         mw.minutes_before_departure = 60
@@ -189,7 +189,7 @@ class TSAMonkeyWrenchTest(MonkeyWrenchTestBase):
             origin=self.game.start_airport
         )[0]
 
-        # when a player purches the flight
+        # when a player purchases the flight
         self.player.purchase_flight(flight, self.now)
         self.assertTrue(self.player.ticket)
 
