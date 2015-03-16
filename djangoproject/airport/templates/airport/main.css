@@ -57,16 +57,6 @@ input[type="submit"]:disabled {
 }
 
 
-#flying {
-    width: 350px;
-    height: 240px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -120px;
-    margin-left: -175px;
-}
-
 a {
     color: #01004B;
     text-decoration: none;
@@ -537,4 +527,15 @@ a.games_join {
     position: absolute;
     right: 5px;
     bottom: 5px; 
+}
+
+#flight_video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    overflow: hidden;
 }

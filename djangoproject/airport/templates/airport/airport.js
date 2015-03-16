@@ -70,9 +70,12 @@ airport.flight_screen = function (data)
 {
     "use strict";
     var city_image_url;
+    var $video = $('#flight_video');
 
     $('.in_game').show();
     $('.out_game').hide();
+
+    $video.show();
     airport.show_screen('flight', '{{ takeoff_sound }}');
 
     if (data.city) {
@@ -106,6 +109,9 @@ airport.airport_screen = function (data)
         lightbox,
         finished;
 
+    var $video = $('#flight_video');
+
+    $video.hide();
     $('.in_game').show();
     $('.out_game').hide();
     airport.show_screen('airport', '{{ landed_sound }}');
