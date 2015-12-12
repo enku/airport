@@ -35,7 +35,7 @@ DEFAULTS = {
         'login_icon': 'http://www.ercmp.nic.in/images/login.png',
         'login_button': 'http://www.iconhot.com/icon/png/i-buttons-3c/64/bright-ball-logoff.png',
         'register_icon': 'http://www.shs.rcs.k12.tn.us/registrationIcon.png',
-        'background_image': 'http://images2.layoutsparks.com/1/238605/moon-over-mistral-sky.jpg',
+        'background_image': 'https://thisishasna.files.wordpress.com/2012/09/moon-over-mistral-sky.jpg',
         'flight_video': 'http://www.grobergreen.com/wp-content/uploads/2009/07/WD0193.webm',
         'inflight_image': 'http://www.passionforpets.com.au/media/30926/AnimatedAirplane.gif',
         'landed_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
