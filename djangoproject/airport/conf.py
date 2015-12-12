@@ -63,10 +63,10 @@ DEFAULTS = {
         'message_DEFAULT_icon': 'http://i.imgur.com/weyIX.png',
         'message_MONKEYWRENCH_icon': 'http://i.imgur.com/lmbJs.png',
         'message_ERROR_icon': 'http://i.imgur.com/lmbJs.png',
-        'message_PLAYERACTION_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
-        'message_GOAL_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
-        'message_NEWGAME_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
-        'message_WINNER_icon': 'http://swiftheartrabbit.home.comcast.net/~swiftheartrabbit/Graphics/Main%20Graphics/Open%20Topic.gif',
+        'message_PLAYERACTION_icon': 'http://i.imgur.com/yTUkp.png',
+        'message_GOAL_icon': 'http://i.imgur.com/yTUkp.png',
+        'message_NEWGAME_icon': 'http://i.imgur.com/yTUkp.png',
+        'message_WINNER_icon': 'http://i.imgur.com/yTUkp.png',
     },
 }
 
