@@ -240,5 +240,5 @@ def decode_response(response):
     assert response.status_code == 200
     assert response['content-type'] == 'application/json'
     content = response.content
-    content = content.decode(response._charset)
+    content = content.decode(response.charset)
     return json.loads(content)

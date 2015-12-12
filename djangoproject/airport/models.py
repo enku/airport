@@ -109,8 +109,7 @@ class Airport(AirportModel):
     """Airports associated with a particular game"""
     master = models.ForeignKey(AirportMaster, db_index=True)
     game = models.ForeignKey('Game', related_name='airports', db_index=True)
-    destinations = models.ManyToManyField('self', null=True, blank=True,
-                                          symmetrical=True)
+    destinations = models.ManyToManyField('self', blank=True, symmetrical=True)
 
     @property
     def city(self):
@@ -276,11 +275,9 @@ class FlightManager(models.Manager):
         """Return a queryset of flights currently in the air"""
         now = now or game.time
 
-        flights = self.filter(game=game)
-        flights = flights.filter(depart_time__lt=now)
-        flights = flights.filter(arrival_time__gt=now)
-        flights = flights.exclude(state='Cancelled')
-        return flights
+        return self.filter(game=game).filter(
+            depart_time__lt=now
+        ).filter(arrival_time__gt=now).exclude(state='Cancelled')
 
 
 class Flight(AirportModel):
@@ -1194,7 +1191,7 @@ class Game(AirportModel):
     TIMEFACTOR = settings.TIMEFACTOR
 
     host = models.ForeignKey(Player, related_name='+')
-    players = models.ManyToManyField(Player, null=True, blank=True,
+    players = models.ManyToManyField(Player, blank=True,
                                      through='Achievement')
     state = models.SmallIntegerField(choices=STATE_CHOICES, default=-1)
     goals = models.ManyToManyField(City, through='Goal')
