@@ -131,6 +131,7 @@ class DivertedFlight(MonkeyWrench):
     reasons = (
         'Mayday! Flight {num} diverted to {dest}',
         'Unruly passenger on Flight {num}.  Emergency landing at {dest}.',
+        'Flight {num} has been hijacked and is being forced to land at {dest}.',
     )
 
     def throw(self):
