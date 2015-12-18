@@ -1103,7 +1103,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "42.33", 
-            "image": "http://wallpaperweb.org/wallpaper/buildings/1152x864/Motor_City_Detroit_Michigan_1152x864.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/0/06/Detroit_Night_Skyline.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Detroit", 
             "longitude": "-83.05"
