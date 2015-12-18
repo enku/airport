@@ -1686,7 +1686,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "35.43", 
-            "image": "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Skyline_of_Oklahoma_City.jpg/1280px-Skyline_of_Oklahoma_City.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Automobile_Alley_in_Oklahoma_City.jpg/1280px-Automobile_Alley_in_Oklahoma_City.jpg", 
             "creation_time": "2011-12-11 11:06:16", 
             "name": "Oklahoma City", 
             "longitude": "-97.47"
