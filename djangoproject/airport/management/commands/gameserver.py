@@ -79,11 +79,8 @@ class Command(BaseCommand):
         logger.info('Game Server Started')
         socket_server = start_thread(lib.SocketServer, name='Socket Server')
 
-        games = list(models.Game.open_games().values_list('pk', flat=True))
         connection.close()
-        for game_id in games:
-            name = 'Game{0}'.format(game_id)
-            start_thread(lib.GameThread, name=name, game_id=game_id)
+        start_thread(lib.GameThread)
 
         socket_server.join()
 

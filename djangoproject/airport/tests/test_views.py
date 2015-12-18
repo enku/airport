@@ -232,7 +232,7 @@ class GamesStartViewTestCase(ViewTest):
         self.assertEqual(json_response['status'], 'Started')
         game = models.Game.objects.get(pk=game.pk)
         self.assertEqual(game.state, game.IN_PROGRESS)
-        send_message.assert_called_with('start_game_thread', game.pk)
+        send_message.assert_called_with('start_game', game.pk)
 
 
 def decode_response(response):

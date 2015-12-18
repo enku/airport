@@ -32,7 +32,7 @@ else:
 def start_game(game):
     """Start a Game and a GameThread to run it."""
     game.begin()
-    send_message('start_game_thread', game.pk)
+    send_message('start_game', game.pk)
 
 
 def take_turn(game, now=None, throw_wrench=True):
@@ -368,14 +368,11 @@ class IPCHandler(WebSocketConnection):
         user = User.objects.get(username=info['player'])
         SocketHandler.message(user, 'info', info)
 
-    def handle_start_game_thread(self, game_id):
-        """Handler to start a Game thread."""
+    def handle_start_game(self, game_id):
+        """Handler to start a Game."""
         if settings.GAMESERVER_MULTIPROCESSING:
             connection.close()
 
-        name = 'Game{0}'.format(game_id)
-        game_thread = GameThread(name=name, game_id=game_id)
-        game_thread.start()
         game = models.Game.objects.get(pk=game_id)
         for player in game.players.filter(ai_player=False).distinct():
             SocketHandler.message(player.user, 'join_game', {})
@@ -464,38 +461,41 @@ class GameThread(GameThreadClass):
     """A threaded loop that runs a game"""
     daemon = False
 
-    def __init__(self, **kwargs):
-        self.game_id = kwargs.pop('game_id')
-
-        super(GameThread, self).__init__(**kwargs)
-
     def run(self):
-        logger.info('Starting thread for Game %s' % self.game_id)
-        self.fix_players()
-        mw_gen = MonkeyWrenchGenerator()
-        executor = ThreadPoolExecutor(max_workers=4)
+        self.mw_gen = MonkeyWrenchGenerator()
+        self.executor = ThreadPoolExecutor(max_workers=4)
 
-        now = None
+        for game in models.Game.open_games():
+            game_id = game.pk
+            self.fix_players(game_id)
 
         while True:
             timer = threading.Timer(LOOP_DELAY, lambda: None)
             timer.start()
-            game = models.Game.objects.get(pk=self.game_id)
-            ai_player = None
 
-            if game.state == game.GAME_OVER:
-                logger.info('Game %s ended.', game.pk)
-                return
-
-            for ai_player in game.players.distinct().filter(ai_player=True):
-                ai_player.make_move(game, now)
-
-            now = take_turn(game, throw_wrench=next(mw_gen))
-
-            # send all messages for this cycle
-            executor.submit(self.send_messages)
+            for game in models.Game.open_games():
+                self.run_game(game.pk)
 
             timer.join()
+
+    def run_game(self, game_id):
+
+        now = None
+
+        game = models.Game.objects.get(pk=game_id)
+        ai_player = None
+
+        if game.state == game.GAME_OVER:
+            logger.info('Game %s ended.', game.pk)
+            return
+
+        for ai_player in game.players.distinct().filter(ai_player=True):
+            ai_player.make_move(game, now)
+
+        now = take_turn(game, throw_wrench=next(self.mw_gen))
+
+        # send all messages for this cycle
+        self.executor.submit(self.send_messages)
 
     def send_messages(self):
         # send all player messages (via IPC)
@@ -509,7 +509,7 @@ class GameThread(GameThreadClass):
             )
             message.mark_read()
 
-    def fix_players(self):
+    def fix_players(self, game_id):
         """Make sure players are not in a "weird" state."""
         # Like Texas.  This is needed for when the thread is
         # stopped/crashed and restarted.  Sometimes weird things can happen
@@ -517,7 +517,7 @@ class GameThread(GameThreadClass):
         # taken away.  So they end up in limbo... or Texas.
         fixed_players = []
         msg = 'Game {0}: Player {1} had to be fixed.'
-        game = models.Game.objects.get(pk=self.game_id)
+        game = models.Game.objects.get(pk=game_id)
 
         for player in game.players.distinct():
             if not player.in_limbo(game):

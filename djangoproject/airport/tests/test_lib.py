@@ -66,7 +66,7 @@ class StartGameTestCase(BaseTestCase):
         lib.start_game(game)
 
         # then a message is sent to the gameserver via ipc
-        expected = call.send_message('start_game_thread', game.pk)
+        expected = call.send_message('start_game', game.pk)
         mock_send_msg.assert_has_calls([expected])
 
 
@@ -907,25 +907,18 @@ class IPCHandlerTest(WebSocketBaseTestCase, TestCase):
         })
 
     @patch('airport.lib.SocketHandler.message')
-    @patch('airport.lib.GameThread')
     @gen_test
-    def test_handle_start_game_thread(self, mock_game_thread, mock_ws_msg):
+    def test_handle_start_game(self, mock_ws_msg):
         # given the game
         game = BaseTestCase.create_game(self.player)
 
         # when we send a start_game_thead message to ipc
-        message = self.message('start_game_thread', game.pk)
+        message = self.message('start_game', game.pk)
         ws = yield self.ws_connect('/ipc')
         ws.write_message(message)
         yield self.close(ws)
 
-        # then it starts a game thread
-        mock_game_thread.assert_called_with(
-            name='Game{0}'.format(game.pk),
-            game_id=game.pk
-        )
-
-        # and sends a message to all the players
+        # then it sends a message to all the players
         self.assertEqual(mock_ws_msg.call_count,
                          game.players.filter(ai_player=False).count())
 
