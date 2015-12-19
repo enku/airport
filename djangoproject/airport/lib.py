@@ -43,13 +43,13 @@ def take_turn(game, now=None, throw_wrench=True):
     winners_before = models.Player.objects.winners(game).exists()
     arrivals = {}
 
-    if not hasattr(game, '_airports'):
-        game._airports = set(game.airports.distinct())
+    game_airports = list(game.airports.distinct())
+    random.shuffle(game_airports)
 
     if throw_wrench:
         send_message('throw_wrench', game.pk)
 
-    for airport in game._airports:
+    for airport in game_airports:
         players_arrived = handle_flights(game, airport, now)
         for player in players_arrived:
             arrivals[player.pk] = airport
