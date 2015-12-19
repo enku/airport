@@ -64,7 +64,9 @@ def handle_flights(game, airport, now=None):
     players_arrived = []
 
     # Departing flights
-    flights = set(airport.next_flights(now, auto_create=False))
+    flights = list(airport.next_flights(now, auto_create=False))
+    random.shuffle(flights)
+
     for flight in flights:
         if not flight.in_flight(now):
             continue
