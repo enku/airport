@@ -37,7 +37,7 @@ DEFAULTS = {
         'register_icon': 'http://www.shs.rcs.k12.tn.us/registrationIcon.png',
         'background_image': 'https://thisishasna.files.wordpress.com/2012/09/moon-over-mistral-sky.jpg',
         'flight_video': 'http://www.grobergreen.com/wp-content/uploads/2009/07/WD0193.webm',
-        'inflight_image': 'http://www.passionforpets.com.au/media/30926/AnimatedAirplane.gif',
+        'inflight_image': 'https://media.giphy.com/media/vtOP26LcbWyCA/giphy.gif',
         'landed_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
         'takeoff_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
         'gold_star': 'http://njwltech.wikispaces.com/file/view/gold_star.png/35350229/gold_star.png',

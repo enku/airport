@@ -1,6 +1,11 @@
 
 function main($) {
     /* document.ready function */
+
+    /* prefetch the animated image */
+    var inflight_image = new Image();
+    inflight_image.src = '{{ inflight_image }}';
+
 	//$('#airport_screen').toggle('slide', {direction: 'down'});
     $('#goals_range')[0].oninput = airport.update_goals_slider;
     $('#airports_range')[0].oninput = airport.update_airports_slider;
