@@ -36,7 +36,7 @@ DEFAULTS = {
         'login_button': 'http://www.iconhot.com/icon/png/i-buttons-3c/64/bright-ball-logoff.png',
         'register_icon': 'http://www.shs.rcs.k12.tn.us/registrationIcon.png',
         'background_image': 'https://thisishasna.files.wordpress.com/2012/09/moon-over-mistral-sky.jpg',
-        'flight_video': 'http://www.grobergreen.com/wp-content/uploads/2009/07/WD0193.webm',
+        'flight_video': 'http://kgroup-int.com/wp-content/uploads/2014/02/WD0193.webmhd.webm',
         'inflight_image': 'https://media.giphy.com/media/vtOP26LcbWyCA/giphy.gif',
         'landed_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
         'takeoff_sound': 'http://soundbible.com/mp3/757%20Landing-SoundBible.com-1539957439.mp3',
