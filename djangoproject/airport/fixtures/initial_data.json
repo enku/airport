@@ -1048,7 +1048,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "36.17", 
-            "image": "http://www.carefreetrip.com/gallery/var/albums/united-states-of-america/nevada/las-vegas/the-las-vegas-strip/las-vegas-strip-from-paris-hotel-north.jpg", 
+            "image": "http://upload.wikimedia.org/wikipedia/commons/d/d3/Fremont_Street_03.JPG", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "Las Vegas", 
             "longitude": "-115.2"
