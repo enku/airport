@@ -184,10 +184,11 @@ class TSAMonkeyWrenchTest(MonkeyWrenchTestBase):
         # and the flight taking off within 60 minutes
         flight = models.Flight.objects.filter(
             game=self.game,
-            depart_time__gt=self.now,
-            depart_time__lte=self.now + datetime.timedelta(minutes=60),
-            origin=self.game.start_airport
+            origin=self.game.start_airport,
         )[0]
+        flight.depart_time = self.now + datetime.timedelta(minutes=30)
+        flight.arrival_time = self.now + datetime.timedelta(minutes=90)
+        flight.save()
 
         # when a player purchases the flight
         self.player.purchase_flight(flight, self.now)
