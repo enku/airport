@@ -2,6 +2,8 @@
 function main($) {
     /* document.ready function */
 
+    $('input[type=range]').slider()
+
     /* prefetch the animated image */
     var inflight_image = new Image();
     inflight_image.src = '{{ inflight_image }}';
