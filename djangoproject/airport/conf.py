@@ -29,7 +29,7 @@ DEFAULTS = {
         'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js',
         'jquery_ui': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js',
         'jquery_ui_css': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css',
-        'jquery_scrollto': 'http://flesler-plugins.googlecode.com/files/jquery.scrollTo-1.4.2-min.js',
+        'jquery_scrollto': '//cdn.jsdelivr.net/jquery.scrollto/2.1.2/jquery.scrollTo.min.js',
         'jquery_cookie': '//cdn.jsdelivr.net/jquery.cookie/1.4.0/jquery.cookie.min.js',
         'mustache_js': '//cdn.jsdelivr.net/mustache.js/0.7.3/mustache.js',
         'login_icon': 'http://www.ercmp.nic.in/images/login.png',
