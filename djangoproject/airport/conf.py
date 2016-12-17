@@ -34,7 +34,7 @@ DEFAULTS = {
         'mustache_js': '//cdn.jsdelivr.net/mustache.js/0.7.3/mustache.js',
         'login_icon': 'http://www.ercmp.nic.in/images/login.png',
         'login_button': 'http://www.iconhot.com/icon/png/i-buttons-3c/64/bright-ball-logoff.png',
-        'register_icon': 'http://www.shs.rcs.k12.tn.us/registrationIcon.png',
+        'register_icon': 'http://jhopadi.com/jethunt-web/images/home__jet_search_/u41.png',
         'background_image': 'https://thisishasna.files.wordpress.com/2012/09/moon-over-mistral-sky.jpg',
         'flight_video': 'http://kgroup-int.com/wp-content/uploads/2014/02/WD0193.webmhd.webm',
         'inflight_image': 'https://media.giphy.com/media/vtOP26LcbWyCA/giphy.gif',
