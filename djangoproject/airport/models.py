@@ -1133,7 +1133,7 @@ class GameManager(models.Manager):
 
         msg = '{0} has created {1}.'
         msg = msg.format(host.user.username, game)
-        broadcast(msg, message_type='NEW_GAME')
+        broadcast(msg, message_type='NEWGAME')
 
         if ai_player:
             Player.objects.get_or_create_ai_player(game)
