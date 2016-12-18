@@ -1279,7 +1279,7 @@
         "model": "airport.city", 
         "fields": {
             "latitude": "32.7", 
-            "image": "http://www.widescreen-wallpaper.eu/wallpapers/beautiful_cityscape-1920x1080.jpg", 
+            "image": "https://upload.wikimedia.org/wikipedia/commons/c/c7/San_diego_panorama.jpg", 
             "creation_time": "2011-12-11 11:06:15", 
             "name": "San Diego", 
             "longitude": "-117.17"
