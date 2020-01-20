@@ -2,7 +2,7 @@ FROM ubuntu
 
 LABEL Description "Airport wsgi and game server"
 
-MAINTAINER Albert Hopkins <marduk@python.net>
+MAINTAINER Albert Hopkins <marduk@letterboxes.org>
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \

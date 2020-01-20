@@ -7,7 +7,7 @@ ALLOWED_HOSTS = ['*']
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (('Albert Hopkins', 'marduk@python.net'),)
+ADMINS = (('Albert Hopkins', 'marduk@letterboxes.org'),)
 
 MANAGERS = ADMINS
 
