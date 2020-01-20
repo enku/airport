@@ -17,7 +17,7 @@ from django.shortcuts import (get_object_or_404, redirect, render,
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 
-from airport import forms, lib, models, VERSION
+from airport import VERSION, forms, lib, models
 from airport.conf import settings
 
 
@@ -143,16 +143,16 @@ def messages(request):
     old = 'old' in request.GET
     response = HttpResponse()
     response['Cache-Control'] = 'no-cache'
-    _messages = models.Message.objects.get_messages(request, last_message,
-                                                    old=old)
+    _messages = models.Message.objects.get_messages(request, last_message, old=old)
     if not _messages:
         response.status_code = 304
         response.content = ''
         return response
 
     response['Content-Type'] = 'text/html'
-    content = render_to_string('airport/messages.html',
-                               {'messages': _messages, 'old': old})
+    content = render_to_string(
+        'airport/messages.html', {'messages': _messages, 'old': old}
+    )
     response.content = content
     return response
 
@@ -164,8 +164,11 @@ def games_info(request):
     game = player.current_game
 
     # if user is in an open game and it has started, redirect to that game
-    if (game and game.state in (game.IN_PROGRESS, game.PAUSED)
-            and request.user.player.finished(game)):
+    if (
+        game
+        and game.state in (game.IN_PROGRESS, game.PAUSED)
+        and request.user.player.finished(game)
+    ):
         return json_redirect(reverse(main))
 
     data = player.game_info()
@@ -210,8 +213,7 @@ def games_create(request):
             start_city = models.City.closest_to(coords)
             start_airport = (
                 choice(start_city.airports())
-                if start_city
-                and start_city.distance_from_coordinates(coords) < 482
+                if start_city and start_city.distance_from_coordinates(coords) < 482
                 else None
             )
 
@@ -270,11 +272,7 @@ def games_start(request):
     If user doesn't host a game this will 404.
     """
     player = request.user.player
-    game = get_object_or_404(
-        models.Game,
-        host=player,
-        state=models.Game.NOT_STARTED
-    )
+    game = get_object_or_404(models.Game, host=player, state=models.Game.NOT_STARTED)
     lib.start_game(game)
     return json_response(game.info())
 
@@ -291,14 +289,14 @@ def games_stats(request):
     cxt['won_count'] = models.Game.objects.won_by(player).count()
     cxt['goal_count'] = player.goals.count()
     cxt['ticket_count'] = player.tickets.count()
-    cxt['flight_hours'] = sum((i.flight.flight_time
-                               for i in player.tickets)) / 60.0
+    cxt['flight_hours'] = sum((i.flight.flight_time for i in player.tickets)) / 60.0
 
     cxt['total_time'] = datetime.timedelta(seconds=0)
     for game in games.distinct():
         last_goal = game.last_goal()
-        my_time = models.Achievement.objects.get(game=game, goal=last_goal,
-                                                 player=player).timestamp
+        my_time = models.Achievement.objects.get(
+            game=game, goal=last_goal, player=player
+        ).timestamp
         if not my_time:
             continue
         cxt['total_time'] = cxt['total_time'] + (my_time - game.creation_time)
@@ -325,7 +323,7 @@ def games_stats(request):
     prior_games = games.exclude(state=-1).distinct()
     prior_games = prior_games.values_list('id', 'timestamp')
     prior_games = prior_games.order_by('-id')
-    prior_games = prior_games[:settings.GAME_HISTORY_COUNT]
+    prior_games = prior_games[: settings.GAME_HISTORY_COUNT]
     prior_games = list(prior_games)
 
     # we may not yet be finished with the last game, if that's the case
@@ -348,8 +346,7 @@ def game_summary(request):
 
     username = request.GET.get('player', None)
     if username:
-        player = get_object_or_404(
-            models.Player, user__username=username)
+        player = get_object_or_404(models.Player, user__username=username)
     else:
         player = request.user.player
 
@@ -357,8 +354,9 @@ def game_summary(request):
         return redirect(main)
 
     goals = list(models.Goal.objects.filter(game=game).order_by('order'))
-    tickets = models.Purchase.objects.filter(
-        player=player, game=game).order_by('creation_time')
+    tickets = models.Purchase.objects.filter(player=player, game=game).order_by(
+        'creation_time'
+    )
 
     current_goal = 0
     for ticket in tickets:
@@ -407,10 +405,7 @@ def city_image(request, city_name):
 
 def json_redirect(url):
     """Return a simple json dictionary with a redirect key and url value"""
-    return HttpResponse(
-        json.dumps({'redirect': url}),
-        content_type='application/json'
-    )
+    return HttpResponse(json.dumps({'redirect': url}), content_type='application/json')
 
 
 def json_response(data):
@@ -436,8 +431,8 @@ def register(request):
             except models.Player.DoesNotExist:
                 create_user(username, password)
                 django_messages.add_message(
-                    request, django_messages.INFO,
-                    'Account activated. Please sign in.')
+                    request, django_messages.INFO, 'Account activated. Please sign in.'
+                )
                 return redirect(main)
         else:
             context['error'] = form._errors
@@ -455,7 +450,7 @@ def about(request):
         'version': VERSION,
         'repo_url': repo_url,
         'django_version': django_version,
-        'user_agent': user_agent
+        'user_agent': user_agent,
     }
 
     return render(request, 'airport/about.html', context)

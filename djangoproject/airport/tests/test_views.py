@@ -9,6 +9,7 @@ from airport.tests import BaseTestCase
 
 class ViewTest(BaseTestCase):
     """Test the home view"""
+
     view = reverse('main')
 
     def setUp(self):
@@ -28,10 +29,7 @@ class HomeView(ViewTest):
     def test_game_not_started(self):
         # given the game that has yet to start
         game = models.Game.objects.create_game(
-            host=self.player,
-            goals=1,
-            airports=4,
-            density=1
+            host=self.player, goals=1, airports=4, density=1
         )
         game.add_player(self.player2)
 
@@ -49,8 +47,7 @@ class HomeView(ViewTest):
     def test_new_game(self, send_message):
         """Test that there's no redirect when you're in a new game"""
         player = self.player
-        models.Game.objects.create_game(host=player, goals=1,
-                                        airports=4, density=1)
+        models.Game.objects.create_game(host=player, goals=1, airports=4, density=1)
         self.client.login(username=player.username, password='test')
         response = self.client.get(self.view)
         self.assertEqual(response.status_code, 200)
@@ -74,13 +71,15 @@ class InfoViewTestCase(ViewTest):
         game json you get the games json
         """
         player = self.player
-        game = models.Game.objects.create_game(host=player, goals=1,
-                                               airports=4, density=1)
+        game = models.Game.objects.create_game(
+            host=player, goals=1, airports=4, density=1
+        )
         self.client.login(username=player.username, password='test')
         self.client.get(self.view)
         goal = models.Goal.objects.get(game=game)
         my_achievement = models.Achievement.objects.get(
-            game=game, player=player, goal=goal)
+            game=game, player=player, goal=goal
+        )
         my_achievement.timestamp = game.time
         my_achievement.save()
         response = self.client.get(self.view)
@@ -94,15 +93,17 @@ class InfoViewTestCase(ViewTest):
         player1 = self.player
         player2 = self.player2
 
-        game = models.Game.objects.create_game(host=player1, goals=1,
-                                               airports=4, density=1)
+        game = models.Game.objects.create_game(
+            host=player1, goals=1, airports=4, density=1
+        )
         game.add_player(player2)
         game.begin()
         goal = models.Goal.objects.get(game=game)
 
         # finish player 1
         my_achievement = models.Achievement.objects.get(
-            game=game, player=player1, goal=goal)
+            game=game, player=player1, goal=goal
+        )
         my_achievement.timestamp = game.time
         my_achievement.save()
         self.client.login(username=player1.username, password='test')
@@ -118,7 +119,8 @@ class InfoViewTestCase(ViewTest):
 
         # finish player 2
         my_achievement = models.Achievement.objects.get(
-            game=game, player=player2, goal=goal)
+            game=game, player=player2, goal=goal
+        )
         my_achievement.timestamp = game.time
         my_achievement.save()
         self.client.login(username=player2.username, password='test')
@@ -129,10 +131,7 @@ class InfoViewTestCase(ViewTest):
     def test_game_over(self):
         # given the game that has ended
         game = models.Game.objects.create_game(
-            host=self.player,
-            goals=1,
-            airports=4,
-            density=1
+            host=self.player, goals=1, airports=4, density=1
         )
         game.end()
 
@@ -143,28 +142,20 @@ class InfoViewTestCase(ViewTest):
         # then he is "redirected" to the game summary view
         json_response = decode_response(response)
         self.assertEqual(
-            json_response,
-            {'redirect': '/game_summary/?id={0}'.format(game.pk)}
+            json_response, {'redirect': '/game_summary/?id={0}'.format(game.pk)}
         )
 
     @patch('airport.views.lib.send_message')
     def test_purchase_flight(self, send_message):
         # given the game that has started
         game = models.Game.objects.create_game(
-            host=self.player,
-            goals=1,
-            airports=4,
-            density=1
+            host=self.player, goals=1, airports=4, density=1
         )
         game.begin()
 
         # when the player POSTs to purchase a ticket
         airport = game.start_airport
-        flight = airport.next_flights(
-            game.time,
-            future_only=True,
-            auto_create=True
-        )[0]
+        flight = airport.next_flights(game.time, future_only=True, auto_create=True)[0]
         self.client.login(username=self.player.username, password='test')
         response = self.client.post(self.view, {'selected': flight.pk})
 
@@ -183,10 +174,7 @@ class RageQuitViewTestCase(ViewTest):
     def test_quit(self, send_message):
         # given the game that has started
         game = models.Game.objects.create_game(
-            host=self.player,
-            goals=1,
-            airports=4,
-            density=1
+            host=self.player, goals=1, airports=4, density=1
         )
         game.begin()
 
@@ -197,10 +185,7 @@ class RageQuitViewTestCase(ViewTest):
 
         # then we get a message that we left the game
         message = models.Message.objects.all()[0]
-        self.assertEqual(
-            message.text,
-            'You have quit {0}. Wuss!'.format(game)
-        )
+        self.assertEqual(message.text, 'You have quit {0}. Wuss!'.format(game))
 
         # and we are no longer in the game
         game = models.Game.objects.get(pk=game.pk)
@@ -217,10 +202,7 @@ class GamesStartViewTestCase(ViewTest):
         # given the game that has not yet started
         host = self.player
         game = models.Game.objects.create_game(
-            host=host,
-            goals=1,
-            airports=4,
-            density=1
+            host=host, goals=1, airports=4, density=1
         )
 
         # when the host posts to start the game

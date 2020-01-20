@@ -16,8 +16,8 @@ from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application
 from tornado.websocket import WebSocketHandler, websocket_connect
 
-from airport import models as db
 from airport import lib
+from airport import models as db
 from airport.tests import BaseTestCase
 
 MINUTE = datetime.timedelta(seconds=60)
@@ -25,12 +25,12 @@ MINUTE = datetime.timedelta(seconds=60)
 
 # copied from tornado's websocket_test.py
 class WebSocketBaseTestCase(AsyncHTTPTestCase):
-
     @gen.coroutine
     def ws_connect(self, path, compression_options=None):
         ws = yield websocket_connect(
             'ws://127.0.0.1:%d%s' % (self.get_http_port(), path),
-            compression_options=compression_options)
+            compression_options=compression_options,
+        )
         raise gen.Return(ws)
 
     @gen.coroutine
@@ -152,7 +152,8 @@ class HandleFlightsTestCase(BaseTestCase):
         now = lib.take_turn(game)
         airport = game.start_airport
         flight = db.Flight.objects.filter(
-            game=game, origin=airport, depart_time__gt=now)[0]
+            game=game, origin=airport, depart_time__gt=now
+        )[0]
         ticket = player.purchase_flight(flight, now)
         assert player.airport
 
@@ -175,7 +176,8 @@ class HandleFlightsTestCase(BaseTestCase):
         now = lib.take_turn(game)
         airport = game.start_airport
         flight = db.Flight.objects.filter(
-            game=game, origin=airport, depart_time__gt=now)[0]
+            game=game, origin=airport, depart_time__gt=now
+        )[0]
         player.purchase_flight(flight, now)
 
         # and handle_flights is called after which point the flight should
@@ -184,13 +186,11 @@ class HandleFlightsTestCase(BaseTestCase):
         lib.handle_flights(game, airport, now=time)
 
         # then the ticket purchase is recorded
-        purchase = db.Purchase.objects.filter(
-            player=player, game=game, flight=flight)
+        purchase = db.Purchase.objects.filter(player=player, game=game, flight=flight)
         self.assertTrue(purchase.exists())
 
     @patch('airport.lib.models.Message.objects.announce')
-    def test_handles_departing_flight_announcement(
-            self, mock_ann, mock_send_msg):
+    def test_handles_departing_flight_announcement(self, mock_ann, mock_send_msg):
 
         # given the game and player
         game = self.game
@@ -201,7 +201,8 @@ class HandleFlightsTestCase(BaseTestCase):
         now = lib.take_turn(game)
         airport = game.start_airport
         flight = db.Flight.objects.filter(
-            game=game, origin=airport, depart_time__gt=now)[0]
+            game=game, origin=airport, depart_time__gt=now
+        )[0]
         player.purchase_flight(flight, now)
 
         # and handle_flights is called after which point the flight should
@@ -225,7 +226,8 @@ class HandleFlightsTestCase(BaseTestCase):
         now = lib.take_turn(game)
         airport = game.start_airport
         flight = db.Flight.objects.filter(
-            game=game, origin=airport, depart_time__gt=now)[0]
+            game=game, origin=airport, depart_time__gt=now
+        )[0]
         player.purchase_flight(flight, now)
 
         # and handle_flights is called after which point the flight should
@@ -238,8 +240,7 @@ class HandleFlightsTestCase(BaseTestCase):
         self.assertTrue(player in result)
 
     @patch('airport.lib.models.Message.objects.announce')
-    def test_handles_arriving_flights_announcement(
-            self, mock_ann, mock_send_msg):
+    def test_handles_arriving_flights_announcement(self, mock_ann, mock_send_msg):
 
         # given the game and player
         game = self.game
@@ -250,7 +251,8 @@ class HandleFlightsTestCase(BaseTestCase):
         now = lib.take_turn(game)
         airport = game.start_airport
         flight = db.Flight.objects.filter(
-            game=game, origin=airport, depart_time__gt=now)[0]
+            game=game, origin=airport, depart_time__gt=now
+        )[0]
         player.purchase_flight(flight, now)
 
         # and handle_flights is called after which point the flight should
@@ -275,7 +277,8 @@ class HandleFlightsTestCase(BaseTestCase):
         now = lib.take_turn(game)
         airport = game.start_airport
         flight = db.Flight.objects.filter(
-            game=game, origin=airport, depart_time__gt=now)[0]
+            game=game, origin=airport, depart_time__gt=now
+        )[0]
         player.purchase_flight(flight, now)
 
         # and handle_flights is called after which point the flight should
@@ -300,10 +303,8 @@ class HandleFlightsTestCase(BaseTestCase):
         # when the player is at an airport that has a flight to her first goal
         # (warning: lots of voodoo here)
         goal_city = game.goals.all()[0]
-        goal_city_airport = db.Airport.objects.get(
-            game=game, master__city=goal_city)
-        origin_airport = db.Airport.objects.filter(
-            destinations=goal_city_airport)[0]
+        goal_city_airport = db.Airport.objects.get(game=game, master__city=goal_city)
+        origin_airport = db.Airport.objects.filter(destinations=goal_city_airport)[0]
 
         # place the player there
         player.airport = origin_airport
@@ -315,7 +316,7 @@ class HandleFlightsTestCase(BaseTestCase):
             game=game,
             origin=origin_airport,
             destination=goal_city_airport,
-            depart_time__gt=now
+            depart_time__gt=now,
         )[0]
         player.purchase_flight(flight, now)
 
@@ -345,7 +346,8 @@ class HandlePlayersTestCase(BaseTestCase):
         player = self.player
         now = lib.take_turn(game)
         flight = db.Flight.objects.filter(
-            game=game, origin=game.start_airport, depart_time__gt=now)[0]
+            game=game, origin=game.start_airport, depart_time__gt=now
+        )[0]
         player.purchase_flight(flight, now)
 
         # when we call handle_players()
@@ -394,8 +396,7 @@ class HandlePlayersTestCase(BaseTestCase):
             # when we call handle_players
             winners_before = []
             goal = game.goals.all()[0]
-            goal_airport = db.Airport.objects.filter(
-                game=game, master__city=goal)[0]
+            goal_airport = db.Airport.objects.filter(game=game, master__city=goal)[0]
             arrivals = {player.pk: goal_airport}
             lib.handle_players(game, game.time, winners_before, arrivals)
 
@@ -420,19 +421,30 @@ class HandlePlayersTestCase(BaseTestCase):
             # when we call handle_players
             winners_before = []
             goal = game.goals.all()[0]
-            goal_airport = db.Airport.objects.filter(
-                game=game, master__city=goal)[0]
+            goal_airport = db.Airport.objects.filter(game=game, master__city=goal)[0]
             arrivals = {player.pk: goal_airport for player in players}
             lib.handle_players(game, game.time, winners_before, arrivals)
 
         # Then a flurry of messages announcing the call is sent
         calls = [
-            call('%s: 2-way tie for 1st place.' % game, game, finishers=True,
-                 message_type='WINNER'),
-            call('%s is a winner!' % players[0].username, game, finishers=True,
-                 message_type='WINNER'),
-            call('%s is a winner!' % players[1].username, game, finishers=True,
-                 message_type='WINNER'),
+            call(
+                '%s: 2-way tie for 1st place.' % game,
+                game,
+                finishers=True,
+                message_type='WINNER',
+            ),
+            call(
+                '%s is a winner!' % players[0].username,
+                game,
+                finishers=True,
+                message_type='WINNER',
+            ),
+            call(
+                '%s is a winner!' % players[1].username,
+                game,
+                finishers=True,
+                message_type='WINNER',
+            ),
         ]
         mock_broadcast.assert_has_calls(calls)
 
@@ -511,8 +523,7 @@ class GamePauseTestCase(BaseTestCase):
         players = set(game.players.distinct())
         call_args_list = mock_send_msg.call_args_list
         info_calls = [i for i in call_args_list if i[0][0] == 'info']
-        info_calls = [(i[0][1]['player'], i[0][1]['game_state'])
-                      for i in info_calls]
+        info_calls = [(i[0][1]['player'], i[0][1]['game_state']) for i in info_calls]
         info_calls = set(info_calls)
         expected = set([(i.username, 'Paused') for i in players])
         self.assertEqual(info_calls, expected)
@@ -539,8 +550,7 @@ class GamePauseTestCase(BaseTestCase):
         players = set(game.players.distinct())
         call_args_list = mock_send_msg.call_args_list
         info_calls = [i for i in call_args_list if i[0][0] == 'info']
-        info_calls = [(i[0][1]['player'], i[0][1]['game_state'])
-                      for i in info_calls]
+        info_calls = [(i[0][1]['player'], i[0][1]['game_state']) for i in info_calls]
         info_calls = set(info_calls)
         expected = set([(i.username, 'Finished') for i in players])
         self.assertEqual(info_calls, expected)
@@ -594,8 +604,7 @@ class GameResumeTestCase(BaseTestCase):
         players = set(game.players.distinct())
         call_args_list = mock_send_msg.call_args_list
         info_calls = [i for i in call_args_list if i[0][0] == 'info']
-        info_calls = [(i[0][1]['player'], i[0][1]['game_state'])
-                      for i in info_calls]
+        info_calls = [(i[0][1]['player'], i[0][1]['game_state']) for i in info_calls]
         info_calls = set(info_calls)
         expected = set([(i.username, 'Started') for i in players])
         self.assertEqual(info_calls, expected)
@@ -617,7 +626,6 @@ class SendMessageTestCase(TestCase):
 
 
 class TestWebSocketHandler(WebSocketHandler):
-
     def initialize(self, close_future, compression_options=None):
         self.close_future = close_future
         self.compression_options = compression_options
@@ -635,7 +643,6 @@ class TestSocketHandler(TestWebSocketHandler, lib.SocketHandler):
 
 
 class SocketHandlerTest(WebSocketBaseTestCase, TestCase):
-
     def setUp(self):
         super().setUp()
         self.player = BaseTestCase.create_players(1)[0]
@@ -645,15 +652,17 @@ class SocketHandlerTest(WebSocketBaseTestCase, TestCase):
         string = json.dumps(data)
         websocket_connect(
             'ws://127.0.0.1:%d/' % self.get_http_port(),
-            io_loop=self.io_loop, callback=self.stop)
+            io_loop=self.io_loop,
+            callback=self.stop,
+        )
         ws = self.wait().result()
         ws.write_message(string)
 
     def get_app(self):
         self.close_future = Future()
-        return Application([
-            ('/', TestSocketHandler, dict(close_future=self.close_future)),
-        ])
+        return Application(
+            [('/', TestSocketHandler, dict(close_future=self.close_future)),]
+        )
 
     @patch('airport.lib.SocketHandler.broadcast')
     def test_open(self, mock_broadcast):
@@ -666,7 +675,9 @@ class SocketHandlerTest(WebSocketBaseTestCase, TestCase):
             gcu.return_value = player
             websocket_connect(
                 'ws://127.0.0.1:%d/' % self.get_http_port(),
-                io_loop=self.io_loop, callback=self.stop)
+                io_loop=self.io_loop,
+                callback=self.stop,
+            )
             ws = self.wait().result()
 
         # then the connection is added to the list of clients
@@ -675,7 +686,8 @@ class SocketHandlerTest(WebSocketBaseTestCase, TestCase):
         # then a broadcast message is sent to all players
         client = TestSocketHandler.clients[0]
         mock_broadcast.assert_called_with(
-            'new_connection', player.username, exclude=[client])
+            'new_connection', player.username, exclude=[client]
+        )
 
         # and when we close the connection
         ws.read_message(self.stop)
@@ -761,13 +773,12 @@ class SocketHandlerTest(WebSocketBaseTestCase, TestCase):
                         'id': game.pk,
                         'players': game.players.distinct().count(),
                         'status': 'New',
-                        'url': '%s?id=%s' % (
-                            reverse('airport.views.games_join'),
-                            game.pk)
+                        'url': '%s?id=%s'
+                        % (reverse('airport.views.games_join'), game.pk),
                     }
-                ]
+                ],
             },
-            'type': 'games_info'
+            'type': 'games_info',
         }
 
         self.assertEqual(result, expected)
@@ -834,43 +845,33 @@ class IPCHandlerTest(WebSocketBaseTestCase, TestCase):
 
     def _send_message(self, message_type, data):
 
-        message = {
-            'type': message_type,
-            'key': settings.SECRET_KEY,
-            'data': data
-        }
+        message = {'type': message_type, 'key': settings.SECRET_KEY, 'data': data}
         message = json.dumps(message)
         websocket_connect(
             'ws://127.0.0.1:%d/ipc' % self.get_http_port(),
-            io_loop=self.io_loop, callback=self.stop)
+            io_loop=self.io_loop,
+            callback=self.stop,
+        )
         ws = self.wait().result()
         ws.write_message(message)
         ws.close()
 
     def message(self, message_type, data):
-        s = {
-            'type': message_type,
-            'key': settings.SECRET_KEY,
-            'data': data
-        }
+        s = {'type': message_type, 'key': settings.SECRET_KEY, 'data': data}
         s = json.dumps(s)
         return s
 
     def get_app(self):
         self.close_future = Future()
-        return Application([
-            ('/ipc', TestIPCHandler, dict(close_future=self.close_future)),
-        ])
+        return Application(
+            [('/ipc', TestIPCHandler, dict(close_future=self.close_future)),]
+        )
 
     @patch('airport.lib.logger')
     @gen_test
     def test_on_message_bad_key(self, mock_logger):
         # given the message containing a bad key
-        data = {
-            'type': 'info',
-            'data': 'hack hack hack',
-            'key': 'bogus key'
-        }
+        data = {'type': 'info', 'data': 'hack hack hack', 'key': 'bogus key'}
         datas = json.dumps(data)
 
         # when we send the message to the ipc handler
@@ -880,20 +881,18 @@ class IPCHandlerTest(WebSocketBaseTestCase, TestCase):
         yield self.close(ws)
 
         # then a message is logged
-        expected = call.critical('Someone is trying to hack me!',
-                                 extra=data)
-        self.assertTrue(expected in mock_logger.mock_calls,
-                        mock_logger.mock_calls)
+        expected = call.critical('Someone is trying to hack me!', extra=data)
+        self.assertTrue(expected in mock_logger.mock_calls, mock_logger.mock_calls)
 
     @patch('airport.lib.SocketHandler.message')
     @gen_test
     def test_handle_info(self, mock_ws_msg):
 
         # given the info message
-        message = self.message('info', {
-            'player': self.player.username,
-            'data': {'this': 'is', 'a': 'test'}
-        })
+        message = self.message(
+            'info',
+            {'player': self.player.username, 'data': {'this': 'is', 'a': 'test'}},
+        )
 
         # when the message is send to ipc
         ws = yield self.ws_connect('/ipc')
@@ -901,10 +900,11 @@ class IPCHandlerTest(WebSocketBaseTestCase, TestCase):
         yield self.close(ws)
 
         # then it (attempts to) send a message to the user
-        mock_ws_msg.assert_called_with(self.player.user, 'info', {
-            'player': self.player.username,
-            'data': {'this': 'is', 'a': 'test'}
-        })
+        mock_ws_msg.assert_called_with(
+            self.player.user,
+            'info',
+            {'player': self.player.username, 'data': {'this': 'is', 'a': 'test'}},
+        )
 
     @patch('airport.lib.SocketHandler.message')
     @gen_test
@@ -919,8 +919,9 @@ class IPCHandlerTest(WebSocketBaseTestCase, TestCase):
         yield self.close(ws)
 
         # then it sends a message to all the players
-        self.assertEqual(mock_ws_msg.call_count,
-                         game.players.filter(ai_player=False).count())
+        self.assertEqual(
+            mock_ws_msg.call_count, game.players.filter(ai_player=False).count()
+        )
 
     @patch('airport.lib.SocketHandler.games_info')
     @gen_test
@@ -1050,10 +1051,9 @@ class IPCHandlerTest(WebSocketBaseTestCase, TestCase):
         player = self.player
 
         # when we call player_message to send a message to the player
-        message = self.message('player_message', {
-            'player': player.username,
-            'message': 'Hello player!'
-        })
+        message = self.message(
+            'player_message', {'player': player.username, 'message': 'Hello player!'}
+        )
         ws = yield self.ws_connect('/ipc')
         ws.write_message(message)
         yield self.close(ws)
@@ -1079,17 +1079,13 @@ class GameServerTest(BaseTestCase):
         now = self.game.time
 
         # to finish the game, we cheat a bit
-        ach = db.Achievement.objects.get(player=self.player,
-                                         game=self.game)
+        ach = db.Achievement.objects.get(player=self.player, game=self.game)
         ach = ach.fulfill(now)
         self.assertTrue(self.player.finished(self.game))
 
         # when we join a new game
         game = db.Game.objects.create_game(
-            ai_player=True,
-            host=self.player,
-            goals=1,
-            airports=10
+            ai_player=True, host=self.player, goals=1, airports=10
         )
         game.begin()
 
@@ -1120,11 +1116,7 @@ class GameServerTest(BaseTestCase):
         game1 = self.game
         user2 = User.objects.create_user(username='test2', password='test')
         player2 = db.Player.objects.create(user=user2)
-        game2 = db.Game.objects.create_game(
-            host=player2,
-            goals=3,
-            airports=15
-        )
+        game2 = db.Game.objects.create_game(host=player2, goals=3, airports=15)
         lib.start_game(game1)
         lib.start_game(game2)
 
@@ -1163,13 +1155,11 @@ class GameServerTest(BaseTestCase):
     def test_create_game(self, send_message):
         """Create a game through the management command"""
         self.game.end()
-        games = db.Game.objects.filter(host=self.player,
-                                       state=db.Game.IN_PROGRESS)
+        games = db.Game.objects.filter(host=self.player, state=db.Game.IN_PROGRESS)
         self.assertFalse(games.exists())
         management.call_command('gameserver', creategame=self.player.username)
 
-        games = db.Game.objects.filter(
-            host=self.player, state=db.Game.IN_PROGRESS)
+        games = db.Game.objects.filter(host=self.player, state=db.Game.IN_PROGRESS)
         self.assertTrue(games.exists())
 
     @patch('airport.lib.send_message')
@@ -1179,8 +1169,7 @@ class GameServerTest(BaseTestCase):
         num_airports = 19
         arg = '{0}:{1}'.format(self.player.username, num_airports)
         management.call_command('gameserver', creategame=arg)
-        games = db.Game.objects.filter(
-            host=self.player, state=db.Game.IN_PROGRESS)
+        games = db.Game.objects.filter(host=self.player, state=db.Game.IN_PROGRESS)
         self.assertTrue(games.exists())
         game = games[0]
         self.assertEqual(game.host, self.player)
@@ -1191,14 +1180,9 @@ class GameServerTest(BaseTestCase):
         game.end()
         num_airports = 91
         num_goals = 14
-        arg = '{0}:{1}:{2}'.format(
-            self.player.username,
-            num_airports,
-            num_goals,
-        )
+        arg = '{0}:{1}:{2}'.format(self.player.username, num_airports, num_goals,)
         management.call_command('gameserver', creategame=arg)
-        games = db.Game.objects.filter(
-            host=self.player, state=db.Game.IN_PROGRESS)
+        games = db.Game.objects.filter(host=self.player, state=db.Game.IN_PROGRESS)
         self.assertTrue(games.exists())
         game = games[0]
         self.assertEqual(game.host, self.player)

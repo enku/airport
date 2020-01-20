@@ -60,8 +60,7 @@ class CancelledFlightMonkeyWrenchTest(MonkeyWrenchTestBase):
         mw.throw()
 
         # Then a flight gets cancelled
-        cancelled = models.Flight.objects.filter(game=self.game,
-                                                 state='Cancelled')
+        cancelled = models.Flight.objects.filter(game=self.game, state='Cancelled')
         self.assertTrue(mw.thrown)
         self.assertTrue(cancelled.exists())
 
@@ -91,15 +90,11 @@ class AllFlightsFromAirportDelayedMonkeyWrenchTest(MonkeyWrenchTestBase):
         # Then all flights from an airport are delayed
         self.assertTrue(mw.thrown)
         delayed_flights = models.Flight.objects.filter(
-            depart_time__gt=self.now,
-            state='Delayed',
-            game=self.game
+            depart_time__gt=self.now, state='Delayed', game=self.game
         )
         airport = delayed_flights[0].origin
         airport_flights = models.Flight.objects.filter(
-            depart_time__gt=self.now,
-            game=self.game,
-            origin=airport
+            depart_time__gt=self.now, game=self.game, origin=airport
         )
 
         for flight in airport_flights:
@@ -117,15 +112,11 @@ class AllFlightsFromAirportCancelledMonkeyWrenchTest(MonkeyWrenchTestBase):
         # Then all flights from an airport are cancelled
         self.assertTrue(mw.thrown)
         delayed_flights = models.Flight.objects.filter(
-            depart_time__gt=self.now,
-            state='Cancelled',
-            game=self.game
+            depart_time__gt=self.now, state='Cancelled', game=self.game
         )
         airport = delayed_flights[0].origin
         airport_flights = models.Flight.objects.filter(
-            depart_time__gt=self.now,
-            game=self.game,
-            origin=airport
+            depart_time__gt=self.now, game=self.game, origin=airport
         )
 
         for flight in airport_flights:
@@ -134,6 +125,7 @@ class AllFlightsFromAirportCancelledMonkeyWrenchTest(MonkeyWrenchTestBase):
 
 class HintMonkeyWrenchTest(MonkeyWrenchTestBase):
     """Hint MonkeyWrench"""
+
     def test_throw(self):
         # given the monkeywrench
         mw = monkeywrench.Hint(self.game)
@@ -157,6 +149,7 @@ class HintMonkeyWrenchTest(MonkeyWrenchTestBase):
 
 class FullFlightMonkeyWrenchTest(MonkeyWrenchTestBase):
     """FullFlight MonkeyWrench()"""
+
     def test_throw(self):
         # given the FullFlight monkeywrench
         mw = monkeywrench.FullFlight(self.game, self.now)
@@ -167,15 +160,14 @@ class FullFlightMonkeyWrenchTest(MonkeyWrenchTestBase):
         # then a flight fills
         self.assertTrue(mw.thrown)
         flights = models.Flight.objects.filter(
-            game=self.game,
-            depart_time__gt=self.now,
-            full=True
+            game=self.game, depart_time__gt=self.now, full=True
         )
         self.assertEqual(flights.count(), 1)
 
 
 class TSAMonkeyWrenchTest(MonkeyWrenchTestBase):
     """TSA MonkeyWrench"""
+
     def test_throw(self):
         # Given the monkeywrench
         mw = monkeywrench.TSA(self.game, self.now)
@@ -183,8 +175,7 @@ class TSAMonkeyWrenchTest(MonkeyWrenchTestBase):
 
         # and the flight taking off within 60 minutes
         flight = models.Flight.objects.filter(
-            game=self.game,
-            origin=self.game.start_airport,
+            game=self.game, origin=self.game.start_airport,
         )[0]
         flight.depart_time = self.now + datetime.timedelta(minutes=30)
         flight.arrival_time = self.now + datetime.timedelta(minutes=90)
@@ -208,21 +199,23 @@ class TSAMonkeyWrenchTest(MonkeyWrenchTestBase):
         message = message.text
         self.assertEqual(
             message,
-            ('Someone reported you as suspicious and you have been removed'
-             ' from the plane.')
+            (
+                'Someone reported you as suspicious and you have been removed'
+                ' from the plane.'
+            ),
         )
 
 
 class TailWindMonkeyWrenchTest(BaseTestCase):
     """HeadWind wrench."""
+
     @patch('airport.lib.send_message')
     def test_TailWind(self, send_message):
         # let's make sure at least one flight is in the air
         self.game.begin()
         now = lib.take_turn(self.game, throw_wrench=False)
         airport = self.game.start_airport
-        flights_out = airport.next_flights(now, future_only=True,
-                                           auto_create=False)
+        flights_out = airport.next_flights(now, future_only=True, auto_create=False)
 
         flights_out.sort(key=lambda x: x.depart_time)
         flight = flights_out[0]

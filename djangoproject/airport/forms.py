@@ -7,8 +7,7 @@ class CreateGameForm(forms.Form):
     goals = forms.IntegerField(min_value=1, max_value=5, initial=1)
     airports = forms.IntegerField(min_value=1, initial=1)
     ai_player = forms.ChoiceField(
-        initial='Yes',
-        choices=(('Yes', 'Yes'), ('No', 'No')),
+        initial='Yes', choices=(('Yes', 'Yes'), ('No', 'No')),
     )
     start_lat = forms.FloatField(required=False)
     start_lon = forms.FloatField(required=False)

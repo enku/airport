@@ -16,6 +16,7 @@ from airport.tests import BaseTestCase
 
 class AirportMasterTest(BaseTestCase):
     """Tests for the AirportMaster model"""
+
     def test_str(self):
         """str()"""
         # Given the master airport
@@ -31,6 +32,7 @@ class AirportMasterTest(BaseTestCase):
 class AirportTest(BaseTestCase):
 
     """Test the Airport model."""
+
     def test_get_destinations(self):
         # test the "get_destinations()" method
         airport = self.game.airports.all()[0]
@@ -50,12 +52,10 @@ class AirportTest(BaseTestCase):
         used_cities = models.Airport.objects.filter(game=self.game)
         used_cities = used_cities.values_list('master__city', flat=True)
 
-        available_airports = models.AirportMaster.objects.exclude(
-            city__in=used_cities)
+        available_airports = models.AirportMaster.objects.exclude(city__in=used_cities)
 
         airport_master = available_airports[0]
-        airport = models.Airport.objects.create(game=self.game,
-                                                master=airport_master)
+        airport = models.Airport.objects.create(game=self.game, master=airport_master)
 
         # Then when we call str() on it
         result = str(airport)
@@ -108,7 +108,8 @@ class AirportTest(BaseTestCase):
             origin=airport,
             destination=dest1,
             depart_time=time1,
-            flight_time=200)
+            flight_time=200,
+        )
 
         # flight 2
         models.Flight.objects.create(
@@ -116,16 +117,14 @@ class AirportTest(BaseTestCase):
             origin=airport,
             destination=dest2,
             depart_time=time2,
-            flight_time=200)
+            flight_time=200,
+        )
 
-        next_flights = airport.next_flights(now, future_only=True,
-                                            auto_create=False)
+        next_flights = airport.next_flights(now, future_only=True, auto_create=False)
         self.assertEqual(len(next_flights), 2)
-        next_flights = airport.next_flights(time1, future_only=True,
-                                            auto_create=False)
+        next_flights = airport.next_flights(time1, future_only=True, auto_create=False)
         self.assertEqual(len(next_flights), 1)
-        next_flights = airport.next_flights(time2, future_only=True,
-                                            auto_create=False)
+        next_flights = airport.next_flights(time2, future_only=True, auto_create=False)
         self.assertEqual(len(next_flights), 0)
 
     def test_next_flight_to(self):
@@ -144,7 +143,7 @@ class AirportTest(BaseTestCase):
             destination=dest,
             depart_time=now + datetime.timedelta(hours=1),
             flight_time=120,
-            arrival_time=now + datetime.timedelta(hours=3)
+            arrival_time=now + datetime.timedelta(hours=3),
         )
 
         # second flight starts an hour past the first
@@ -154,7 +153,7 @@ class AirportTest(BaseTestCase):
             destination=dest,
             depart_time=now + datetime.timedelta(hours=2),
             flight_time=120,
-            arrival_time=now + datetime.timedelta(hours=4)
+            arrival_time=now + datetime.timedelta(hours=4),
         )
 
         # when we call next_flight_to() the city
@@ -174,8 +173,7 @@ class AirportTest(BaseTestCase):
 
     def test_create_flights(self):
         airports = models.Airport.objects.filter(game=self.game)
-        airport = random.choice(airports.exclude(
-            id=self.game.start_airport.id))
+        airport = random.choice(airports.exclude(id=self.game.start_airport.id))
         destinations = airport.destinations.all()
 
         # we should only have the initial flights that were created at the
@@ -185,12 +183,10 @@ class AirportTest(BaseTestCase):
         self.assertEqual(flights.count(), 0)
 
         now = datetime.datetime(2011, 11, 20, 6, 43)
-        outgoing = models.Flight.objects.filter(game=self.game,
-                                                origin=airport)
+        outgoing = models.Flight.objects.filter(game=self.game, origin=airport)
         self.assertEqual(outgoing.count(), 0)
         airport.create_flights(now)
-        outgoing = models.Flight.objects.filter(game=self.game,
-                                                origin=airport)
+        outgoing = models.Flight.objects.filter(game=self.game, origin=airport)
         self.assertNotEqual(outgoing.count(), 0)
 
         for flight in outgoing:
@@ -207,8 +203,7 @@ class AirportTest(BaseTestCase):
 
         # and a flight that departs at 9:50
         destination = airport.destinations.all()[0]
-        depart_time = datetime.datetime(
-            year=2015, month=3, day=12, hour=9, minute=50)
+        depart_time = datetime.datetime(year=2015, month=3, day=12, hour=9, minute=50)
         models.Flight.objects.create(
             game=self.game,
             origin=airport,
@@ -216,7 +211,7 @@ class AirportTest(BaseTestCase):
             number=666,
             depart_time=depart_time,
             arrival_time=depart_time + datetime.timedelta(minutes=120),
-            flight_time=120
+            flight_time=120,
         )
 
         # when the time is 9:45 (i.e. the flight has departed)
@@ -224,8 +219,7 @@ class AirportTest(BaseTestCase):
 
         # when when we call create_flights
         # you'll see why i'm mocking this later
-        mock_random_time.return_value = depart_time + datetime.timedelta(
-            minutes=30)
+        mock_random_time.return_value = depart_time + datetime.timedelta(minutes=30)
         flights = airport.create_flights(now)
 
         # then the next flight to the destination will not depart before 10:10
@@ -247,14 +241,10 @@ class GameManagerTest(TransactionTestCase):
         """Ensure games doesn't have duplicate airports"""
         for i in range(10):
             user = User.objects.create_user(
-                username='user%s' % i,
-                email='user%s@test.com' % i,
-                password='test'
+                username='user%s' % i, email='user%s@test.com' % i, password='test'
             )
             game = models.Game.objects.create_game(
-                host=user.player,
-                goals=1,
-                airports=random.randint(10, 50)
+                host=user.player, goals=1, airports=random.randint(10, 50)
             )
             codes = game.airports.values_list('master__code', flat=True)
             self.assertEqual(len(set(codes)), len(codes))
@@ -263,16 +253,15 @@ class GameManagerTest(TransactionTestCase):
         player = BaseTestCase.create_players(1)[0]
 
         game = models.Game.objects.create_game(
-            host=player,
-            goals=4,
-            airports=10,
-            density=2)
+            host=player, goals=4, airports=10, density=2
+        )
 
         self.assertEqual(game.airports.count(), 10)
 
 
 class GamePause(BaseTestCase):
     """Test the pausing/resuming of a game"""
+
     def setUp(self):
         self.players = self.create_players(2)
 
@@ -285,8 +274,9 @@ class GamePause(BaseTestCase):
 
     def test_pause_method(self):
         """Test the pause method"""
-        game = models.Game.objects.create_game(host=self.players[0],
-                                               goals=1, airports=10)
+        game = models.Game.objects.create_game(
+            host=self.players[0], goals=1, airports=10
+        )
         game.begin()
         game.pause()
 
@@ -294,8 +284,9 @@ class GamePause(BaseTestCase):
 
     def test_game_time_doesnt_change(self):
         """Test that the game time doesn't change when paused"""
-        game = models.Game.objects.create_game(host=self.players[0],
-                                               goals=1, airports=10)
+        game = models.Game.objects.create_game(
+            host=self.players[0], goals=1, airports=10
+        )
         game.begin()
         game.pause()
         orig_time = game.time
@@ -305,8 +296,9 @@ class GamePause(BaseTestCase):
 
     def test_info_view(self):
         """Test the info view of a paused game"""
-        game = models.Game.objects.create_game(host=self.players[0],
-                                               goals=1, airports=10)
+        game = models.Game.objects.create_game(
+            host=self.players[0], goals=1, airports=10
+        )
         game.begin()
         game.pause()
 
@@ -317,8 +309,9 @@ class GamePause(BaseTestCase):
 
     def test_ticket_purchase(self):
         """Ensure you can't purchase tickets on a paused game"""
-        game = models.Game.objects.create_game(host=self.players[0],
-                                               goals=1, airports=10)
+        game = models.Game.objects.create_game(
+            host=self.players[0], goals=1, airports=10
+        )
         game.begin()
         game.pause()
 
@@ -327,18 +320,16 @@ class GamePause(BaseTestCase):
         flight = flights[0]
 
         self.assertRaises(
-            game.Paused,
-            self.players[0].purchase_flight,
-            flight,
-            game.time
+            game.Paused, self.players[0].purchase_flight, flight, game.time
         )
 
     @patch('airport.lib.send_message')
     def test_in_flight(self, send_message):
         """Test that you are paused in-flight"""
 
-        game = models.Game.objects.create_game(host=self.players[0],
-                                               goals=1, airports=10)
+        game = models.Game.objects.create_game(
+            host=self.players[0], goals=1, airports=10
+        )
         game.begin()
 
         airport = game.start_airport
@@ -356,20 +347,23 @@ class GamePause(BaseTestCase):
 
     def test_game_join(self):
         """Assure that you can still join a game while paused"""
-        game = models.Game.objects.create_game(host=self.players[0],
-                                               goals=1, airports=10)
+        game = models.Game.objects.create_game(
+            host=self.players[0], goals=1, airports=10
+        )
         game.begin()
         game.pause()
 
         game.add_player(self.players[1])
-        self.assertEqual(set(game.players.filter(ai_player=False)),
-                         set([self.players[0], self.players[1]])
-                         )
+        self.assertEqual(
+            set(game.players.filter(ai_player=False)),
+            set([self.players[0], self.players[1]]),
+        )
 
     def test_active_game_status(self):
         """Assert that the game status shows the game as paused"""
-        game = models.Game.objects.create_game(host=self.players[0],
-                                               goals=1, airports=10)
+        game = models.Game.objects.create_game(
+            host=self.players[0], goals=1, airports=10
+        )
         game.begin()
         game.pause()
 
@@ -377,15 +371,15 @@ class GamePause(BaseTestCase):
         self.client.login(username=user2.username, password='test')
         response = self.client.get(reverse('games_info'))
         response = json.loads(response.content.decode('utf-8'))
-        response_game = list(filter(lambda x: x['id'] == game.id,
-                                    response['games']))[0]
+        response_game = list(filter(lambda x: x['id'] == game.id, response['games']))[0]
 
         self.assertEqual(response_game['status'], 'Paused')
 
     def test_resume(self):
         """Assert that resume works and the time doesn't fast-forward"""
-        game = models.Game.objects.create_game(host=self.players[0],
-                                               goals=1, airports=10)
+        game = models.Game.objects.create_game(
+            host=self.players[0], goals=1, airports=10
+        )
         game.begin()
         game.pause()
 
@@ -399,6 +393,7 @@ class GamePause(BaseTestCase):
 
 class CreateGameTest(BaseTestCase):
     """Tests for the create_game() method"""
+
     def test_with_start_airport(self):
         self.game.end()
 
@@ -408,11 +403,7 @@ class CreateGameTest(BaseTestCase):
 
         # When we call create_airport telling it to start there
         game = models.Game.objects.create_game(
-            self.player,
-            1,
-            10,
-            ai_player=False,
-            start=start_airport
+            self.player, 1, 10, ai_player=False, start=start_airport
         )
 
         # Then it starts there
@@ -492,7 +483,8 @@ class FlightTest(BaseTestCase):
             origin=airport,
             destination=destination,
             depart_time=depart_time,
-            flight_time=flight_time)
+            flight_time=flight_time,
+        )
 
         now = datetime.datetime(2011, 11, 18, 4, 0)
         self.assertFalse(flight.in_flight(now))
@@ -601,23 +593,36 @@ class FlightTest(BaseTestCase):
             origin=airport,
             destination=destination,
             depart_time=depart_time,
-            flight_time=flight_time)
+            flight_time=flight_time,
+        )
 
         now = datetime.datetime(2011, 11, 18, 4, 0)
 
         d = flight.to_dict(now)
         self.assertEqual(type(d), dict)
-        self.assertEqual(sorted(d.keys()), sorted([
-            'number', 'depart_time', 'arrival_time', 'destination',
-            'id', 'origin', 'status']))
+        self.assertEqual(
+            sorted(d.keys()),
+            sorted(
+                [
+                    'number',
+                    'depart_time',
+                    'arrival_time',
+                    'destination',
+                    'id',
+                    'origin',
+                    'status',
+                ]
+            ),
+        )
         self.assertEqual(d['status'], 'On Time')
 
         now = datetime.datetime(2011, 11, 18, 4, 45)
         d = flight.to_dict(now)
         self.assertEqual(d['status'], 'Boarding')
 
-        flight.delay(datetime.timedelta(minutes=20),
-                     datetime.datetime(2011, 11, 18, 4, 0))
+        flight.delay(
+            datetime.timedelta(minutes=20), datetime.datetime(2011, 11, 18, 4, 0)
+        )
         d = flight.to_dict(now)
         self.assertEqual(d['status'], 'Delayed')
 
@@ -634,8 +639,9 @@ class FlightTest(BaseTestCase):
             for flight in source.next_flights(now):
                 destination = flight.destination
                 s2d = flight.flight_time
-                d2s = [i for i in destination.next_flights(now)
-                       if i.destination == source][0].flight_time
+                d2s = [
+                    i for i in destination.next_flights(now) if i.destination == source
+                ][0].flight_time
                 # We use assertAlmostEqual to compensate for rounding (integer
                 # division)
                 self.assertAlmostEqual(s2d, d2s, delta=1)
@@ -646,7 +652,7 @@ class FlightTest(BaseTestCase):
             game=self.game,
             origin=self.game.start_airport,
             destination=self.game.start_airport.destinations.all()[0],
-            depart_time=self.game.time
+            depart_time=self.game.time,
         )
 
         # when we call .get_flight_number()
@@ -674,6 +680,7 @@ class FlightTest(BaseTestCase):
 
 class PlayerTest(BaseTestCase):
     """Test the Player model"""
+
     def setUp(self):
         self.players = self.create_players(2)
         self.player = self.players[0]
@@ -729,14 +736,14 @@ class PlayerTest(BaseTestCase):
         self.assertEqual(player.airport, self.game.start_airport)
         self.assertEqual(player.ticket, None)
 
-        airport = random.choice(models.Airport.objects.exclude(
-            pk=player.airport.pk))
+        airport = random.choice(models.Airport.objects.exclude(pk=player.airport.pk))
         airport.create_flights(now)
         flight = random.choice(airport.flights.all())
 
         # assert we can't buy the ticket (flight) if we're not at the airport
-        self.assertRaises(models.Flight.NotAtDepartingAirport,
-                          player.purchase_flight, flight, now)
+        self.assertRaises(
+            models.Flight.NotAtDepartingAirport, player.purchase_flight, flight, now
+        )
 
         player.airport = airport
         player.save()
@@ -744,11 +751,11 @@ class PlayerTest(BaseTestCase):
         # attempt to buy a flight while in flight
         player.purchase_flight(flight, now)
         now = flight.depart_time
-        next_flights = airport.next_flights(now, future_only=True,
-                                            auto_create=True)
+        next_flights = airport.next_flights(now, future_only=True, auto_create=True)
         flight2 = random.choice(next_flights)
-        self.assertRaises(models.Flight.AlreadyDeparted,
-                          player.purchase_flight, flight2, now)
+        self.assertRaises(
+            models.Flight.AlreadyDeparted, player.purchase_flight, flight2, now
+        )
 
         # ok let's land
         now = flight.arrival_time + datetime.timedelta(minutes=1)
@@ -761,12 +768,14 @@ class PlayerTest(BaseTestCase):
         now = now + datetime.timedelta(minutes=60)
 
         # find a flight that's already departed
-        flight3 = random.choice(airport.flights.filter(game=self.game,
-                                                       depart_time__lte=now))
+        flight3 = random.choice(
+            airport.flights.filter(game=self.game, depart_time__lte=now)
+        )
 
         # try to buy it
-        self.assertRaises(models.Flight.AlreadyDeparted,
-                          player.purchase_flight, flight3, now)
+        self.assertRaises(
+            models.Flight.AlreadyDeparted, player.purchase_flight, flight3, now
+        )
 
     def test_current_game_no_games_created(self):
         player = self.players[1]
@@ -777,8 +786,7 @@ class PlayerTest(BaseTestCase):
         player = self.players[0]
         player2 = self.players[1]
 
-        game = models.Game.objects.create_game(host=player, goals=1,
-                                               airports=10)
+        game = models.Game.objects.create_game(host=player, goals=1, airports=10)
         self.assertEqual(player.current_game, game)
         self.assertEqual(player.current_game.state, game.NOT_STARTED)
 
@@ -797,8 +805,7 @@ class PlayerTest(BaseTestCase):
     def test_current_game_game_over(self, send_message):
         self.game.end()
         player = self.players[0]
-        game = models.Game.objects.create_game(host=player, goals=1,
-                                               airports=10)
+        game = models.Game.objects.create_game(host=player, goals=1, airports=10)
 
         game.begin()
         self.assertEqual(player.current_game, game)
@@ -816,10 +823,7 @@ class AIPlayerTest(BaseTestCase):
         """AI Player is optional"""
         self.game.end()
         game = models.Game.objects.create_game(
-            ai_player=True,
-            host=self.player,
-            goals=1,
-            airports=10
+            ai_player=True, host=self.player, goals=1, airports=10
         )
 
         ai_player = game.players.filter(ai_player=True)
@@ -827,10 +831,7 @@ class AIPlayerTest(BaseTestCase):
         game.end()
 
         game = models.Game.objects.create_game(
-            ai_player=False,
-            host=self.player,
-            goals=1,
-            airports=10
+            ai_player=False, host=self.player, goals=1, airports=10
         )
 
         ai_player = game.players.filter(ai_player=True)
@@ -844,11 +845,7 @@ class AIPlayerTest(BaseTestCase):
         self.client.login(username='user1', password='test')
 
         # first try with an ai player
-        form = {
-            'goals': 1,
-            'airports': 20,
-            'ai_player': 'Yes'
-        }
+        form = {'goals': 1, 'airports': 20, 'ai_player': 'Yes'}
 
         self.client.post(url, form)
         self.assertTrue(send_message.called)
@@ -862,11 +859,7 @@ class AIPlayerTest(BaseTestCase):
         game.end()
 
         # now try with out an ai player
-        form = {
-            'goals': 1,
-            'airports': 20,
-            'ai_player': 'No'
-        }
+        form = {'goals': 1, 'airports': 20, 'ai_player': 'No'}
 
         self.client.post(url, form)
 
@@ -883,10 +876,7 @@ class AIPlayerTest(BaseTestCase):
         self.game.end()
         # given the game with ai player
         game = models.Game.objects.create_game(
-            ai_player=True,
-            host=self.player,
-            goals=1,
-            airports=10
+            ai_player=True, host=self.player, goals=1, airports=10
         )
         ai_player = game.players.get(ai_player=True)
 
@@ -894,8 +884,7 @@ class AIPlayerTest(BaseTestCase):
         game.begin()
         airport = game.start_airport
         now = lib.take_turn(game)
-        flights_out = airport.next_flights(now, future_only=True,
-                                           auto_create=False)
+        flights_out = airport.next_flights(now, future_only=True, auto_create=False)
         for flight in flights_out[:-1]:
             flight.cancel(now)
         last_flight = flights_out[-1]
@@ -964,8 +953,7 @@ class Messages(BaseTestCase):
 
         messages = []
         for i in range(6):
-            messages.append(models.Message.objects.send(
-                self.player, 'Test %s' % i))
+            messages.append(models.Message.objects.send(self.player, 'Test %s' % i))
 
         self.client.login(username='user1', password='test')
         response = self.client.get(view)
@@ -978,24 +966,24 @@ class Messages(BaseTestCase):
 
         # first, we need a player to finish a game
         player = self.player
-        game = models.Game.objects.create_game(host=player, goals=1,
-                                               airports=4, density=1)
+        game = models.Game.objects.create_game(
+            host=player, goals=1, airports=4, density=1
+        )
         game.begin()
         goal = models.Goal.objects.get(game=game)
-        models.Message.objects.broadcast('this is test1',
-                                         finishers=False)
+        models.Message.objects.broadcast('this is test1', finishers=False)
         messages = models.Message.objects.get_messages(player, read=False)
         self.assertEqual(messages[0].text, 'this is test1')
 
         # finish
         my_achievement = models.Achievement.objects.get(
-            game=game, player=player, goal=goal)
+            game=game, player=player, goal=goal
+        )
         my_achievement.timestamp = game.time
         my_achievement.save()
 
         # send a broadcast with finishers=False
-        models.Message.objects.broadcast('this is test2', game,
-                                         finishers=False)
+        models.Message.objects.broadcast('this is test2', game, finishers=False)
         messages = models.Message.objects.get_messages(player, read=False)
         self.assertNotEqual(messages[0].text, 'this is test2')
 
@@ -1007,6 +995,7 @@ class Messages(BaseTestCase):
 
 class Cities(BaseTestCase):
     """Test the Cities module"""
+
     def test_images(self):
         """Test that all cities have images"""
         for city in models.City.objects.all():
@@ -1055,7 +1044,7 @@ class Cities(BaseTestCase):
         expected = models.City.get_flight_time(
             models.City.objects.get(name='Dallas'),
             models.City.objects.get(name='Raleigh'),
-            speed
+            speed,
         )
         self.assertEqual(result, expected)
 
@@ -1069,8 +1058,10 @@ class Cities(BaseTestCase):
         # then we get the airports for that city
         self.assertEqual(
             set(airports),
-            {models.AirportMaster.objects.get(code='DFW'),
-             models.AirportMaster.objects.get(code='DAL')}
+            {
+                models.AirportMaster.objects.get(code='DFW'),
+                models.AirportMaster.objects.get(code='DAL'),
+            },
         )
 
     def test_distance_from_coordinates(self):

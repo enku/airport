@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 
+
 class AirportAppConfig(AppConfig):
     label = 'airport'
     name = 'airport'

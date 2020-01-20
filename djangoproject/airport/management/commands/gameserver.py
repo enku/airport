@@ -10,6 +10,7 @@ from airport import lib, logger, models
 class Command(BaseCommand):
 
     """Airport Game Server"""
+
     args = '[--forcequit=game_id]'
     help = 'Airport Game Server'
 
@@ -22,29 +23,33 @@ class Command(BaseCommand):
             metavar='GAMEID',
         ),
         make_option(
-            '--pause', '-p',
+            '--pause',
+            '-p',
             type='int',
             help='Pause a game (use "0" to pause all active games.',
             metavar='GAMEID',
         ),
         make_option(
-            '--resume', '-r',
+            '--resume',
+            '-r',
             type='int',
             help='Resume a game (use "0" to resume all paused games.',
             metavar='GAMEID',
         ),
         make_option(
-            '--creategame', '-c',
+            '--creategame',
+            '-c',
             type='str',
             help='Create a game with specified host[:airports[:goals]].',
             metavar='USER[:AIRPORTS[:GOALS]]',
         ),
         make_option(
-            '--deletegame', '-d',
+            '--deletegame',
+            '-d',
             type='int',
             help='Delete a game.  Use with caution!',
             metavar='GAMEID',
-        )
+        ),
     )
 
     def handle(self, *args, **options):
@@ -53,7 +58,8 @@ class Command(BaseCommand):
             logger.info('Shutting down {0}.'.format(game))
             msg = '{0} is being forced to quit.'.format(game)
             models.Message.objects.broadcast(
-                msg, game=game, finishers=True, message_type='ERROR')
+                msg, game=game, finishers=True, message_type='ERROR'
+            )
             # give the broadcast a few seconds to get received
             sleep(4.0)
             game.end()
@@ -111,7 +117,8 @@ def pause_games(game_id):
         lib.game_pause(game)
         msg = '{0} paused by administrator.'.format(game)
         models.Message.objects.broadcast(
-            msg, game=game, finishers=False, message_type='ERROR')
+            msg, game=game, finishers=False, message_type='ERROR'
+        )
         lib.send_message('game_paused', game.pk)
         games_affected.add(game)
     return games_affected
@@ -136,7 +143,8 @@ def resume_games(game_id):
         lib.game_resume(game)
         msg = '{0} resumed by administrator.'.format(game)
         models.Message.objects.broadcast(
-            msg, game=game, finishers=False, message_type='ERROR')
+            msg, game=game, finishers=False, message_type='ERROR'
+        )
         lib.send_message('game_paused', game.pk)
         games_affected.add(game)
     return games_affected
@@ -164,10 +172,7 @@ def create_game(*args):
         pass
 
     game = models.Game.objects.create_game(
-        host=player,
-        goals=num_goals,
-        airports=num_airports,
-        ai_player=True,
+        host=player, goals=num_goals, airports=num_airports, ai_player=True,
     )
 
     lib.send_message('game_created', game.pk)

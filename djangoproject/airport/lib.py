@@ -139,8 +139,9 @@ def handle_players(game, now, winners_before, arrivals):
         if not player_info['finished'] or player.pk in arrivals:
             send_message('info', player_info)
 
-    winners = models.Player.objects.winners(game).values_list('user__username',
-                                                              flat=True)
+    winners = models.Player.objects.winners(game).values_list(
+        'user__username', flat=True
+    )
     if not winners_before and winners:
         if len(winners) == 1:
             msg = '{0} has won {1}.'
@@ -214,7 +215,6 @@ def get_user_from_session_id(session_id):
 
 
 class WebSocketConnection(websocket.WebSocketHandler):
-
     def on_message(self, message):
         """Handle message"""
         message = json.loads(message)
@@ -270,12 +270,7 @@ class SocketHandler(WebSocketConnection):
         for client in clients:
             if message_type == 'info' and client.page != 'home':
                 continue
-            client.write_message(json.dumps(
-                {
-                    'type': message_type,
-                    'data': data,
-                }
-            ))
+            client.write_message(json.dumps({'type': message_type, 'data': data,}))
         return len(clients)
 
     @classmethod
@@ -284,12 +279,7 @@ class SocketHandler(WebSocketConnection):
         for client in cls.clients:
             if client in exclude:
                 continue
-            client.write_message(json.dumps(
-                {
-                    'type': message_type,
-                    'data': data,
-                }
-            ))
+            client.write_message(json.dumps({'type': message_type, 'data': data,}))
 
     @classmethod
     def games_info(cls):
@@ -301,12 +291,7 @@ class SocketHandler(WebSocketConnection):
             if client.user and client.user.player.current_game:
                 data.update(client.user.player.game_info())
 
-            client.write_message(json.dumps(
-                {
-                    'type': 'games_info',
-                    'data': data,
-                }
-            ))
+            client.write_message(json.dumps({'type': 'games_info', 'data': data,}))
 
     def handle_page(self, page):
         self.page = page
@@ -316,6 +301,7 @@ class IPCHandler(WebSocketConnection):
     """
     WebSocketHandler for ipc messages.
     """
+
     conn = None
 
     def open(self):
@@ -343,11 +329,11 @@ class IPCHandler(WebSocketConnection):
 
     @staticmethod
     def get_conn():
-        url = 'ws://%s:%s/ipc' % (settings.GAMESERVER_HOST,
-                                  settings.WEBSOCKET_PORT)
+        url = 'ws://%s:%s/ipc' % (settings.GAMESERVER_HOST, settings.WEBSOCKET_PORT)
         ioloop = tornado.ioloop.IOLoop()
-        conn = ioloop.run_sync(functools.partial(
-            tornado.websocket.websocket_connect, url))
+        conn = ioloop.run_sync(
+            functools.partial(tornado.websocket.websocket_connect, url)
+        )
         return conn
 
     @classmethod
@@ -356,15 +342,13 @@ class IPCHandler(WebSocketConnection):
         Create a websocket connection and send a message to the handler.
         """
         cls.conn = cls.conn or cls.get_conn()
-        cls.conn.write_message(json.dumps(
-            {
-                'type': message_type,
-                'key': django_settings.SECRET_KEY,
-                'data': data,
-            }
-        ))
+        cls.conn.write_message(
+            json.dumps(
+                {'type': message_type, 'key': django_settings.SECRET_KEY, 'data': data,}
+            )
+        )
 
-# - Message Handlers ----------------------------------------------------------
+    # - Message Handlers ----------------------------------------------------------
     def handle_info(self, info):
         """Handler for "info" data"""
         user = User.objects.get(username=info['player'])
@@ -409,7 +393,7 @@ class IPCHandler(WebSocketConnection):
         data = {
             'games': models.Game.games_info(),
             'current_game': None,
-            'current_state': 'open'
+            'current_state': 'open',
         }
 
         SocketHandler.message(player.user, 'info', data)
@@ -432,6 +416,8 @@ class IPCHandler(WebSocketConnection):
         user = User.objects.get(username=username)
         message = data['message']
         SocketHandler.message(user, 'message', message)
+
+
 # -----------------------------------------------------------------------------
 
 
@@ -441,14 +427,12 @@ class SocketServer(threading.Thread):
 
     This server will handle WebSocket requests
     """
+
     daemon = True
 
     def run(self):
         logger.debug('%s has started' % self.name)
-        self.application = Application([
-            (r'/', SocketHandler),
-            (r'/ipc', IPCHandler),
-        ])
+        self.application = Application([(r'/', SocketHandler), (r'/ipc', IPCHandler),])
         self.application.listen(settings.WEBSOCKET_PORT)
         IOLoop.instance().start()
 
@@ -461,6 +445,7 @@ class SocketServer(threading.Thread):
 class GameThread(GameThreadClass):
 
     """A threaded loop that runs a game"""
+
     daemon = False
 
     def run(self):
@@ -501,13 +486,14 @@ class GameThread(GameThreadClass):
 
     def send_messages(self):
         # send all player messages (via IPC)
-        msgs_to_send = models.Message.objects.filter(
-            read=False).order_by('player', 'creation_time')
+        msgs_to_send = models.Message.objects.filter(read=False).order_by(
+            'player', 'creation_time'
+        )
         for message in msgs_to_send:
             user = message.player.user
             IPCHandler.send_message(
                 'player_message',
-                {'player': user.username, 'message': message.to_dict()}
+                {'player': user.username, 'message': message.to_dict()},
             )
             message.mark_read()
 
@@ -529,8 +515,7 @@ class GameThread(GameThreadClass):
                 player.ticket = None
             else:
                 airports = models.Airport.objects.filter(
-                    game=game,
-                    code__in=TEXAS_AIRPORTS
+                    game=game, code__in=TEXAS_AIRPORTS
                 )
                 if airports.exists():
                     player.airport = airports[0]
@@ -559,7 +544,7 @@ class MonkeyWrenchGenerator(object):
 
     def _set_throw(self):
         self.throw_wrench = True
-        threading.Timer(random.randint(1, self.max_wait),
-                        self._set_throw).start()
+        threading.Timer(random.randint(1, self.max_wait), self._set_throw).start()
+
 
 TEXAS_AIRPORTS = ('DFW', 'IAH', 'AUS', 'HOU', 'SAT', 'DAL', 'ELP')

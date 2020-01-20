@@ -1,6 +1,6 @@
 """Unit tests for airport"""
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test import TestCase
 
 from airport import models
 
@@ -29,9 +29,7 @@ class BaseTestCase(TestCase):
         players = []
         for i in range(1, num_players + 1):
             user = User.objects.create_user(
-                username='user%s' % i,
-                email='user%s@test.com' % i,
-                password='test'
+                username='user%s' % i, email='user%s@test.com' % i, password='test'
             )
             player = models.Player()
             player.user = user
@@ -44,4 +42,5 @@ class BaseTestCase(TestCase):
         """Create a game hostedy by host"""
 
         return models.Game.objects.create_game(
-            host=host, goals=goals, airports=airports)
+            host=host, goals=goals, airports=airports
+        )

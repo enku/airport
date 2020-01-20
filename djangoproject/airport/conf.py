@@ -24,7 +24,6 @@ DEFAULTS = {
     'GAMESERVER_MULTIPROCESSING': False,
     'GAMESERVER_HOST': 'localhost',
     'TIMEFACTOR': 60,
-
     'EXTERNALS': {
         'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js',
         'jquery_ui': 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js',
@@ -49,7 +48,6 @@ DEFAULTS = {
         'button_click': 'http://soundbible.com/mp3/Air%20Plane%20Ding-SoundBible.com-496729130.mp3',
         'pause_icon': 'http://icons.iconarchive.com/icons/icons-land/play-stop-pause/256/Pause-Normal-icon.png',
         'green_dot': 'http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png',
-
         # message sounds
         'message_MONKEYWRENCH_sound': 'http://www.freesound.org/data/previews/17/17468_57789-lq.mp3',
         'message_ERROR_sound': 'http://www.freesound.org/data/previews/17/17468_57789-lq.mp3',
@@ -58,7 +56,6 @@ DEFAULTS = {
         'message_GAMEOVER_sound': 'http://www.freesound.org/data/previews/42/42349_81909-lq.mp3',
         'message_WINNER_sound': 'http://soundbible.com/mp3/Ta%20Da-SoundBible.com-1884170640.mp3',
         'message_NEWGAME_sound': 'http://soundbible.com/mp3/flyby-Conor-1500306612.mp3',
-
         # message icons
         'message_DEFAULT_icon': 'http://i.imgur.com/weyIX.png',
         'message_MONKEYWRENCH_icon': 'http://i.imgur.com/lmbJs.png',
