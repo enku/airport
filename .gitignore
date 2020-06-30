@@ -1,0 +1,7 @@
+*.sqlite
+*.pyc
+settings_local.py
+.ropeproject/
+.coverage
+htmlcov/
+.tox/
